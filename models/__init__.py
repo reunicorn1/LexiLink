@@ -8,9 +8,12 @@ Attrs:
 from models.engine.FileStorage import FileStorage
 from models.engine.DBStorage import DBStorage
 from os import getenv
+from dotenv import load_dotenv
 
 
-db = (False, True)['db' == getenv("HBNB_TYPE_STORAGE")]
+load_dotenv()
+env = getenv("LEXILINK_TYPE_STORAGE")
+db = (False, True)['db' == env]
 
 if db:
     storage = DBStorage()

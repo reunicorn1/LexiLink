@@ -5,7 +5,13 @@ from uuid import uuid4
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from os import getenv
+from dotenv import load_dotenv
 
+
+load_dotenv()
+env = getenv("LEXILINK_TYPE_STORAGE")
+db = (False, True)['db' == env]
 Base = declarative_base()
 
 
@@ -19,8 +25,8 @@ class BaseModel:
         '''Instantiate an instance'''
         self.id = str(uuid4())
         if not len(kwargs):
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
+            self.created_at = datetime.utcnow()
+            self.updated_at = datetime.utcnow()
             return
         for k, v in kwargs.items():
             if k != '__class__':
@@ -29,11 +35,11 @@ class BaseModel:
 
     def save(self):
         '''updates the public instance attribute updated_at'''
-        from models import storage, db
+        from models import storage
         if db:
             self.updated_at = datetime.utcnow()
         else:
-            self.updated_at = datetime.now()
+            self.updated_at = datetime.utcnow()
         storage.new(self)
         storage.save()
 
@@ -73,9 +79,6 @@ def store(*args, **kw):
     Returns:
         decorated class.
     '''
-    from os import getenv
-
-    db = (False, True)['db' == getenv("LEXILINK_TYPE_STORAGE")]
 
     def decorate(cls):
         for k, v in kw.items():

@@ -11,7 +11,7 @@ import shlex
 import json
 from models import storage
 from models import db
-from models.UserModel import UserModel
+from models.StudentModel import StudentModel
 
 
 class LEXILINKCommand(cmd.Cmd):
@@ -25,7 +25,7 @@ class LEXILINKCommand(cmd.Cmd):
     """
 
     prompt = "(Lexilink) "
-    cls = { 'UserModel': UserModel,
+    cls = { 'StudentModel': StudentModel,
           }
 
     def precmd(self, line):

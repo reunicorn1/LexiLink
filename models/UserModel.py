@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Module defines `User` class'''
+'''Module defines `UserModel` class'''
 
 from models.BaseModel import BaseModel, store
 from sqlalchemy.orm import relationship
@@ -8,7 +8,7 @@ from sqlalchemy import Column, String
 
 @store(
         # 'reviews',
-        email=(Column(String(128), nullable=False), ''),
+        email=(Column(String(128), nullable=False, unique=True), ''),
         password=(Column(String(128), nullable=False), ''),
         first_name=(Column(String(128), nullable=False), ''),
         last_name=(Column(String(128), nullable=False), ''),

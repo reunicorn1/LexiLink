@@ -4,13 +4,19 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from os import getenv
 from models.BaseModel import Base
+from models.StudentModel import StudentModel
+from models.MentorModel import MentorModel
+from models.PaymentModel import PaymentModel
+from models.SessionModel import SessionModel
+from models.ReviewModel import ReviewModel
+
 
 env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
        'LEXILINK_MYSQL_HOST', 'LEXILINK_MYSQL_DB',
        'LEXILINK_TYPE_STORAGE', 'LEXILINK_ENV']
 
 classes = [
-        #User
+        StudentModel, MentorModel, PaymentModel, SessionModel, ReviewModel
         ]
 
 
@@ -40,8 +46,10 @@ class DBStorage:
         for e in env:
             MYSQL[e.split('_')[-1]] = getenv(e)
         # dialect+driver://username:password@host:port/database
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                                      .format(MYSQL['USER'], MYSQL['PWD'],
+        self.__engine = create_engine('{}+{}://{}:{}@{}/{}'
+                                      .format(MYSQL['DIALECT'],
+                                              MYSQL['DRIVER'],
+                                              MYSQL['USER'], MYSQL['PWD'],
                                               MYSQL['HOST'], MYSQL['DB']),
                                       pool_pre_ping=True)
         if MYSQL['ENV'] == 'test':

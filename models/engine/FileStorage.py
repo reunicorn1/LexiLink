@@ -39,13 +39,22 @@ class FileStorage:
 
     def reload(self):
         '''Deserializes the JSON file to __objects'''
+        from models.StudentModel import StudentModel
+        from models.MentorModel import MentorModel
+        from models.PaymentModel import PaymentModel
+        from models.SessionModel import SessionModel
+        from models.ReviewModel import ReviewModel
+
+
         try:
             with open(self.__file_path, 'r', encoding='utf-8') as file:
-                from models.base_model import BaseModel
 
                 cls = {
-                        'BaseModel': BaseModel,
-                        # 'User': User,
+                        'StudentModel': StudentModel,
+                        'MentorModel': MentorModel,
+                        'PaymentModel': PaymentModel,
+                        'SessionModel': SessionModel,
+                        'ReviewModel': ReviewModel,
                       }
                 for k, v in loads(file.read()).items():
                     self.__objects[k] = cls[v['__class__']](**v)
