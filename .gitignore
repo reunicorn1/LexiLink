@@ -1,0 +1,6 @@
+main
+main.py
+**/__pycache__
+*.json
+venv/
+requirements.txt
