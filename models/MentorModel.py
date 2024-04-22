@@ -4,7 +4,16 @@
 from models.UserModel import UserModel
 from models.BaseModel import Base, store
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Numeric, Enum
+from sqlalchemy import Column, String, Numeric, Enum, ForeignKey
+
+
+class StudentMentors(Base):
+    '''StudentFavoriteMentors class Association Table.'''
+    __tablename__ = 'Student_Mentors'
+    student_id = Column(String(60), ForeignKey('Student_Model.id'),
+                        primary_key=True)
+    mentor_id = Column(String(60), ForeignKey('Mentor_Model.id'),
+                        primary_key=True)
 
 
 choices = ('Community', 'Professional')
@@ -18,9 +27,10 @@ choices = ('Community', 'Professional')
             default=0), 0),
         availability=(Column(String(255), nullable=True), ''),
         demo_video=(Column(String(255), nullable=True), ''),
-        students=(relationship('StudentModel', backref='mentors',
-                    cascade='all, delete-orphan', lazy='dynamic'), [])
-        )
+        students=(relationship('StudentModel',
+                    secondary='Student_Mentors',
+                    lazy='dynamic'), [])
+                    )
 class MentorModel(UserModel, Base):
     '''MentorModel class.
 

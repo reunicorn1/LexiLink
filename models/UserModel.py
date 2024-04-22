@@ -4,7 +4,7 @@
 from models.BaseModel import BaseModel, store
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String
-
+from flask_login import UserMixin
 
 @store(
         # 'reviews',
@@ -18,7 +18,7 @@ from sqlalchemy import Column, String
         other_languages=(Column(String(128), nullable=True), ''),
         profile_picture=(Column(String(128), nullable=True), ''), # TODO: change to BLOB?
         )
-class UserModel(BaseModel):
+class UserModel(BaseModel, UserMixin):
     '''User class.
 
     Atrrs:
