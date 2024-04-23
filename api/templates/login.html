@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Login</h3>
+    <div class="box">
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            {{ form.csrf_token }}
+            <div class="field">
+                <div class="control">
+                    {{ form.email.label }}<br>
+                    {{ form.email(class="input is-large", autofocus=True, autocomplete="on") }}<br>
+                    {% for error in form.email.errors %}
+                    <span style="color: red;">{{ error }}</span><br>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    {{ form.password.label }}<br>
+                    {{ form.password(class="input is-large") }}<br>
+                    {% for error in form.password.errors %}
+                    <span style="color: red;">{{ error }}</span><br>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    {{ form.remember(class="checkbox") }} {{ form.remember.label }}
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

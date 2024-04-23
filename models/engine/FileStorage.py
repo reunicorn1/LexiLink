@@ -94,3 +94,20 @@ class FileStorage:
         if cls is None:
             return len(self.all())
         return len(self.all(cls))
+
+    def find_by(self, obj, **kwargs):
+        """
+        Find an object by key value pair
+        """
+        if obj is None or not kwargs:
+            return None
+        if type(cls) is str:
+            if cls == 'StudentModel':
+                cls = StudentModel
+            elif cls == 'MentorModel':
+                cls = MentorModel
+        for k, v in kwargs.items():
+            for obj in self.all(obj):
+                if v == getattr(obj, k):
+                    return obj
+        return None
