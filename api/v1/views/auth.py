@@ -4,8 +4,8 @@ from models import storage
 from models.StudentModel import StudentModel
 from flask_login import login_user, logout_user, login_required
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from api import app, login_manager, jwt, db
-from api.forms import StudentForm, LoginForm
+from api.v1.views import app, login_manager, jwt, db
+from api.v1.forms import StudentForm, LoginForm
 import requests
 
 auth = Blueprint('auth', __name__)
