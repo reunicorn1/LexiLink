@@ -13,7 +13,8 @@ from models.ReviewModel import ReviewModel
 
 env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
        'LEXILINK_MYSQL_HOST', 'LEXILINK_MYSQL_DB',
-       'LEXILINK_TYPE_STORAGE', 'LEXILINK_ENV']
+       'LEXILINK_TYPE_STORAGE', 'LEXILINK_ENV',
+       'LEXILINK_MYSQL_DIALECT', 'LEXILINK_MYSQL_DRIVER']
 
 classes = [
         StudentModel, MentorModel, PaymentModel, SessionModel, ReviewModel
@@ -132,3 +133,23 @@ class DBStorage:
         if cls is None:
             return len(self.all())
         return len(self.all(cls))
+
+    def get_uri(self):
+        """get the uri
+        """
+        return self.__engine.url
+
+    def find_by(self, cls, **kwargs):
+        """find by key value pair
+        """
+        if cls is None or not kwargs:
+            return None
+        if type(cls) is str:
+            if cls == 'StudentModel':
+                cls = StudentModel
+            elif cls == 'MentorModel':
+                cls = MentorModel
+        obj = self.__session.query(cls).filter_by(**kwargs).first()
+        if obj:
+            return obj
+        return None

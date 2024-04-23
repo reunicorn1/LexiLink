@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+	<h3 class="title">Student Sign Up</h3>
+	<div class="box">
+		<form method="POST" action="{{ url_for('auth.signup') }}">
+			{{ form.hidden_tag() }}
+			<div class="form-group">
+				{{ form.email.label }}<br>
+				{{ form.email(class="form-control", placeholder="Enter your Email") }}<br>
+				{% for error in form.email.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.password.label }}<br>
+				{{ form.password(class="form-control") }}<br>
+				{% for error in form.password.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.first_name.label }}<br>
+				{{ form.first_name(class="form-control", autocomplete="given-name") }}<br>
+				{% for error in form.first_name.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.last_name.label }}<br>
+				{{ form.last_name(class="form-control") }}<br>
+				{% for error in form.last_name.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.country.label }}<br>
+				{{ form.country(class="form-control") }}<br>
+				{% for error in form.country.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.nationality.label }}<br>
+				{{ form.nationality(class="form-control") }}<br>
+				{% for error in form.nationality.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.first_language.label }}<br>
+				{{ form.first_language(class="form-control") }}<br>
+				{% for error in form.first_language.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.other_languages.label }}<br>
+				{{ form.other_languages(class="form-control") }}<br>
+				{% for error in form.other_languages.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.profile_picture.label }}<br>
+				{{ form.profile_picture(class="form-control") }}<br>
+				{% for error in form.profile_picture.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<div class="form-group">
+				{{ form.proficiency.label }}<br>
+				{{ form.proficiency(class="form-control") }}<br>
+				{% for error in form.proficiency.errors %}
+				<span style="color: red;">{{ error }}</span><br>
+				{% endfor %}
+			</div>
+			<button type="submit">Signup</button>
+		</form>
+	</div>
+</div>
+{% endblock %}

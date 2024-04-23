@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Entry point of the command interpreter
 Defines `LEXILINKCommand` class that inherits from
 `cmd.Cmd`
@@ -8,11 +7,12 @@ Defines `LEXILINKCommand` class that inherits from
 import re
 import cmd
 import shlex
-import json
+from json import loads
+from json.decoder import JSONDecodeError
 from models import storage
 from models import db
 from models.StudentModel import StudentModel
-
+from models.MentorModel import MentorModel
 
 class LEXILINKCommand(cmd.Cmd):
     """class LEXILINKCommand which acts as the console of the Lexilink project
@@ -26,34 +26,69 @@ class LEXILINKCommand(cmd.Cmd):
 
     prompt = "(Lexilink) "
     cls = { 'StudentModel': StudentModel,
+            'MentorModel': MentorModel
           }
 
-    def precmd(self, line):
-        """This function intervenes and rewrites the command or simply
-        just return it unchanged"""
+    patterns = {"all": re.compile(r'(.*)\.(.*)\((.*)\)'),
 
-        cmds = [".all", ".count", ".show", ".destroy", ".update"]
-        group1 = r'(?<=\.)[^(]+|[aA-zZ]+(?=\.)'
-        group2 = r'(?<=\(\"|\(\')[a-z0-9\-]+'
-        group3 = r'(?<=\"|\')[\w\s\d]+|\d+(?=[\)\s]+)'
-        regx = group1 + '|' + group2 + '|' + group3
-        if any(cmd in line for cmd in cmds):
-            _dict = re.search(r'{.+}', line)
-            if _dict:
-                try:
-                    dct = json.loads(_dict.group().replace("'", '"'))
-                    args = re.findall(group1 + '|' + group2, line)
-                    for k, v in dct.items():
-                        self.do_update('{} {} {} "{}"'.
-                                       format(args[0], args[2], k, v))
-                    return ''
-                except Exception:
-                    return line
+                # id, attribute, value
+                "update": [re.compile(r'^(.+)\,(.+)\,(.+)$'),
+                           re.compile(r'^[\'\"]?([^"]+)[\'\"]?\,\s*(\{.+\})$'),
+                           re.compile(r"[\'\"](.*?)[\'\"]")]}
 
-            args = re.findall(regx, line)
-            args[0], args[1] = args[1], args[0]
-            return ' '.join('"'+w+'"' if ' ' in w else w for w in args)
 
+
+    def precmd(self, line) -> str:
+        """parse command line and determine if reformatting is needed.
+        Helps handle call to commands using Class.command("values"),
+        By splitting it to match the format of the do_cmd
+        Ex:
+        $ update User <ID> <attribute> <value>
+        $ User.update(<ID>, <attribute>, <value>)
+        $ User.update(<ID>, {<attribute1>: <value1>, <attribute2>: <value2>})
+        """
+        # class.command(data)
+        pattern = self.patterns
+        args = pattern["all"].match(line)
+        if args:
+            arg_list = []
+            arg_list.append(args.group(2))  # command
+            arg_list.append(args.group(1))  # class
+            arg_list.append(args.group(3))  # rest
+            if arg_list[0] == "count":
+                self.count(args.group(1))
+                return ""
+            if arg_list[0] == "update":
+                # id, attribute, value
+                uvp = pattern["update"][0]
+                # id, {dict}
+                udict = pattern["update"][1]
+                clean = args.group(3).replace("'", '"')
+                # id, {dict}
+                uvp_match = udict.match(clean)
+                res = arg_list[:2]
+                if uvp_match and len(uvp_match.groups()) == 2:
+                    try:
+                        my_dict = loads(uvp_match.group(2))
+                        for k, v in my_dict.items():
+                            # command class id attribute value
+                            self.onecmd(" ".join(res +
+                                                 [uvp_match.group(1),
+                                                  '"' + str(k) + '"',
+                                                  '"' + str(v) + '"']))
+                        return ""
+                    except JSONDecodeError:
+                        pass
+                else:
+                    # id, attribute, value
+                    uvp_match = uvp.match(clean)
+                    if uvp_match and len(uvp_match.groups()) == 3:
+                        res.extend(uvp_match.group().split(','))
+                    else:
+                        res.append(clean)
+                    return " ".join(res)
+            else:
+                return " ".join(arg_list)
         return line
 
     def emptyline(self):
@@ -188,8 +223,16 @@ class LEXILINKCommand(cmd.Cmd):
         obj = obj_dict[key]
         if hasattr(obj, line[2]):
             type_attr = type(getattr(obj, line[2]))
-            line[3] = type_attr(line[3])
-        setattr(obj, line[2], line[3])
+            import sqlalchemy.orm as orm
+            if type_attr is orm.dynamic.AppenderQuery:
+                if line[0] == 'StudentModel':
+                    obje = storage.get(MentorModel, line[3])
+                    getattr(obj, line[2]).append(storage.get(MentorModel, line[3]))
+                elif line[0] == 'MentorModel':
+                    getattr(obj, line[2]).append(storage.get(StudentModel, line[3]))
+            else:
+                line[3] = type_attr(line[3])
+                setattr(obj, line[2], line[3])
         obj.save()
         storage.save()
 
@@ -210,11 +253,56 @@ class LEXILINKCommand(cmd.Cmd):
                 storage.delete(obj_dict[key])
         storage.save()
 
+
+    def count(self, arg) -> None:
+        """Count all occurences of class instances
+        Ex:
+        $ count BaseModel
+        $ BaseModel.count()
+        """
+        args = shlex.split(arg)
+
+        if not self.validate_cls(args):
+            return
+        res = 0
+        if len(args) > 0:
+            for k in storage.all():
+                if args[0] == k.split(".")[0]:
+                    res += 1
+        print(res)
+
     def do_drop_all(self):
         """Drops all instances of all classes"""
         if db:
             storage.drop_all()
             storage.save()
+
+
+    def validate_cls(self, args) -> bool:
+        """validate class creation
+        Checks if class name is provide and it exists
+        """
+        if len(args) < 1:
+            print("** class name missing **")
+            return False
+        if args[0] not in self.cls:
+            print("** class doesn't exist **")
+            return False
+        return True
+
+    def validate_id(self, args) -> bool:
+        """validate id of class instance
+        Checks if id is provide and it exists
+        """
+        if len(args) < 2:
+            print("** instance id missing **")
+            return False
+        instance_id = args[0] + "." + args[1]
+        if instance_id not in storage.all():
+            print("** no instance found **")
+            return False
+        return True
+
 
 
 if __name__ == '__main__':
