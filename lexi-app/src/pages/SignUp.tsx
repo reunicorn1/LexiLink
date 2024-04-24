@@ -1,55 +1,56 @@
-import { Box, FormControl, FormLabel, Heading, Input, Text, Button, Image, useBreakpointValue, Spacer, FormErrorMessage } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
+import bcrypt from "bcryptjs-react";
+import SignUpStepOne from "../components/SignUpStepOne";
+import SignUpStepTwo from "../components/SignUpStepTwo";
+
+const salt = bcrypt.genSaltSync(10);
 
 export default function SignUp () {
-    const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const [input, setInput] = useState({ email: "", password: "" })
-    const [formError, setFormError] = useState({email: false, password: false});
+
+    const [input, setInput] = useState({ email: "", password: "", username: "", firstname: "", lastname: "", country:"", nationality:"", firstlanguage: "",proficency:"" })
+    const [step, setStep] = useState(1); //the common state between all steps 
+    const [formError, setFormError] = useState({email: "", password: "", username: "", firstname: "", lastname: "", country:"", nationality:"", firstlanguage: "",proficency:""});
     
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault(); // This line prevents the default form submission behavior.
-        setFormError({ email: !input.email, password: input.password.length < 8 });
-      }
+    const handleClick = () => {
+        // Ignore this for now
+
+        const errors = {...formError, email: "", password: ""};
+        if (!input.email) {
+            errors.email = "This field is required";
+          } else if (!isValidEmail(input.email)) {
+            errors.email = "Invalid email address";
+          }if (input.password.length < 6) {
+            errors.password = "This field must be at least 6 characters";
+          }
+        // I'm stuck! setFormError doesn't execute until everything is done
+        setFormError({ ...errors }); 
+        if (input.email && isValidEmail(input.email) && input.password.length >= 6) {
+            setInput({ ...input, password: bcrypt.hashSync(input.password, salt) });
+            // Sending data to the API, receiving either an error or not
+            handleNext();
+        }
+      };
+    const handleNext = () => {
+        setStep(step + 1);
+    };
+
     const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         const { name, value } = e.currentTarget;
         setInput({ ...input, [name]: value });
-        setFormError({ ...formError, [name]: false})
+        //setFormError({ ...formError, [name]: ""})
     }
 
+    const isValidEmail = (email: string) => {
+        // Basic email validation regex
+        const regex = /^[^@]+@[^@]+\.[^@]+$/;
+        return regex.test(email);
+    };
+
+
+    // After Api is implemented, check if the email is in the database after user clicks submit 
+
     return <>
-            <Box display="flex" bg="white" h="600px" m={{base:"60px", xl:"100px"}} rounded="3xl">
-                <Box  roundedLeft="3xl" w={{base:"100%", md:"50%"}}>
-                    <Box m="50px">
-                        <Text mt="100px" mb={2}>Register Now</Text>
-                        <Heading mb={2}>Sign Up For Free</Heading>
-                        <Text>Already have an account?&nbsp;
-                            <Link to="/sign-in"><span>Sign In.</span></Link>
-                        </Text>
-                    </Box>
-                    <form onSubmit={handleSubmit}>
-                        <FormControl mb={3} isInvalid={formError.email}>
-                            <FormLabel>Email Adddress</FormLabel>
-                            <Input placeholder='Enter your email adddress' w="85%" name="email" value={input.email} onChange={handleInputChange}/>
-                            {formError.email && (<FormErrorMessage> This field is required.</FormErrorMessage>)}
-                        </FormControl>
-                        <FormControl isInvalid={formError.password}>
-                            <FormLabel>Password</FormLabel>
-                            <Input type="password" placeholder='Enter your password' w="85%" name="password" value={input.password} onChange={handleInputChange}/>
-                            {formError.password && (<FormErrorMessage>This field must be at least 6 characters</FormErrorMessage>)}
-                        </FormControl>
-                        <Button colorScheme="facebook" type="submit" h="40px"w="85%" mt={6}>Submit</Button>
-                    </form>
-                </Box>
-                <Spacer></Spacer>
-                {!isSmallScreen && 
-                <Box pos="relative">
-                    <Image src="/img/scrap-2.png" alt="a boy with his teacher" boxSize='600px' objectFit="cover" roundedRight="3xl"></Image>
-                    <Box pos="absolute"  width="110px" height="auto" top="10%" left={{base:'28%', lg:'23%'}} transform="translate(-80%, -50%)">
-                           <Link to="/"><Image src="/img/logo-w.png"/></Link>
-                    </Box>
-                </Box>
-                }
-            </Box>
+            {step === 1 && <SignUpStepOne input={input} formError={formError} onChange={handleInputChange} onClick={handleClick}></SignUpStepOne>}
+            {step == 2 && <SignUpStepTwo input={input} formError={formError} setFormError={setFormError} onChange={handleInputChange} setInput={setInput}></SignUpStepTwo>}
     </>
 }
