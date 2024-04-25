@@ -27,8 +27,8 @@ auth = Namespace('auth', description='Authentication')
 
 
 @login_manager.user_loader
-def load_user(username):
-    return storage.find_by("StudentModel", username=username)
+def load_user(email):
+    return storage.find_by("StudentModel", email=email)
 
 student_model = auth.model('Student', {
     'email': fields.String(),
@@ -45,7 +45,7 @@ student_model = auth.model('Student', {
     })
 
 login_model = auth.model('Login', {
-    'username': fields.String(),
+    'email': fields.String(),
     'password': fields.String(),
     })
 
@@ -62,7 +62,7 @@ class Login(Resource):
         # Perform user authentication and obtain JWT token
         error = None
         data = request.get_json()
-        user = load_user(data.get('username'))
+        user = load_user(data.get('email'))
 
         if user and user.verify_password(data.get('password')):
             access_token = create_access_token(identity=user.username,
@@ -76,7 +76,7 @@ class Login(Resource):
             return make_response(jsonify(access_token=access_token,
                     refresh_token=refresh_token), 200)
         else:
-            error = 'Invalid username or password. Please try again.'
+            error = 'Invalid email or password. Please try again.'
         make_response(jsonify({'error': error}), 401)
 
 
@@ -89,11 +89,11 @@ class Signup(Resource):
             if storage.find_by("StudentModel", email=data.get('email')):
                 return make_response(jsonify({'error': 'User with this email already exists'}), 400)
             if storage.find_by("StudentModel", username=data.get('username')):
-                return make_response(jsonify({'error': 'User with this username already exists'}), 400)
+                return make_response(jsonify({'error': 'User with this username already exists'}), 401)
 
             storage.create("StudentModel", **data)
             return make_response(jsonify({'status': 'success'}), 200)
-        return make_response(jsonify({'error': 'Invalid data'}), 400)
+        return make_response(jsonify({'error': 'Invalid data'}), 402)
 
 
 @auth.route('/logout', strict_slashes=False)
@@ -144,3 +144,33 @@ class Refresh(Resource):
         access_token = create_access_token(identity=current_user.username)
         print(f'User {current_user.username} refreshed token')
         return make_response(jsonify(access_token=access_token), 200)
+
+verify_email_model = auth.model('Verify', {
+    'email': fields.String(),
+    })
+
+verify_username_model = auth.model('Verify', {
+    'username': fields.String(),
+    })
+
+
+@auth.route('/verify_email', strict_slashes=False)
+class Verify(Resource):
+    @auth.expect(verify_email_model)
+    def post(self):
+        data = request.get_json()
+        user = load_user(data.get('email'))
+        if user:
+            return make_response(jsonify({'error': 'email already exists'}), 400)
+        return make_response(jsonify({'status': 'success'}), 200)
+
+
+@auth.route('/verify_username', strict_slashes=False)
+class VerifyUsername(Resource):
+    @auth.expect(verify_username_model)
+    def post(self):
+        data = request.get_json()
+        user = storage.find_by("StudentModel", username=data.get('username'))
+        if user:
+            return make_response(jsonify({'error': 'username already exists'}), 400)
+        return make_response(jsonify({'status': 'success'}), 200)

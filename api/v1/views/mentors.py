@@ -22,8 +22,8 @@ from api.v1.views.models import  auth_parser, query_parser
 
 
 @login_manager.user_loader
-def load_user(username):
-    return storage.find_by("MentorModel", username=username)
+def load_user(email):
+    return storage.find_by("MentorModel", email=email)
 
 
 mentor_model = mentor.model('Mentor', {
@@ -67,7 +67,7 @@ class MentorLogin(Resource):
     def post(self):
         """ Logs in a mentor """
         data = request.get_json()
-        mentor = load_user(data['username'])
+        mentor = load_user(data['email'])
 
         if mentor and mentor.verify_password(data['password']):
             access_token = create_access_token(identity=mentor.username,
@@ -81,7 +81,7 @@ class MentorLogin(Resource):
                 "refresh_token": refresh_token
             }), 200)
         else:
-            error = "Invalid username or password. Please try again."
+            error = "Invalid email or password. Please try again."
         make_response(jsonify({"error": error}), 401)
 
 
