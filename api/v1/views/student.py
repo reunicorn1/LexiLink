@@ -90,12 +90,13 @@ class Mentors(Resource):
         if mentor is None:
             return make_response(jsonify({"error": "Mentor not found"}), 404)
         student.mentors.append(mentor)
+        student.save()
         return make_response(jsonify({}), 200)
 
 
 @std.route('/mentors/favorites/', strict_slashes=False)
 class FavoriteMentors(Resource):
-    @std.expect(auth_parser, student_mentor_model)
+    @std.expect(auth_parser)
     @jwt_required()
     def get(self):
         """ Retrieves all favorite mentors """
@@ -125,6 +126,7 @@ class FavoriteMentors(Resource):
         if mentor is None:
             return make_response(jsonify({"error": "Mentor not found"}), 404)
         student.favorite_mentors.append(mentor)
+        student.save()
         return make_response(jsonify({}), 200)
 
 

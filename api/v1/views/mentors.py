@@ -82,7 +82,7 @@ class MentorLogin(Resource):
             }), 200)
         else:
             error = "Invalid email or password. Please try again."
-        make_response(jsonify({"error": error}), 401)
+        return make_response(jsonify({"error": error}), 401)
 
 
 
@@ -90,13 +90,15 @@ class MentorLogin(Resource):
 class MentorLogout(Resource):
     @jwt_required()
     @mentor.expect(auth_parser)
-    def post(self):
+    def delete(self):
         """ Logs out a mentor """
         claims = get_jwt()
 
         if claims and claims['user_type'] == 'mentor':
             logout_user()
-            return make_response(jsonify({'status': 'success'}), 200)
+
+            storage.create("BlockListModel", jwt=claims['jti'], type=claims['type'])
+            return make_response(jsonify({'status': 'success', 'message': 'User logged out'}), 200)
         return make_response(jsonify({'error': 'User not logged in'}), 401)
 
 @mentor.route('/signup/', strict_slashes=False)
@@ -215,3 +217,14 @@ class Students(Resource):
         mentor.students.append(student)
         mentor.save()
         return make_response(jsonify({"status": "success"}), 200)
+
+
+@mentor.route('/refresh', strict_slashes=False)
+class Refresh(Resource):
+    @jwt_required(refresh=True)
+    @mentor.expect(auth_parser)
+    def post(self):
+        access_token = create_access_token(identity=current_user.username,
+                additional_claims={"user_type": "mentor"})
+        print(f'User {current_user.username} refreshed token')
+        return make_response(jsonify(access_token=access_token), 200)

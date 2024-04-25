@@ -37,11 +37,9 @@ metadata.reflect(bind=create_engine(app.config['SQLALCHEMY_DATABASE_URI']))
 api = Api(app, version='1.0', title='Lexilink Restful API', doc='/docs')
 from api.v1.views.auth import auth
 from api.v1.views.student import std
-from api.v1.views.main import main
 from api.v1.views.mentors import mentor
 api.add_namespace(auth)
 api.add_namespace(std)
-api.add_namespace(main)
 api.add_namespace(mentor)
 
 @app.teardown_appcontext
@@ -111,11 +109,13 @@ def needs_fresh_token_callback():
     }), 401)
 
 @jwt.revoked_token_loader
-def revoked_token_callback():
+def revoked_token_callback(jwt_header, jwt_data):
     return make_response(jsonify({
         'message': 'The token has been revoked',
         'error': 'token_revoked'
     }), 401)
 
-
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blocklist(jwt_header, jwt_data):
+    return storage.find_by("BlockListModel", jwt=jwt_data['jti']) is not None
 
