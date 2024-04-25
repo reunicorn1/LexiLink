@@ -159,6 +159,8 @@ class Verify(Resource):
     @auth.expect(verify_email_model)
     def post(self):
         data = request.get_json()
+        if not data.get('email'):
+            return make_response(jsonify({'error': 'email is required'}), 400)
         user = load_user(data.get('email'))
         if user:
             return make_response(jsonify({'error': 'email already exists'}), 400)
@@ -170,6 +172,8 @@ class VerifyUsername(Resource):
     @auth.expect(verify_username_model)
     def post(self):
         data = request.get_json()
+        if not data.get('username'):
+            return make_response(jsonify({'error': 'username is required'}), 400)
         user = storage.find_by("StudentModel", username=data.get('username'))
         if user:
             return make_response(jsonify({'error': 'username already exists'}), 400)
