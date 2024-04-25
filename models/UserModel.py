@@ -3,13 +3,14 @@
 
 from models.BaseModel import BaseModel, store
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, text
 from flask_login import UserMixin
 
 @store(
         # 'reviews',
         email=(Column(String(128), nullable=False, unique=True), ''),
-        password=(Column(String(128), nullable=False), ''),
+        password=(Column(String(500), nullable=False), ''),
+        username=(Column(String(128), nullable=False, unique=True), ''),
         first_name=(Column(String(128), nullable=False), ''),
         last_name=(Column(String(128), nullable=False), ''),
         country=(Column(String(128), nullable=False), ''),
@@ -33,3 +34,20 @@ class UserModel(BaseModel, UserMixin):
         profile_picture(str):
     '''
     __tablename__ = 'User_Model'
+
+
+    @property
+    def hashed_password(self):
+        '''password getter'''
+        return self.password
+
+    @hashed_password.setter
+    def hashed_password(self, value):
+        '''password setter'''
+        from werkzeug.security import generate_password_hash
+        self.password = generate_password_hash(value)
+
+    def verify_password(self, password):
+        '''Verify password'''
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.password, password)

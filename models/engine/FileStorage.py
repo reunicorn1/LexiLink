@@ -2,7 +2,21 @@
 '''This Module defines file storage class'''
 
 from json import loads, dumps
+from werkzeug.security import generate_password_hash
+from models.StudentModel import StudentModel
+from models.MentorModel import MentorModel
+from models.PaymentModel import PaymentModel
+from models.SessionModel import SessionModel
+from models.ReviewModel import ReviewModel
 
+
+classes = {
+        'StudentModel': StudentModel,
+        'MentorModel': MentorModel,
+        'PaymentModel': PaymentModel,
+        'SessionModel': SessionModel,
+        'ReviewModel': ReviewModel,
+      }
 
 class FileStorage:
     ''' FileStorage class.
@@ -39,25 +53,14 @@ class FileStorage:
 
     def reload(self):
         '''Deserializes the JSON file to __objects'''
-        from models.StudentModel import StudentModel
-        from models.MentorModel import MentorModel
-        from models.PaymentModel import PaymentModel
-        from models.SessionModel import SessionModel
-        from models.ReviewModel import ReviewModel
 
 
         try:
             with open(self.__file_path, 'r', encoding='utf-8') as file:
 
-                cls = {
-                        'StudentModel': StudentModel,
-                        'MentorModel': MentorModel,
-                        'PaymentModel': PaymentModel,
-                        'SessionModel': SessionModel,
-                        'ReviewModel': ReviewModel,
-                      }
+
                 for k, v in loads(file.read()).items():
-                    self.__objects[k] = cls[v['__class__']](**v)
+                    self.__objects[k] = classes[v['__class__']](**v)
         except Exception:
             pass
 
@@ -95,19 +98,29 @@ class FileStorage:
             return len(self.all())
         return len(self.all(cls))
 
-    def find_by(self, obj, **kwargs):
+    def find_by(self, cls, **kwargs):
         """
         Find an object by key value pair
         """
-        if obj is None or not kwargs:
+        if cls is None or not kwargs:
             return None
         if type(cls) is str:
-            if cls == 'StudentModel':
-                cls = StudentModel
-            elif cls == 'MentorModel':
-                cls = MentorModel
+            cls = classes[cls]
         for k, v in kwargs.items():
-            for obj in self.all(obj):
+            for obj in self.all(cls):
                 if v == getattr(obj, k):
                     return obj
         return None
+
+    def create(self, cls, **kwargs):
+        """create an object
+        """
+        if cls is None or not kwargs:
+            return None
+        if type(cls) is str:
+            cls = classes[cls]
+        if 'password' in kwargs:
+            kwargs['password'] = generate_password_hash(kwargs['password'])
+        obj = cls(**kwargs)
+        obj.save()
+        return obj

@@ -21,8 +21,10 @@ class StudentFavoriteMentors(Base):
          'favorite_mentors',
         proficiency=(Column(String(255), nullable=False), ''),
         completed_lessons=(Column(Integer, nullable=False, default=0), 0),
+        role=(Column(String(10), nullable=False, default='student'), 'student'),
         favorite_mentors=(relationship('MentorModel',
                                        secondary='Student_Favorite_Mentors',
+                                       cascade='all',
                                        lazy='dynamic'), [])
         )
 class StudentModel(UserModel, Base):
