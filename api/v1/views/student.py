@@ -59,7 +59,7 @@ class Student(Resource):
 
 @std.route('/mentors/all/', strict_slashes=False)
 class Mentors(Resource):
-    @std.expect(auth_parser, student_mentor_model)
+    @std.expect(auth_parser)
     @jwt_required()
     def get(self):
         """ Retrieves all mentors of this student """
