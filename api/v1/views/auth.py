@@ -145,11 +145,11 @@ class Refresh(Resource):
         print(f'User {current_user.username} refreshed token')
         return make_response(jsonify(access_token=access_token), 200)
 
-verify_email_model = auth.model('Verify', {
+verify_email_model = auth.model('VerifyEmail', {
     'email': fields.String(),
     })
 
-verify_username_model = auth.model('Verify', {
+verify_username_model = auth.model('VerifyEmail', {
     'username': fields.String(),
     })
 
