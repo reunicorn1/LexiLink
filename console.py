@@ -127,7 +127,10 @@ class LEXILINKCommand(cmd.Cmd):
                 v = cast(v)
             if isinstance(v, str) and v[0] == '"':
                 v = v.replace('_', ' ').replace('"', '')
-            setattr(obj, k, v)
+            if "password" in k:
+                setattr(obj, "hashed_password", v)
+            else:
+                setattr(obj, k, v)
         obj.save()
         print(obj.id)
 

@@ -9,6 +9,7 @@ from models.MentorModel import MentorModel
 from models.PaymentModel import PaymentModel
 from models.SessionModel import SessionModel
 from models.ReviewModel import ReviewModel
+from werkzeug.security import generate_password_hash
 
 
 env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
@@ -16,9 +17,9 @@ env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
        'LEXILINK_TYPE_STORAGE', 'LEXILINK_ENV',
        'LEXILINK_MYSQL_DIALECT', 'LEXILINK_MYSQL_DRIVER']
 
-classes = [
-        StudentModel, MentorModel, PaymentModel, SessionModel, ReviewModel
-        ]
+classes = {'StudentModel': StudentModel, 'MentorModel': MentorModel,
+            'PaymentModel': PaymentModel, 'SessionModel': SessionModel,
+            'ReviewModel': ReviewModel}
 
 
 class DBStorage:
@@ -68,10 +69,12 @@ class DBStorage:
         """
         res = {}
         objs = []
+        if type(cls) is str:
+            cls = classes[cls]
         if cls:
             objs = self.__session.query(cls).all()
         else:
-            for c in classes:
+            for c in classes.values():
                 objs.extend(self.__session.query(c).all())
 
         if objs:
@@ -141,15 +144,53 @@ class DBStorage:
 
     def find_by(self, cls, **kwargs):
         """find by key value pair
+        Usage: find_by('StudentModel', email='email')
         """
         if cls is None or not kwargs:
             return None
         if type(cls) is str:
-            if cls == 'StudentModel':
-                cls = StudentModel
-            elif cls == 'MentorModel':
-                cls = MentorModel
+                cls = classes[cls]
         obj = self.__session.query(cls).filter_by(**kwargs).first()
         if obj:
             return obj
         return None
+
+    def create(self, cls, **kwargs):
+        """create an object
+        Usage: create('StudentModel', **kwargs)
+        """
+        if cls is None or not kwargs:
+            return None
+        if type(cls) is str:
+            cls = classes[cls]
+
+        obj = cls(**kwargs)
+        obj.hashed_password = obj.password
+        obj.save()
+
+        return obj
+
+    def query(self, cls, page=1, per_page=10, **kwargs):
+        """Query by key-value pair with pagination.
+        Usage: query('StudentModel', page=1, per_page=10, email='email')
+        """
+        if cls is None:
+            return None
+        if type(cls) is str:
+            cls = classes[cls]
+        if not kwargs:
+            query_result = (
+                self.__session.query(cls)
+                .limit(per_page)  # Limit the number of results per page
+                .offset((page - 1) * per_page)  # Offset for pagination
+                .all()
+            )
+            return query_result
+        query_result = (
+            self.__session.query(cls)
+            .filter_by(**kwargs)
+            .limit(per_page)  # Limit the number of results per page
+            .offset((page - 1) * per_page)  # Offset for pagination
+            .all()
+        )
+        return query_result

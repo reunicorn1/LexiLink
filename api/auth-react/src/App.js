@@ -6,7 +6,7 @@ function App () {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/login', {
+      const response = await axios.post('http://localhost:5000/auth/login', {
         email: 'x@gmail.com',
         password: 'xxxxxx'
       });
@@ -22,7 +22,7 @@ function App () {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/logout', {}, {
+      await axios.post('http://localhost:5000/auth/logout', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -37,7 +37,7 @@ function App () {
 
   const verifyToken = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/verify-token', {
+      const response = await axios.get('http://localhost:5000/auth/verify-token', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -50,9 +50,9 @@ function App () {
 
   return (
     <div>
-    <button onClick={handleLogin}>Login</button>
-    <button onClick={handleLogout}>Logout</button>
-    <button onClick={verifyToken}>Verify Token</button>
+      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleLogout}>Logout</button>
+      <button onClick={verifyToken}>Verify Token</button>
     </div>
   );
 }

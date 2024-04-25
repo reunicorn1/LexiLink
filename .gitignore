@@ -3,5 +3,5 @@ main.py
 **/__pycache__
 *.json
 venv/
-requirements.txt
+!/requirements.txt
 test_create

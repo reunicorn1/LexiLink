@@ -27,8 +27,11 @@ choices = ('Community', 'Professional')
             default=0), 0),
         availability=(Column(String(255), nullable=True), ''),
         demo_video=(Column(String(255), nullable=True), ''),
+        role=(Column(String(10), nullable=False, default='mentor'), 'mentor'),
         students=(relationship('StudentModel',
                     secondary='Student_Mentors',
+                    cascade='all',
+                    backref='mentors',
                     lazy='dynamic'), [])
                     )
 class MentorModel(UserModel, Base):
