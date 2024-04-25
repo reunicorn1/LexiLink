@@ -50,9 +50,9 @@ function App () {
 
   return (
     <div>
-    <button onClick={handleLogin}>Login</button>
-    <button onClick={handleLogout}>Logout</button>
-    <button onClick={verifyToken}>Verify Token</button>
+      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleLogout}>Logout</button>
+      <button onClick={verifyToken}>Verify Token</button>
     </div>
   );
 }

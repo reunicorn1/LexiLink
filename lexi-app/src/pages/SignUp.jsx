@@ -34,13 +34,13 @@ export default function SignUp () {
         setStep(step + 1);
     };
 
-    const handleInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const handleInputChange = (e) => {
         const { name, value } = e.currentTarget;
         setInput({ ...input, [name]: value });
-        //setFormError({ ...formError, [name]: ""})
+        setFormError({ ...formError, [name]: ""})
     }
 
-    const isValidEmail = (email: string) => {
+    const isValidEmail = (email) => {
         // Basic email validation regex
         const regex = /^[^@]+@[^@]+\.[^@]+$/;
         return regex.test(email);

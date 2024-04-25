@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ChakraProvider, extendTheme  } from '@chakra-ui/react';
-import App from './App.tsx';
+import App from './App.jsx';
 import './styles.css';
 import { BrowserRouter } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -25,7 +25,7 @@ const colors = {
 const theme = extendTheme({ colors })
 
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <ChakraProvider theme={theme}>
     <GoogleOAuthProvider clientId="76995164858-097b9m0l06ct4h8342cdb70srium1abr.apps.googleusercontent.com">
       <React.StrictMode>
