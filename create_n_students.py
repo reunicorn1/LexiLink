@@ -7,23 +7,18 @@ import json
 
 fake = Faker()
 
-def random_type():
-    return random.choice(["Community", "Professional"])
-
-def random_availability():
-    return random.choice(["Morning", "Afternoon", "Evening", "Night"])
-
-def random_expertise():
-    """ expertise in teaching english """
-    return random.choice(["IELTS", "TOEFL", "TOEIC", "Business English", "General English"])
+def random_proficiency():
+    """ proficiency in teaching english """
+    return random.choice(["Beginner", "Intermediate", "Advanced"])
 
 
 
-def random_mentor():
+
+def random_student():
     """
-    {
-  "email": "string1",
-  "username": "string1",
+ {
+  "email": "string",
+  "username": "string",
   "password": "string",
   "first_name": "string",
   "last_name": "string",
@@ -32,14 +27,8 @@ def random_mentor():
   "first_language": "string",
   "other_languages": "string",
   "profile_picture": "string",
-  "expertise": "string",
-  "price_per_hour": 0,
-  "availability": "string",
-  "type": "Community",
-  "bio": "string",
-  "demo_video": "string"
-}
-"""
+  "proficiency": "string"
+}"""
     return {
         "email": fake.email(),
         "username": fake.user_name(),
@@ -51,33 +40,56 @@ def random_mentor():
         "first_language": fake.language_code(),
         "other_languages": fake.language_code(),
         "profile_picture": fake.image_url(),
-        "expertise": random_expertise(),
-        "price_per_hour": fake.random_int(min=10, max=100),
-        "availability": random_availability(),
-        "type": random_type(),
-        "bio": fake.text(),
-        "demo_video": fake.url()
+        "proficiency": random_proficiency()
         }
 
-
-def create_n_mentors(n):
+def register_student_with_mentor(student_email, student_password, mentor_username):
     """
-    make post request to create 100 mentors to:
+    make put request to register a student to a mentor:
+
+    http://127.0.0.1:5000/student/mentors/favorites/
+    """
+    # login as student
+    response = requests.post("http://127.0.0.1:5000/auth/login/",
+                            json={"email": student_email,
+                                "password": student_password})
+    if response.status_code == 200:
+        access_token = response.json()["access_token"]
+        response = requests.post("http://127.0.0.1:5000/student/mentors/favorites/",
+                                json={"mentor": mentor_username},
+                                headers={"Authorization": f"Bearer {access_token}"})
+        if response.status_code == 200:
+            print(f"{student_email} registered with {mentor_username}")
+        else:
+            print(f"Error: {response.json()}")
+
+def create_n_students(n):
+    """
+    make post request to create 100 students to:
     http://127.0.0.1:5000/mentor/signup/
     content-type: application/json
     """
+    # get mentors
+    mentors_response = requests.get("http://127.0.0.1:5000/mentor/all?page=1")
+    if mentors_response.status_code == 200:
+        mentors = mentors_response.json()["mentors"]
+    else:
+        print(f"Error: {mentors_response.json()}")
+        return
     for _ in range(n):
-        mentor = random_mentor()
-        response = requests.post("http://127.0.0.1:5000/mentor/signup/",
-                                    json=mentor)
+        student = random_student()
+        response = requests.post("http://127.0.0.1:5000/auth/signup/",
+                                    json=student)
+        register_student_with_mentor(student["email"], student["password"],
+                                    random.choice(mentors)["username"])
         if response.status_code == 200:
-            with open("mentor.json", "a+") as f:
-                json.dump(mentor, f)
+            with open("student.json", "a+") as f:
+                json.dump(student, f)
 
 
 if __name__ == "__main__":
     from sys import argv
     if len(argv) == 2:
-        create_n_mentors(int(argv[1]))
+        create_n_students(int(argv[1]))
     else:
-        create_n_mentors(n=2)
+        create_n_students(100)

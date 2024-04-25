@@ -53,7 +53,7 @@ filter_model = mentor.model('Filter', {
     'type': fields.String(description='Type')
 })
 login_model = mentor.model('Login', {
-    'username': fields.String(),
+    'email': fields.String(),
     'password': fields.String(),
     })
 
