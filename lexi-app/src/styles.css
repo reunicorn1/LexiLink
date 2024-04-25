@@ -7,7 +7,10 @@ html, body.chakra-ui-light {
 
 form {
     margin: 50px;
+    margin-bottom: 0px;
+    margin-top: 20px;
 }
 span {
   text-decoration: underline;
 }
+
