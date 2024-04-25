@@ -9,7 +9,7 @@ from models.MentorModel import MentorModel
 from models.PaymentModel import PaymentModel
 from models.SessionModel import SessionModel
 from models.ReviewModel import ReviewModel
-from werkzeug.security import generate_password_hash
+from models.BlockList import BlockListModel
 
 
 env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
@@ -19,7 +19,7 @@ env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
 
 classes = {'StudentModel': StudentModel, 'MentorModel': MentorModel,
             'PaymentModel': PaymentModel, 'SessionModel': SessionModel,
-            'ReviewModel': ReviewModel}
+            'ReviewModel': ReviewModel, 'BlockListModel': BlockListModel}
 
 
 class DBStorage:
@@ -165,7 +165,8 @@ class DBStorage:
             cls = classes[cls]
 
         obj = cls(**kwargs)
-        obj.hashed_password = obj.password
+        if 'password' in kwargs:
+            obj.hashed_password = obj.password
         obj.save()
 
         return obj

@@ -9,6 +9,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 
 @store(
         jwt=(Column(String(255), nullable=False), ''),
+        type=(Column(String(255), nullable=False), ''),
         )
 class BlockListModel(BaseModel, Base):
     '''StudentModel class.

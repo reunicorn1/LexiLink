@@ -63,7 +63,6 @@ class Login(Resource):
         error = None
         data = request.get_json()
         user = load_user(data.get('email'))
-
         if user and user.verify_password(data.get('password')):
             access_token = create_access_token(identity=user.username,
                     additional_claims={"user_type": "student"})
@@ -77,7 +76,7 @@ class Login(Resource):
                     refresh_token=refresh_token), 200)
         else:
             error = 'Invalid email or password. Please try again.'
-        make_response(jsonify({'error': error}), 401)
+        return make_response(jsonify({'error': error}), 401)
 
 
 @auth.route('/signup', strict_slashes=False)
@@ -100,13 +99,14 @@ class Signup(Resource):
 class Logout(Resource):
     @jwt_required()
     @auth.expect(auth_parser)
-    def post(self):
+    def delete(self):
         claims = get_jwt()
         if claims['user_type'] != 'student':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
         if current_user:
             logout_user()
-            return make_response(jsonify({'status': 'success'}), 200)
+            storage.create("BlockListModel", jwt=claims['jti'], type=claims['type'])
+            return make_response(jsonify({'status': 'success', 'message': 'User logged out'}), 200)
         return make_response(jsonify({'error': 'User not logged in'}), 401)
 
 
@@ -141,7 +141,8 @@ class Refresh(Resource):
     @jwt_required(refresh=True)
     @auth.expect(auth_parser)
     def post(self):
-        access_token = create_access_token(identity=current_user.username)
+        access_token = create_access_token(identity=current_user.username,
+                additional_claims={"user_type": "student"})
         print(f'User {current_user.username} refreshed token')
         return make_response(jsonify(access_token=access_token), 200)
 
