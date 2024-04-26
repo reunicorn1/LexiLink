@@ -1,6 +1,6 @@
 import Banner from "../components/Banner"
-import NewsBanner from "../NewsBanner"
-import SecondBanner from "../SecondBanner"
+import NewsBanner from "../components/NewsBanner"
+import SecondBanner from "../components/SecondBanner"
 import FinalBanner from "../components/FinalBanner"
 import Footer from "../components/Footer"
 

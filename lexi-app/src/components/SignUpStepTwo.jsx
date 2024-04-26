@@ -6,11 +6,12 @@ import Success from "./Success";
 
   const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) => {
 
+    
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
     const { isOpen, onOpen, onClose } = useDisclosure();
     // I wanted to delete this one, bc it felt very similar to onChange, but the name is just inaccessible in radio
     const handleChange = (value) => {
-        setInput({ ...input, proficency: value});
+        setInput({ ...input, proficiency: value});
         // setFormError({ ...formError, proficency: ""})
     };
 
@@ -26,21 +27,36 @@ import Success from "./Success";
             } else {
                 errors[key] = "" 
             }
-
         }
-        setFormError({...errors})
-        if (Object.values(input).every(value => value)) {
-            // send the data to the end point 
-            (async () => {
-                const result = await axios.post("https://127.0.0.1:5000/sign-up", input);
-                if (result.status === 200) {
-                    handleOtherElementClick();
-                } else {
-                    console.log("An error occured while sending the form and creating an account")
-                }
-              })();
-        };
-
+        
+        (async () => {
+            try{
+                const checkuser = await axios.post("http://127.0.0.1:5000/auth/verify_username", {username: input.username})
+                setFormError({...errors})
+                if (Object.values(input).every(value => value)) {
+                    // send the data to the end point 
+                    (async () => {
+                        try {
+                            const result = await axios.post("http://127.0.0.1:5000/auth/signup", input);
+                            handleOtherElementClick();
+                            // If email is not used, emailValid should remain true
+                        } catch (error) {
+                            if (error.response) {
+                                console.error("An error occurred:", error);
+                            } 
+                        }
+                      })();
+                };
+            } catch (error){
+                if (error.response && error.response.status === 400) {
+                    errors.username = error.response.data.error;
+                    setFormError({...errors})
+                    
+                  } else {
+                    console.error("An error occurred:", error);
+                  }
+            }
+        })();
     }
 
     const [countries, setCountries] = useState([]); 
@@ -64,15 +80,15 @@ import Success from "./Success";
                     <Text mb={10}>Provide the following details to tailor your learning journey</Text>
                     <FormControl isInvalid={Boolean(formError.username)} >
                         <FormLabel>Username</FormLabel>
-                        <Input mb={3} placeholder="Enter your username" name="username" value={input.username} onChange={onChange}></Input>
+                        <Input  mb={3} placeholder="Enter your username" name="username" value={input.username} onChange={onChange}></Input>
                     </FormControl>
-                    <FormControl  isInvalid={Boolean(formError.firstname)}>
+                    <FormControl  isInvalid={Boolean(formError.first_name)}>
                         <FormLabel>First Name</FormLabel>
-                        <Input mb={3} placeholder="Enter your first name" name="firstname" value={input.firstname} onChange={onChange}></Input>
+                        <Input mb={3} placeholder="Enter your first name" name="first_name" value={input.first_name} onChange={onChange}></Input>
                     </FormControl>
-                    <FormControl isInvalid={Boolean(formError.lastname)}>
+                    <FormControl isInvalid={Boolean(formError.last_name)}>
                         <FormLabel >Last Name</FormLabel>
-                        <Input mb={3} placeholder="Enter your last name" name="lastname" value={input.lastname} onChange={onChange}></Input>
+                        <Input mb={3} placeholder="Enter your last name" name="last_name" value={input.last_name} onChange={onChange}></Input>
                     </FormControl>
                     <FormControl>
                         
@@ -90,7 +106,7 @@ import Success from "./Success";
                 <GridItem colSpan={{base: 3, lg: 1}}>
                     <FormControl>
                         <FormLabel mt={{md:"70px", xl:"100px"}} >First Language</FormLabel>
-                        <Input isInvalid={Boolean(formError.firstlanguage)} mb={3}placeholder="Enter your first language" name="firstlanguage" value={input.firstlanguage} onChange={onChange}></Input>
+                        <Input isInvalid={Boolean(formError.first_language)} mb={3}placeholder="Enter your first language" name="first_language" value={input.first_language} onChange={onChange}></Input>
                     </FormControl>
                     <FormLabel>Nationality</FormLabel>
                     <Select isInvalid={Boolean(formError.nationality)} mb={7} placeholder='Select your nationality' name="nationality" onChange={onChange}>
@@ -101,7 +117,7 @@ import Success from "./Success";
                          ))}
                     </Select>
                     <FormLabel>How would you describe your English proficiency?</FormLabel>
-                    <RadioGroup mb="30px" defaultValue='1' name="proficiency"  value={input.proficency} onChange={handleChange}>
+                    <RadioGroup mb="30px" name="proficiency"  value={input.proficiency} onChange={handleChange}>
                         <Stack>
                             <Flex>
                                 <Radio mr={1} value='0'>0 - No proficiency</Radio>

@@ -1,4 +1,5 @@
-import { Route, Routes, useLocation } from "react-router-dom"
+import { Router, Route, Routes, useLocation } from "react-router-dom"
+import { AuthProvider, useAuth } from './AuthContext';
 import Home from "./pages/Home"
 import NavBar from "./components/NavBar"
 import JoinUs from "./pages/JoinUs"
@@ -11,16 +12,19 @@ import NotFound from "./pages/NotFound"
 function App() {
   const location = useLocation().pathname;
   return <>
-
-    {!location.includes('sign') && <NavBar />}
-    <Routes>
-      <Route path="/" element={<Home />}></Route>
-      <Route path="/join-us" element={<JoinUs />}></Route>
-      <Route path="/sign-in" element={<SignIn />}></Route>
-      <Route path="/sign-up" element={<SignUp />}></Route>
-      <Route path="/browse" element={<Browser />}></Route>
-      <Route path="*" element={<NotFound />}></Route>
-    </Routes>
+    
+    <AuthProvider>
+      {!location.includes('sign') && <NavBar />}
+      <Routes>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/join-us" element={<JoinUs />}></Route>
+            <Route path="/sign-in" element= {<SignIn />}></Route>
+            <Route path="/sign-up" element={<SignUp />}></Route>
+            <Route path="/browse" element={<Browser />}></Route>
+            <Route path="/dashboard" element={<Browser />}></Route>
+            <Route path="*" element={<NotFound />}></Route>
+      </Routes>
+   </AuthProvider>
   </>
 }
 

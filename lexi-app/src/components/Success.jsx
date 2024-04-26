@@ -20,7 +20,7 @@ export default function Success({isOpen}) {
         if (isOpen){
             setTimeout(() => {
                 navigate("/sign-in");
-            }, 2000)
+            }, 4000)
         }
     }, [isOpen])
 
