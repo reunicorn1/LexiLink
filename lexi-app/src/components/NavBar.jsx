@@ -48,11 +48,10 @@ export default function NavBar () {
                         <Link to='join-us'><Button colorScheme='gray' color={location === '/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link> 
                     </>}
                 {authToken ? <Box ml={4} className="image-container">
-                    <Avatar size="sm" bg='red.500' name={name} src={profilePic}></Avatar>
-                    {/*
-                                        <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
-                    <Image w="50px" src="/img/profile-still.png" alt="Your Still Image" className="still-image" ></Image> */}
-
+                    {/*<Avatar size="xs" bg='red.500'></Avatar>*/}
+                    <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
+                    <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
+                    
                 </Box> : 
                 <Box>
                     <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>

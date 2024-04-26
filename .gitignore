@@ -1,5 +1,6 @@
 **/__pycache__
-*.json
 venv/
 !/requirements.txt
 test_create
+mentor.json
+student.json
