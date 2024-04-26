@@ -1,13 +1,11 @@
 #!/usr/bin/python3
 '''Module defines `UserModel` class'''
-
 from models.BaseModel import BaseModel, store
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, text
+from sqlalchemy import Column, String
 from flask_login import UserMixin
 
+
 @store(
-        # 'reviews',
         email=(Column(String(128), nullable=False, unique=True), ''),
         password=(Column(String(500), nullable=False), ''),
         username=(Column(String(128), nullable=False, unique=True), ''),
@@ -17,7 +15,7 @@ from flask_login import UserMixin
         nationality=(Column(String(128), nullable=False), ''),
         first_language=(Column(String(128), nullable=False), ''),
         other_languages=(Column(String(128), nullable=True), ''),
-        profile_picture=(Column(String(128), nullable=True), ''), # TODO: change to BLOB?
+        profile_picture=(Column(String(128), nullable=True), ''),
         )
 class UserModel(BaseModel, UserMixin):
     '''User class.
@@ -34,7 +32,6 @@ class UserModel(BaseModel, UserMixin):
         profile_picture(str):
     '''
     __tablename__ = 'User_Model'
-
 
     @property
     def hashed_password(self):

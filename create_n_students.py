@@ -7,11 +7,10 @@ import json
 
 fake = Faker()
 
+
 def random_proficiency():
     """ proficiency in teaching english """
     return random.choice(["Beginner", "Intermediate", "Advanced"])
-
-
 
 
 def random_student():
@@ -43,7 +42,9 @@ def random_student():
         "proficiency": random_proficiency()
         }
 
-def register_student_with_mentor(student_email, student_password, mentor_username):
+
+def register_student_with_mentor(student_email,
+                                 student_password, mentor_username):
     """
     make put request to register a student to a mentor:
 
@@ -51,17 +52,20 @@ def register_student_with_mentor(student_email, student_password, mentor_usernam
     """
     # login as student
     response = requests.post("http://127.0.0.1:5000/auth/login/",
-                            json={"email": student_email,
-                                "password": student_password})
+                             json={"email": student_email,
+                                   "password": student_password})
     if response.status_code == 200:
         access_token = response.json()["access_token"]
-        response = requests.post("http://127.0.0.1:5000/student/mentors/favorites/",
-                                json={"mentor": mentor_username},
-                                headers={"Authorization": f"Bearer {access_token}"})
+        response = requests.post(
+                        "http://127.0.0.1:5000/student/mentors/favorites/",
+                        json={"mentor": mentor_username},
+                        headers={"Authorization":
+                                 f"Bearer {access_token}"})
         if response.status_code == 200:
             print(f"{student_email} registered with {mentor_username}")
         else:
             print(f"Error: {response.json()}")
+
 
 def create_n_students(n):
     """
@@ -79,9 +83,9 @@ def create_n_students(n):
     for _ in range(n):
         student = random_student()
         response = requests.post("http://127.0.0.1:5000/auth/signup/",
-                                    json=student)
+                                 json=student)
         register_student_with_mentor(student["email"], student["password"],
-                                    random.choice(mentors)["username"])
+                                     random.choice(mentors)["username"])
         if response.status_code == 200:
             with open("student.json", "a+") as f:
                 json.dump(student, f)

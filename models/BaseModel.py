@@ -43,8 +43,6 @@ class BaseModel:
         storage.new(self)
         storage.save()
 
-
-
     def to_dict(self):
         '''returns a dictionary containing all keys/values of __dict__
 
@@ -69,6 +67,7 @@ class BaseModel:
         '''Instance representaion'''
         return '[{}] ({}) {}'.format(self.__class__.__name__,
                                      self.id, self.__dict__)
+
     def __repr__(self):
         '''Instance representaion'''
         return self.__str__()
@@ -79,6 +78,7 @@ class BaseModel:
             if k not in ('id', 'created_at', 'updated_at'):
                 setattr(self, k, v)
         self.save()
+
 
 def store(*args, **kw):
     '''Decorator to set class attributes base on

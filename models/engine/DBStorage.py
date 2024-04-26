@@ -18,8 +18,8 @@ env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
        'LEXILINK_MYSQL_DIALECT', 'LEXILINK_MYSQL_DRIVER']
 
 classes = {'StudentModel': StudentModel, 'MentorModel': MentorModel,
-            'PaymentModel': PaymentModel, 'SessionModel': SessionModel,
-            'ReviewModel': ReviewModel, 'BlockListModel': BlockListModel}
+           'PaymentModel': PaymentModel, 'SessionModel': SessionModel,
+           'ReviewModel': ReviewModel, 'BlockListModel': BlockListModel}
 
 
 class DBStorage:
@@ -149,7 +149,7 @@ class DBStorage:
         if cls is None or not kwargs:
             return None
         if type(cls) is str:
-                cls = classes[cls]
+            cls = classes[cls]
         obj = self.__session.query(cls).filter_by(**kwargs).first()
         if obj:
             return obj

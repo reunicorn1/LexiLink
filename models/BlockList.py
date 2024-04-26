@@ -1,16 +1,13 @@
 '''Module defines `StudentModel` class'''
 
 from models.BaseModel import BaseModel, Base, store
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Integer, ForeignKey
-
-
+from sqlalchemy import Column, String
 
 
 @store(
-        jwt=(Column(String(255), nullable=False), ''),
-        type=(Column(String(255), nullable=False), ''),
-        )
+       jwt=(Column(String(255), nullable=False), ''),
+       type=(Column(String(255), nullable=False), ''),
+       )
 class BlockListModel(BaseModel, Base):
     '''StudentModel class.
 

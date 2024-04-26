@@ -14,6 +14,7 @@ from models import db
 from models.StudentModel import StudentModel
 from models.MentorModel import MentorModel
 
+
 class LEXILINKCommand(cmd.Cmd):
     """class LEXILINKCommand which acts as the console of the Lexilink project
     which is a command interpreter to manipulate data without visual
@@ -23,20 +24,16 @@ class LEXILINKCommand(cmd.Cmd):
         prompt(str): prompt string
         cls(dict): dictionary of all the instances.
     """
-
     prompt = "(Lexilink) "
-    cls = { 'StudentModel': StudentModel,
-            'MentorModel': MentorModel
-          }
+    cls = {'StudentModel': StudentModel,
+           'MentorModel': MentorModel
+           }
 
     patterns = {"all": re.compile(r'(.*)\.(.*)\((.*)\)'),
-
                 # id, attribute, value
                 "update": [re.compile(r'^(.+)\,(.+)\,(.+)$'),
                            re.compile(r'^[\'\"]?([^"]+)[\'\"]?\,\s*(\{.+\})$'),
                            re.compile(r"[\'\"](.*?)[\'\"]")]}
-
-
 
     def precmd(self, line) -> str:
         """parse command line and determine if reformatting is needed.
@@ -229,10 +226,11 @@ class LEXILINKCommand(cmd.Cmd):
             import sqlalchemy.orm as orm
             if type_attr is orm.dynamic.AppenderQuery:
                 if line[0] == 'StudentModel':
-                    obje = storage.get(MentorModel, line[3])
-                    getattr(obj, line[2]).append(storage.get(MentorModel, line[3]))
+                    getattr(obj, line[2]).append(storage.get(MentorModel,
+                                                             line[3]))
                 elif line[0] == 'MentorModel':
-                    getattr(obj, line[2]).append(storage.get(StudentModel, line[3]))
+                    getattr(obj, line[2]).append(storage.get(StudentModel,
+                                                             line[3]))
             else:
                 line[3] = type_attr(line[3])
                 setattr(obj, line[2], line[3])
@@ -256,7 +254,6 @@ class LEXILINKCommand(cmd.Cmd):
                 storage.delete(obj_dict[key])
         storage.save()
 
-
     def count(self, arg) -> None:
         """Count all occurences of class instances
         Ex:
@@ -279,7 +276,6 @@ class LEXILINKCommand(cmd.Cmd):
         if db:
             storage.drop_all()
             storage.save()
-
 
     def validate_cls(self, args) -> bool:
         """validate class creation
@@ -305,7 +301,6 @@ class LEXILINKCommand(cmd.Cmd):
             print("** no instance found **")
             return False
         return True
-
 
 
 if __name__ == '__main__':

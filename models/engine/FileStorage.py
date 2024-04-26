@@ -18,6 +18,7 @@ classes = {
         'ReviewModel': ReviewModel,
       }
 
+
 class FileStorage:
     ''' FileStorage class.
 
@@ -53,12 +54,8 @@ class FileStorage:
 
     def reload(self):
         '''Deserializes the JSON file to __objects'''
-
-
         try:
             with open(self.__file_path, 'r', encoding='utf-8') as file:
-
-
                 for k, v in loads(file.read()).items():
                     self.__objects[k] = classes[v['__class__']](**v)
         except Exception:

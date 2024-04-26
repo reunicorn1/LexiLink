@@ -8,9 +8,8 @@ from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 
 
 @store(
-        # 'reviews',
         mentor_id=(Column(String(60), ForeignKey('Mentor_Model.id'),
-                    nullable=False), ''),
+                   nullable=False), ''),
         student_id=(Column(String(60), ForeignKey('Student_Model.id'),
                     nullable=False), ''),
         review_score=(Column(Numeric(10, 2), nullable=False, default=0), 0),
@@ -27,12 +26,15 @@ class ReviewModel(BaseModel, Base):
     '''
     __tablename__ = 'Review_Model'
 
-
     def __init__(self):
         super().__init__()
         if db:
             __table_args__ = (
-                    ForeignKeyConstraint(['student_id'], ['Student_Model.id']),
-                    ForeignKeyConstraint(['mentor_id'], ['Mentor_Model.id']),
-                    PrimaryKeyConstraint('student_id', 'mentor_id', 'date')
-                    )
+                              ForeignKeyConstraint(['student_id'],
+                                                   ['Student_Model.id']),
+                              ForeignKeyConstraint(['mentor_id'],
+                                                   ['Mentor_Model.id']),
+                              PrimaryKeyConstraint('student_id',
+                                                   'mentor_id',
+                                                   'date')
+                              )
