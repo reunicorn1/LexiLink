@@ -14,3 +14,24 @@ span {
   text-decoration: underline;
 }
 
+.image-container {
+  position: relative;
+  overflow: hidden;
+  width: 50px;
+  height: auto;
+}
+
+.image-container:hover img {
+  animation: playGif forwards;
+}
+
+.gif-image {
+  display: none; /* Hide GIF by default */
+}
+
+.image-container:hover .gif-image {
+  display: block; /* Show GIF on hover */
+}
+.image-container:hover .still-image {
+  display: none; /* Hide still image on hover */
+}

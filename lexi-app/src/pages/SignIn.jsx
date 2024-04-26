@@ -1,23 +1,55 @@
-import { Box, Image, useBreakpointValue, Heading, Text, FormControl, FormLabel, Input, Button, Checkbox, Flex, Spacer } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Box, Image, useBreakpointValue, Heading, Text, FormControl, FormLabel, Input, Button, Checkbox, Flex, Spacer, FormErrorMessage, useToast } from "@chakra-ui/react";
+import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import { useState } from "react";
+import { useAuth } from '../AuthContext';
 
 export default function SignIn () {
+    const { authToken, login, logout } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const [formError, setFormError] = useState(false);
+    const [input, setInput] = useState({ email: "", password: ""});
+    const [formError, setFormError] = useState("");
+    const navigate = useNavigate();
+    const toast = useToast();
 
     const responseMessage = (response) => {
         console.log(response);
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.currentTarget;
+        setInput({ ...input, [name]: value });
+        setFormError(false)
+    }
+
+    const handleToast = async() => {
+        // add a promise rejection handler
+        await toast({
+            title: "You've been logged in successfully.",
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          })();
+    }
+
     const handleClick = () => {
-        (async ()=> {
-            try {
-                const result = await axios.post("")
-            }
-        })();
+        if (Object.values(input).every(value => value)) {
+            (async ()=> {
+                try {
+                    const result = await axios.post("http://127.0.0.1:5000/auth/login", input);
+                    console.log(result.data);
+                    login(result.data.access_token, result.data.refresh_token);
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 1000);
+                    handleToast();
+
+                } catch (error){ setFormError("Email or Password provided are incorrect") }
+            })();
+        } else {
+            setFormError("Both fields are required")
+        }
     }
 
     return <>
@@ -43,26 +75,23 @@ export default function SignIn () {
                     <Link to="/sign-up"><span>Sign Up.</span></Link>
                 </Text>
                 <Box w="85%" mt="20px">
-                    <GoogleLogin onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} />
+                    <GoogleLogin buttonText="Sign in with Google" onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} />
                 </Box>  
             </Box>
             <form onSubmit={(e) => e.preventDefault()}> {}
                 <FormControl mb={3} isInvalid={formError}>
                     <FormLabel>Email Address</FormLabel>
-                    <Input placeholder='Enter your email address' w="85%" name="email" />
+                    <Input placeholder='Enter your email address' w="85%" name="email" value={input.email} onChange={handleInputChange}/>
                     </FormControl>
                     <FormControl isInvalid={formError}>
                         <FormLabel>Password</FormLabel>
-                        <Input type="password" placeholder='Enter your password' w="85%" name="password"/>
-                    </FormControl>
-                    <Flex w="85%" mt={4} alignItems="center">
-                        <Checkbox colorScheme="facebook">Remember me?</Checkbox>
-                        <Spacer />
+                        <Input type="password" placeholder='Enter your password' w="85%" name="password" value={input.password} onChange={handleInputChange}/>
+                        <FormErrorMessage>{formError}</FormErrorMessage>
+                    </FormControl> 
+                    <Button colorScheme="facebook" type="submit" h="40px" w="85%" mt={6} onClick={handleClick}>Sign In</Button>
+                    <Flex w="85%" mt={4} justifyContent="center">
                         <Text><Link to="/">Forgot Password?</Link></Text>
                     </Flex>
-                    
-                    <Button colorScheme="facebook" type="submit" h="40px" w="85%" mt={4}>Sign In</Button>
-
                 </form>
         </Box>
      </Box>
