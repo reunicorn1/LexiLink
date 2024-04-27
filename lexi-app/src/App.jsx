@@ -7,6 +7,7 @@ import SignIn from "./pages/SignIn"
 import Browser from "./pages/Browser"
 import SignUp from "./pages/SignUp"
 import NotFound from "./pages/NotFound"
+import Dashboard from "./pages/Dashboard";
 
 
 function App() {
@@ -21,7 +22,7 @@ function App() {
             <Route path="/sign-in" element= {<SignIn />}></Route>
             <Route path="/sign-up" element={<SignUp />}></Route>
             <Route path="/browse" element={<Browser />}></Route>
-            <Route path="/dashboard" element={<Browser />}></Route>
+            <Route path="/dashboard" element={<Dashboard />}></Route>
             <Route path="*" element={<NotFound />}></Route>
       </Routes>
    </AuthProvider>

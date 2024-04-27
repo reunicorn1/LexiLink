@@ -159,7 +159,7 @@ class Logout(Resource):
 class Refresh(Resource):
     @jwt_required(refresh=True)
     @auth.expect(auth_parser)
-    def post(self):
+    def get(self):
         """ Refreshes a user's token """
         user_type = get_jwt()['user_type']
 

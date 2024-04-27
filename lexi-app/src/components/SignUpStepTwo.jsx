@@ -31,7 +31,7 @@ import Success from "./Success";
         
         (async () => {
             try{
-                const checkuser = await axios.post("http://127.0.0.1:5000/auth/verify_username", {username: input.username})
+                const checkuser = await axios.post("http://127.0.0.1:5000/auth/verify_username", {username: input.username, user_type: "student"})
                 setFormError({...errors})
                 if (Object.values(input).every(value => value)) {
                     // send the data to the end point 

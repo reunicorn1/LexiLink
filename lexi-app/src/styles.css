@@ -35,3 +35,9 @@ span {
 .image-container:hover .still-image {
   display: none; /* Hide still image on hover */
 }
+
+.email {
+  color: grey;
+  text-decoration: none;
+  font-size: 15px;
+}

@@ -1,14 +1,14 @@
 import { useState } from "react";
-import bcrypt from "bcryptjs-react";
+//import bcrypt from "bcryptjs-react";
 import SignUpStepOne from "../components/SignUpStepOne";
 import SignUpStepTwo from "../components/SignUpStepTwo";
 import axios from "axios";
 
-const salt = bcrypt.genSaltSync(10);
+//const salt = bcrypt.genSaltSync(10);
 
 export default function SignUp () {
 
-    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"" })
+    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:""});
     let emailValid = true;
@@ -38,7 +38,7 @@ export default function SignUp () {
             }
             setFormError({ ...errors }); 
             if (input.email && isValidEmail(input.email) && input.password.length >= 6 && emailValid) {
-                setInput({ ...input, password: bcrypt.hashSync(input.password, salt) });
+                // setInput({ ...input, password: bcrypt.hashSync(input.password, salt) });
                 // Sending data to the API, receiving either an error or not
                 handleNext();
             }
@@ -63,7 +63,7 @@ export default function SignUp () {
     };
 
 
-    // After Api is implemented, check if the email is in the database after user clicks submit 
+    // After Api is implemented, check if the email is in the database after user clicks submit  --- DONE
 
     return <>
             {step === 1 && <SignUpStepOne input={input} formError={formError} onChange={handleInputChange} onClick={handleClick}></SignUpStepOne>}

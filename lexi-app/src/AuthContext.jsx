@@ -40,12 +40,12 @@ export const AuthProvider = ({ children }) => {
   const refresh = () => {
     (async ()=>{
       try {
-        const result = await axios.post("http://127.0.0.1:5000/auth/refresh", { headers: {Authorization: "Bearer " + refreshToken} });
+        const result = await axios.get("http://127.0.0.1:5000/auth/refresh",{ headers: {Authorization: "Bearer " + refreshToken} } );
         setAuthToken(result.data.access_token);
       } catch (error) {
-        console.log("Error occured while refreshing the access token");
+        console.log(error.response.data.error);
       }
-    })
+    })();
   }
 
   return (
