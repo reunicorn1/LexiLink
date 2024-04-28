@@ -148,3 +148,23 @@ class FavoriteMentors(Resource):
         student.favorite_mentors.append(mentor)
         student.save()
         return make_response(jsonify({}), 200)
+    
+    
+    @std.expect(auth_parser, student_mentor_model)
+    @jwt_required()
+    def delete(self):
+        """ Removes a favorite mentor from a student """
+        username = get_jwt_identity()
+        claims = get_jwt()
+        if claims['user_type'] != 'student':
+            return make_response(jsonify({"error": "Unauthorized"}), 401)
+        student = storage.find_by("StudentModel", username=username)
+        if student is None:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        data = request.get_json()
+        mentor = storage.find_by("MentorModel", username=data.get('mentor'))
+        if mentor is None:
+            return make_response(jsonify({"error": "Mentor not found"}), 404)
+        student.favorite_mentors.remove(mentor)
+        student.save()
+        return make_response(jsonify({}), 200)

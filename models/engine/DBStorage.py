@@ -62,7 +62,7 @@ class DBStorage:
         """
         Base.metadata.create_all(self.__engine)
         self.__session = scoped_session(sessionmaker(bind=self.__engine,
-                                        expire_on_commit=False))()
+                                        expire_on_commit=False))
 
     def all(self, cls=None):
         """query on the current database session
@@ -99,10 +99,15 @@ class DBStorage:
         if obj:
             self.__session.delete(obj)
 
+    def rollback(self):
+        """rollback all changes of the current db session
+        """
+        self.__session.rollback()
+
     def close(self):
         """call remove method on the private session attribute
         """
-        self.__session.close()
+        self.__session.remove()
 
     def drop(self, cls=None):
         """drop all tables
@@ -115,10 +120,6 @@ class DBStorage:
         """
         Base.metadata.drop_all(self.__engine)
 
-    def rollback(self):
-        """rollback all changes
-        """
-        self.__session.rollback()
 
     def get(self, cls, id):
         """get an object by class and id

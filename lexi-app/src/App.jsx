@@ -27,7 +27,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />}></Route>
             <Route path="/profile" element={<Profile />}></Route>
             <Route path="/dashboard" element={<Browser />}></Route>
-			      <Route path="/room" element={<Room />}></Route>
+            <Route path="/room" element={<Room />}></Route>
             <Route path="*" element={<NotFound />}></Route>
       </Routes>
    </AuthProvider>

@@ -45,6 +45,8 @@ def create_app():
     @app.teardown_appcontext
     def close_db(error):
         """ Close Storage """
+        if error:
+            storage.rollback()
         storage.close()
 
     @app.errorhandler(404)
