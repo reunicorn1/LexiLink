@@ -16,11 +16,13 @@ export default function NavBar () {
             (async () => {
                 try {
                     const result = await axios.get("http://127.0.0.1:5000/student/profile",{ headers: {Authorization: "Bearer " + authToken} } );
-                    // console.log(result.data);
+                    //console.log(result.data);
                     setUser(result.data);
                     setProfilePic(result.data.profile_picture);
                 } catch(error) {
-                    refresh()
+                    if (error.response.status === 410){
+                        refresh()
+                    }
                 }
             })();
         }
@@ -35,7 +37,7 @@ export default function NavBar () {
                 {isSmallScreen ? null : <>
                         <Link to='/'><Button colorScheme='gray' color={location === '/' ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
                         <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
-                        <Link to='join-us'><Button colorScheme='gray' color={location === '/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link> 
+                        <Link to='/room'><Button colorScheme='gray' color={location === '/room' ? 'brand.700' : 'black'} variant='ghost'>Room</Button></Link> 
                     </>}
                 {authToken ? <Box ml={4} className="image-container">
                     <MenuDisplay>

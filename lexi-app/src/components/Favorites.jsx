@@ -9,31 +9,28 @@ export default function Favorites() {
     const isLargeScreen = useBreakpointValue({ base: false, xl: true });
     const { authToken, refresh } = useAuth();
     const [mentors, setMentors] = useState(null);
-    // const getMentors = async () => {
-    //         try {
-    //             const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} } );
-    //             console.log(result.data);
-    //             setMentors(result.data);
-    //             // If email is not used, emailValid should remain true
-    //         } catch (error) {
-    //             refresh();
-    //             if (error.response) {
-    //                 console.error("An error occurred:", error);
-    //             } 
-    //             getMentors();
-    //         }
-    //       };
+
+    const getMentors = (async () => {
+        try {
+            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
+            setMentors(result.data.mentors);
+            console.log(authToken);
+        } catch (error) {
+            console.log("An error occurred: in the favorites", error);
+        }
+    });
+
+    const handleDelete = (async (mentor) => {
+        try{
+            const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'DELETE', data: {mentor: mentor}} );
+            getMentors();
+        } catch(error){
+            console.log("An error occurred in deleting the favorites", error);
+        }
+    })
 
     useEffect(() => {
-        (async () => {
-            try {
-                const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
-                setMentors(result.data.mentors);
-                console.log(authToken);
-            } catch (error) {
-                console.log("An error occurred: in the favorites", error);
-            }
-        })();
+        getMentors();
     }, [authToken]);
 
     // Add a delete api so you make the buttons work, or ignore it totally and move on with your life
@@ -54,7 +51,7 @@ export default function Favorites() {
                                             <Text fontSize="xs">{mentor.type} Mentor</Text>
                                         </Box>
                                     </Flex>
-                                    <SmallCloseIcon ml="3" />
+                                    <SmallCloseIcon ml="3" onClick={() => handleDelete(mentor.username)}/>
                                 </Flex>
                             </Box>
                         ))}
