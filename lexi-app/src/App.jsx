@@ -7,6 +7,7 @@ import SignIn from "./pages/SignIn"
 import Browser from "./pages/Browser"
 import SignUp from "./pages/SignUp"
 import NotFound from "./pages/NotFound"
+import Room from "./pages/Room"
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/sign-up" element={<SignUp />}></Route>
             <Route path="/browse" element={<Browser />}></Route>
             <Route path="/dashboard" element={<Browser />}></Route>
+			      <Route path="/room" element={<Room />}></Route>
             <Route path="*" element={<NotFound />}></Route>
       </Routes>
    </AuthProvider>

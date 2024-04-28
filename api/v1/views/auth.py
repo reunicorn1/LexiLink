@@ -69,6 +69,13 @@ def load_user(email, user_type=None):
         return storage.find_by("MentorModel", email=email)
     return storage.find_by("StudentModel", email=email)
 
+@auth.route('/room', strict_slashes=False)
+class Room(Resource):
+    def get(self):
+        """ Get the room ID """
+        print('Room ID requested')
+        return make_response(jsonify({'roomID': '1'}), 200)
+
 
 @auth.route('/login', strict_slashes=False)
 class Login(Resource):
@@ -94,7 +101,7 @@ class Login(Resource):
                                                      user_type})
 
             if data.get('remember'):
-                login_user(user, remember=True)
+                login_user(user)
             else:
                 login_user(user)
             print(f'User {user.username} logged in')
@@ -159,7 +166,7 @@ class Logout(Resource):
 class Refresh(Resource):
     @jwt_required(refresh=True)
     @auth.expect(auth_parser)
-    def post(self):
+    def get(self):
         """ Refreshes a user's token """
         user_type = get_jwt()['user_type']
 
@@ -183,10 +190,13 @@ class Verify(Resource):
     def post(self):
         """ Verify if email exists """
         data = request.get_json()
+        if not data.get('email') or not data.get('user_type'):
+            return make_response(jsonify({'error': 'Invalid request data'}),
+                                 402)
         user = load_user(data.get('email'), data.get('user_type'))
         if user:
             return make_response(jsonify(
-                {'error': 'email already exists'}), 400)
+                {'error': 'Email already exists'}), 400)
         return make_response(jsonify({'status': 'success'}), 200)
 
 
@@ -196,6 +206,9 @@ class VerifyUsername(Resource):
     def post(self):
         """ Verify if username exists """
         data = request.get_json()
+        if not data.get('username') or not data.get('user_type'):
+            return make_response(jsonify({'error': 'Invalid request data'}),
+                                 402)
         if data.get('user_type') == 'mentor':
             user = storage.find_by("MentorModel",
                                    username=data.get('username'))
@@ -205,6 +218,6 @@ class VerifyUsername(Resource):
         else:
             return make_response(jsonify({'error': 'Invalid user type'}), 400)
         if user:
-            return make_response(jsonify({'error': 'username already exists'}),
+            return make_response(jsonify({'error': 'Username already exists'}),
                                  400)
-        return make_response(jsonify({'status': 'success'}), 200)
+        return make_response(jsonify({'status': 'Success'}), 200)

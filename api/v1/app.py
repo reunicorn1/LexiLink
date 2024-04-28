@@ -77,35 +77,35 @@ def create_app():
         return make_response(jsonify({
             'message': 'The token has expired',
             'error': 'token_expired'
-        }), 401)
+        }), 410)
 
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
         return make_response(jsonify({
             'message': 'Signature verification failed',
             'error': 'invalid_token'
-        }), 401)
+        }), 411)
 
     @jwt.unauthorized_loader
     def unauthorized_loader(error):
         return make_response(jsonify({
             'message': 'Request does not contain an access token',
             'error': 'authorization_required'
-        }), 401)
+        }), 412)
 
     @jwt.needs_fresh_token_loader
     def needs_fresh_token_callback():
         return make_response(jsonify({
             'message': 'The token is not fresh',
             'error': 'fresh_token_required'
-        }), 401)
+        }), 413)
 
     @jwt.revoked_token_loader
     def revoked_token_callback(jwt_header, jwt_data):
         return make_response(jsonify({
             'message': 'The token has been revoked',
             'error': 'token_revoked'
-        }), 401)
+        }), 444)
 
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blocklist(jwt_header, jwt_data):

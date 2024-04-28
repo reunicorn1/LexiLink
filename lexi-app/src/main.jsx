@@ -28,11 +28,11 @@ const theme = extendTheme({ colors })
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ChakraProvider theme={theme}>
     <GoogleOAuthProvider clientId="76995164858-097b9m0l06ct4h8342cdb70srium1abr.apps.googleusercontent.com">
-      <React.StrictMode>
+      {/* <React.StrictMode> */}
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </React.StrictMode>
+      {/* </React.StrictMode> */}
     </GoogleOAuthProvider>
   </ChakraProvider>
 );
