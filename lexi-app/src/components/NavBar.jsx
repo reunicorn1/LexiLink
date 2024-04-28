@@ -21,7 +21,7 @@ export default function NavBar () {
                     setProfilePic(result.data.profile_picture);
                 } catch(error) {
                     if (error.response.status === 410){
-                        refresh()
+                        //refresh()
                     }
                 }
             })();
