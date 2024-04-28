@@ -59,7 +59,8 @@ def random_mentor():
             "availability": random_availability(),
             "type": random_type(),
             "bio": fake.text(),
-            "demo_video": fake.url()
+            "demo_video": fake.url(),
+            "user_type": "mentor"
             }
 
 
@@ -71,7 +72,7 @@ def create_n_mentors(n):
     """
     for _ in range(n):
         mentor = random_mentor()
-        response = requests.post("http://127.0.0.1:5000/mentor/signup/",
+        response = requests.post("http://127.0.0.1:5000/auth/signup/",
                                  json=mentor)
         if response.status_code == 200:
             with open("mentor.json", "a+") as f:

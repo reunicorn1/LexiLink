@@ -3,38 +3,28 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useEffect, useState } from 'react';
+import MenuDisplay from './Menu';
 
 export default function NavBar () {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const { authToken, login, logout, refresh } = useAuth();
+    const { authToken, setUser, refresh } = useAuth();
     const [profilePic, setProfilePic] = useState("");
-    const [name, setName] = useState("");
 
     useEffect(() => {
         if (authToken) {
             (async () => {
                 try {
                     const result = await axios.get("http://127.0.0.1:5000/student/profile",{ headers: {Authorization: "Bearer " + authToken} } );
-                    console.log(result.data);
-                    setProfilePic(result.data.profilePic);
-                    setName(result.data.first_name);
+                    // console.log(result.data);
+                    setUser(result.data);
+                    setProfilePic(result.data.profile_picture);
                 } catch(error) {
                     refresh()
                 }
             })();
         }
-    }),[authToken]
-
-    // const handleInfo = async(profilePic, name) => {
-    //     try{
-    //         await setProfilePic(profilePic);
-    //         await setName(name);
-    //     } catch (error) {
-    //         console.log(error);
-    //         console.log("Error while loading user's information");
-    //     }
-    // }
+    },[authToken]);
 
     return (
             <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white"  rounded="full" boxShadow='base'>
@@ -48,11 +38,16 @@ export default function NavBar () {
                         <Link to='join-us'><Button colorScheme='gray' color={location === '/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link> 
                     </>}
                 {authToken ? <Box ml={4} className="image-container">
-                    {/*<Avatar size="xs" bg='red.500'></Avatar>*/}
-                    <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
-                    <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
-                    
-                </Box> : 
+                    <MenuDisplay>
+                        { profilePic ? 
+                            <Avatar size="sm" bg='red.500' src={profilePic}></Avatar> 
+                            : <>
+                                <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
+                                <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
+                            </>
+                        }
+                    </MenuDisplay>
+                 </Box> : 
                 <Box>
                     <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
                     <Link to='/sign-up' ><Button colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
