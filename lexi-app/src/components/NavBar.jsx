@@ -8,7 +8,7 @@ import MenuDisplay from './Menu';
 export default function NavBar () {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const { authToken, login, logout, refresh } = useAuth();
+    const { authToken, setUser, refresh } = useAuth();
     const [profilePic, setProfilePic] = useState("");
 
     useEffect(() => {
@@ -16,13 +16,15 @@ export default function NavBar () {
             (async () => {
                 try {
                     const result = await axios.get("http://127.0.0.1:5000/student/profile",{ headers: {Authorization: "Bearer " + authToken} } );
+                    // console.log(result.data);
+                    setUser(result.data);
                     setProfilePic(result.data.profile_picture);
                 } catch(error) {
                     refresh()
                 }
             })();
         }
-    }),[authToken]
+    },[authToken]);
 
     return (
             <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white"  rounded="full" boxShadow='base'>

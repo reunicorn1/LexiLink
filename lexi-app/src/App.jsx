@@ -1,5 +1,5 @@
-import { Router, Route, Routes, useLocation } from "react-router-dom"
-import { AuthProvider, useAuth } from './AuthContext';
+import { Route, Routes, useLocation } from "react-router-dom"
+import { AuthProvider } from './AuthContext';
 import Home from "./pages/Home"
 import NavBar from "./components/NavBar"
 import JoinUs from "./pages/JoinUs"
@@ -8,6 +8,7 @@ import Browser from "./pages/Browser"
 import SignUp from "./pages/SignUp"
 import NotFound from "./pages/NotFound"
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/sign-up" element={<SignUp />}></Route>
             <Route path="/browse" element={<Browser />}></Route>
             <Route path="/dashboard" element={<Dashboard />}></Route>
+            <Route path="/profile" element={<Profile />}></Route>
             <Route path="*" element={<NotFound />}></Route>
       </Routes>
    </AuthProvider>

@@ -10,31 +10,42 @@ import {
     StatNumber,
     StatGroup,
     Spacer,
+    Avatar,
     useBreakpointValue
 } from "@chakra-ui/react"
+import { useEffect } from "react";
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-
-import { Link } from "react-router-dom";
+import { useAuth } from '../AuthContext';
+import { Link, useNavigate } from "react-router-dom";
 import UpcomingClass from "../components/UpcomingClass";
 import Favorites from "../components/Favorites";
 
 
 export default function Dashboard() {
     const isLargeScreen = useBreakpointValue({ base: false, xl: true });
+    const { user, authToken } = useAuth();
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!authToken){
+            navigate("/");
+        }
+    }, [])
 
     return <>
     <Box display="flex" m="10px" flexDirection={!isLargeScreen ? 'column' : 'row'}justifyContent="center">
         <Flex direction="column" maxW={isLargeScreen ? "500px" : undefined}>
-            <Flex m="20px" bg="white" boxShadow='lg' direction="column" textAlign="center"  p="30px" rounded={'xl'}>
+            <Flex m="20px" bg="white" boxShadow='lg' direction="column" textAlign="center" p="30px" rounded={'xl'}>
                 <Center>
-                    <Image src="/img/boyss.png" borderRadius='full' boxSize='120px' ></Image>
+                    <Avatar size="xl" bg="brand.700"src={user.profile_pic} mb="0px"></Avatar>
                 </Center>
                 <Center>
-                    <Heading m="30px" mb="3px"size="xl">Hello, Reem!</Heading>
+                    <Heading mt="10px" mb="3px"size="xl">Hello, {user.first_name}</Heading>
                 </Center>
                 <Text color="grey">Welcome to endless possibilities.</Text>
                 <Box mt="20px">
-                    <StatGroup>
+                    <StatGroup> {/* Don't forget to add info about sessions of the student */}
                         <Stat rounded="xl" bg="teal.100" p="10px" m="10px">
                             <StatLabel fontSize="md">Minutes</StatLabel>
                             <StatNumber fontSize="3xl">345,670</StatNumber>
@@ -75,10 +86,7 @@ export default function Dashboard() {
                     <UpcomingClass></UpcomingClass>
                 </Box>
                 <Spacer></Spacer>
-                <Box>
-                    <Heading mb={4} fontSize={"xl"}>Favorites</Heading>
-                    <Favorites></Favorites>
-                </Box>
+                <Favorites></Favorites>
             </Box>
         </Box>
     </Box>

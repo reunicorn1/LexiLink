@@ -47,7 +47,7 @@ export default function MenuDisplay ({children}) {
         </MenuButton>
         <Portal>
         <MenuList>
-            <Link to="/dashboard"><MenuItem>Profile</MenuItem></Link>
+            <Link to="/profile"><MenuItem>Profile</MenuItem></Link>
             <MenuItem>Invite a friend</MenuItem>
             <MenuDivider />
             <MenuItem color="red" onClick={handleLogOut}>Log Out</MenuItem>
