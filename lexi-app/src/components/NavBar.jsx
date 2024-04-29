@@ -15,18 +15,20 @@ export default function NavBar () {
         if (authToken) {
             (async () => {
                 try {
-                    const result = await axios.get("http://127.0.0.1:5000/student/profile",{ headers: {Authorization: "Bearer " + authToken} } );
-                    //console.log(result.data);
+                    console.log(authToken);
+                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + authToken} } );
                     setUser(result.data);
                     setProfilePic(result.data.profile_picture);
                 } catch(error) {
                     if (error.response.status === 410){
-                        //refresh()
+                        console.log(error.response);
+                        refresh();
                     }
                 }
             })();
         }
-    },[authToken]);
+    },[]);
+
 
     return (
             <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white"  rounded="full" boxShadow='base'>
@@ -35,7 +37,7 @@ export default function NavBar () {
                 </Box>
                 <Spacer></Spacer>
                 {isSmallScreen ? null : <>
-                        <Link to='/'><Button colorScheme='gray' color={location === '/' ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
+                        <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
                         <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
                         <Link to='/room'><Button colorScheme='gray' color={location === '/room' ? 'brand.700' : 'black'} variant='ghost'>Room</Button></Link> 
                     </>}

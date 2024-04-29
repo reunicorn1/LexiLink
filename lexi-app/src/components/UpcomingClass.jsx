@@ -12,7 +12,6 @@ import {
     Heading,
     Text,
     Badge,
-    Center,
   } from '@chakra-ui/react'
   {/*
         --- Every status type has a certain color ---
