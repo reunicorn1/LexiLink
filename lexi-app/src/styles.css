@@ -10,8 +10,10 @@ form {
     margin-bottom: 0px;
     margin-top: 20px;
 }
+
+
 span {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .image-container {

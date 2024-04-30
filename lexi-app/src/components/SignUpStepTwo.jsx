@@ -109,7 +109,7 @@ import Success from "./Success";
                         <Input isInvalid={Boolean(formError.first_language)} mb={3}placeholder="Enter your first language" name="first_language" value={input.first_language} onChange={onChange}></Input>
                     </FormControl>
                     <FormLabel>Nationality</FormLabel>
-                    <Select isInvalid={Boolean(formError.nationality)} mb={7} placeholder='Select your nationality' name="nationality" onChange={onChange}>
+                    <Select isInvalid={Boolean(formError.nationality)} mb={7} placeholder='Select your nationality' name="nationality" value={input.nationality} onChange={onChange}>
                          {countries?.map((item, index) => (                      
                             <option key={index} value={item.demonyms.eng.m}>
                                 {item.demonyms.eng.m}
