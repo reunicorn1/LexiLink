@@ -9,10 +9,11 @@ import {
     RangeSliderFilledTrack,
     RangeSliderThumb
   } from '@chakra-ui/react'
-import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement, createMultiStyleConfigHelpers, defineStyle, Select } from '@chakra-ui/react'
+import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { SearchIcon, ChevronDownIcon} from '@chakra-ui/icons'
 import { useState, useEffect } from 'react';
 import axios from "axios";
+import BrowsingSection from '../components/BrowsingSection';
 
 
 export default function Browser () {
@@ -41,7 +42,7 @@ export default function Browser () {
     
     return <>
         <Box display="flex"  justifyContent="center" bg="brand.800" color="white">
-            <Box display={{base: "block", lg: "flex"}}  p="60px" pt="10px" pb="10px" maxW="1200px">
+            <Box display={{base: "block", lg: "flex"}}  p="60px" pt="10px" maxW="1200px">
                 <Box pt="70px" m={{base: "0px", lg:"10px"}}>
                     <Tag size={'md'} mb={4} variant="outline" color="white" textDecoration="none" borderWidth={2}><Text as="b">1-on-1 Sessions</Text></Tag>
                     <Heading fontSize="4xl" mb={4}>Empower Your Learning Journey with Tailored Mentorship</Heading>
@@ -52,7 +53,7 @@ export default function Browser () {
         </Box>
         <Box display="flex"  justifyContent="center" >
             {/* search box */}
-            <Box p="60px" w={{base:"100%", lg: "60%"}}>
+            <Box p="40px" w={{base:"100%", lg: "60%"}}>
                 <InputGroup size='md' color="white">
                     <Input
                         boxShadow="md"
@@ -69,8 +70,8 @@ export default function Browser () {
                 </InputGroup>
                 <Box display="flex" mt={4} justifyContent={"center"} gap={3}>
                     <Menu closeOnSelect={false}>
-                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full">
-                            Type
+                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full"  overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
+                            <Text display={{base: "none", sm: "block"}}>Type</Text>
                         </MenuButton>
                         <MenuList>
                             <MenuItem>
@@ -82,8 +83,8 @@ export default function Browser () {
                         </MenuList>
                     </Menu>
                     <Menu closeOnSelect={false} boundary={"scrollParent"}>
-                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full">
-                            First language
+                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full" overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
+                            <Text display={{base: "none", sm: "block"}}>First language</Text>
                         </MenuButton>
                         <MenuList height="300px" overflowY="auto">
                             {languages.map((lang) => (
@@ -94,8 +95,8 @@ export default function Browser () {
                         </MenuList>
                     </Menu>
                     <Menu closeOnSelect={false}>
-                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full">
-                            Price
+                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full"  overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
+                            <Text display={{base: "none", sm: "block"}}>Price</Text>
                         </MenuButton>
                         <MenuList>
                             <MenuItem> 
@@ -115,8 +116,6 @@ export default function Browser () {
                 </Box>
             </Box>
         </Box>
-        <Box display="flex">
-            
-        </Box>
+        <BrowsingSection />
     </>
 }

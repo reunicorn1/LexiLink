@@ -11,9 +11,9 @@ form {
     margin-top: 20px;
 }
 
-
-span {
-  text-decoration: none;
+.fixed-section {
+  position: sticky !important;
+  top: 0;
 }
 
 .image-container {
