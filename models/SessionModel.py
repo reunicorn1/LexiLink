@@ -15,7 +15,7 @@ import datetime
 from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 
 
-choices = ('Pending', 'Approved', 'Declined', 'Completed')
+choices = ('Pending', 'Approved', 'Declined', 'Completed', 'Cancelled')
 
 
 @store(
