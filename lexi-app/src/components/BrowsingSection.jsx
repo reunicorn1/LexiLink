@@ -8,7 +8,7 @@ import { useAuth } from '../AuthContext';
 export default function BrowsingSection () {
     const { authToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, md: true });
-    const [isClicked, setIsClicked] = useState();
+    const [isClicked, setIsClicked] = useState(null);
     const [page, setPage] = useState(1);
     const [mentors, setMentors] = useState([]);
     const [favorites, setFavorites] = useState([]);
@@ -122,24 +122,24 @@ export default function BrowsingSection () {
                     <Box display="flex" justifyContent="center" textAlign="center">
                         <Box>
                             <Avatar m="20px" size="2xl" src={isClicked?.profile_picture}></Avatar>
-                            <Heading fontSize="3xl">{isClicked.first_name} {isClicked.last_name}</Heading>
-                            <Badge colorScheme={isClicked.type === "Community" ? 'blue' : 'yellow'}>{isClicked.type} Mentor</Badge>
+                            <Heading fontSize="3xl">{isClicked?.first_name} {isClicked?.last_name}</Heading>
+                            <Badge colorScheme={isClicked?.type === "Community" ? 'blue' : 'yellow'}>{isClicked?.type} Mentor</Badge>
                         </Box>
                     </Box>
                     <Box m="20px">
                         <Heading mb={2} fontSize="lg">Languages</Heading>
                         <Flex mb={4} gap={2}>
-                            <Tag>{isClicked.first_language}</Tag>
-                            <Tag>{isClicked.other_languages}</Tag>
+                            <Tag>{isClicked?.first_language}</Tag>
+                            <Tag>{isClicked?.other_languages}</Tag>
                             <Tag>Arabic</Tag>
                         </Flex>
                         <Heading mb={1} fontSize="lg">Bio</Heading>
-                        <Text mb={4}>{isClicked.bio}</Text>
+                        <Text mb={4}>{isClicked?.bio}</Text>
                         <Heading mb={1} fontSize="lg">Expertise</Heading>
-                        <Text mb={4}>{isClicked.expertise}</Text>
+                        <Text mb={4}>{isClicked?.expertise}</Text>
                         <Divider orientation='horizontal' mb={6}/>
                         <iframe width="100%" height="315"
-                        src={isClicked.demo_video}>
+                        src={isClicked?.demo_video}>
                         </iframe>
                         <Accordion mt={4} allowToggle>
                             <AccordionItem>
