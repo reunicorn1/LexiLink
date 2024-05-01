@@ -1,217 +1,264 @@
-import React, { useRef, useEffect, useState } from 'react';
-import axios from 'axios';
-import AgoraRTC from 'agora-rtc-sdk-ng';
+import React, { useEffect, useState } from 'react';
+import AgoraRTC from "agora-rtc-sdk-ng";
 
-import {
-  onCameraChanged,
-  onMicrophoneChanged
-} from "agora-rtc-sdk-ng/esm"
-
-import VideoPlayer from './VideoPlayer';
-
-const token = '007eJxTYAjN/lD9uKLRMSQi5LrBzqZKbgHFy89uRB92XFzjsD/iVLkCg5lFWlKKsXFSorG5sYmBgamlcUpKcmJqoolZkolFWooR+2KdtIZARgYr8WJmRgYIBPFZGHJSKzIZGABIAx6j';
-const appID = '68fbd33ba373400593ddcaea46b48fd2';
-const channel = 'lexi';
-const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-onCameraChanged((device) => {
-  console.log("oncamerachanged: ", device);
-})
-onMicrophoneChanged((device) => {
-  console.log("onmicrophonechanged: ", device);
-})
 const RoomComponent = () => {
 
-  const [users, setUsers] = useState([]);
-  const [localTracks, setLocalTracks] = useState([]);
-  const [isAudioOn, setIsAudioOn] = useState(false);
-  const [isVideoOn, setIsVideoOn] = useState(false);
-  const uid = String(Math.floor(Math.random() * 1000000));
-  const [localUid, setLocalUid] = useState(uid);
-  const [audioTrack, setAudioTrack] = useState();
-  const [videoTrack, setVideoTrack] = useState();
+  let config = {
+    appid: import.meta.env.VITE_AGORA_APPID,
+    token: import.meta.env.VITE_AGORA_TOKEN,
+    uid: null,
+    channel: import.meta.env.VITE_AGORA_CHANNEL
+  };
+  let localTracks = {
+    audioTrack: null,
+    videoTrack: null
+  }
+  let localTrackState = {
+    audioTrackMuted: false,
+    videoTrackMuted: false
+  }
+  let localUser = null
+  let remoteTracks = {}
+  let client = null
+  let localUid = null
+  let remoteUid = null
+  const playerHtml = (uid) => (
+    `<div class="video-containers" id="video-wrapper-${uid}">
+      <p class="user-uid"><img class="volume-icon" id="volume-${uid}" src="/img/assets/volume-on.svg" /></p>
+      <div class="video-player player" id="stream-${uid}"></div>
+    </div>`
+  );
 
 
-  const turnOnCamera = async (flag) => {
-    flag = flag ?? !isVideoOn;
-    setIsVideoOn(flag);
+  const joinStreams = async () => {
+    client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+    client.on('user-published', handleUserJoined);
+    client.on('user-left', handleUserLeft);
+    client.on('volume-indicator', handleVolumeIndicator);
+    client.enableAudioVolumeIndicator();
+    console.log('joinStreams called');
+    // client.on("user-published", handleUserJoined);
+    [config.uid, localTracks.audioTrack, localTracks.videoTrack] = await Promise.all([
+      client.join(config.appid, config.channel, config.token || null, config.uid || null),
+      AgoraRTC.createMicrophoneAudioTrack(),
+      AgoraRTC.createCameraVideoTrack()
+    ]).catch(err => {
+      console.log('errortest');
+      console.error(err);
+    });
+    localUid = config.uid;
 
-    if (videoTrack) {
+    console.log('localTracks', localTracks);
+    try {
+      if (localTracks.audioTrack) {
 
-      return videoTrack.setEnabled(flag);
+        await localTracks.audioTrack.setEnabled(true);
+        await localTracks.audioTrack.setMuted(localTrackState.audioTrackMuted);
+      }
+      if (localTracks.videoTrack) {
+        await localTracks.videoTrack.setEnabled(true);
+        await localTracks.videoTrack.setMuted(localTrackState.videoTrackMuted);
+      }
+    } catch (err) {
+      console.error(err);
     }
-    videoTrack = await createCameraVideoTrack();
+
+    const player = document.getElementById('user-streams');
+    if (!player) {
+      console.error('Player element not found.');
+    }
+    if (localTracks.videoTrack && player) {
+    //   const playerHtml = (uid) => (
+    //     `<div class="video-containers" id="video-wrapper-${uid}">
+    //   <p class="user-uid"><img class="volume-icon" id="volume-${uid}" src="/img/assets/volume-on.svg" /></p>
+    //   <div class="video-player player" id="stream-${uid}"></div>
+    // </div>`
+    //   );
+
+
+      player.insertAdjacentHTML('beforeend', playerHtml(config.uid));
+      localTracks.videoTrack.play(`stream-${config.uid}`);
+      const userVideo = document.getElementById(`video-wrapper-${config.uid}`);
+      player.querySelector('p > img').insertAdjacentHTML('beforeend', `<p class="user-uid">${localUser}</p>`);
+      userVideo.classList.add('video-player');
+      if (localUid === config.uid) {
+        userVideo.classList.add('small');
+      }
+      player.style.display = 'grid';
+    }
+    else {
+      console.error('Local video track not found.');
+    }
+    console.log('publishing');
+    await client.publish([localTracks.audioTrack, localTracks.videoTrack]);
   };
 
-  const turnOnMicrophone = async (flag) => {
-    flag = flag ?? !isAudioOn;
-    setIsAudioOn(flag);
 
-    if (audioTrack) {
-      return audioTrack.setEnabled(flag);
-    }
 
-    audioTrack = await createMicrophoneAudioTrack();
-    // audioTrack.play();
-  };
-
-  const [isJoined, setIsJoined] = useState(false);
-  const joinChannel = async () => {
-    if (!channel.current) {
-      channel.current = "react-room";
-    }
-
-    if (isJoined) {
-      await leaveChannel();
-    }
-
-    client.on("user-published", handleUserJoined);
-
-    ID
-    console.log("joined channel");
-    setIsJoined(true);
+  const handleJoinButtonClick = async () => {
+    console.log('handleJoinButtonClick called');
+    localUser = document.getElementById('username').value;
+    if (!username) return;
+    document.getElementById('join-wrapper').style.display = 'none';
+    document.getElementById('foot').style.display = 'flex';
+    await joinStreams();
   };
 
 
-  const leaveCall = async () => {
+
+  const handleMicButtonClick = async () => {
+    console.log('handleMicButtonClick called');
+    console.log('localTracks', localTracks);
+    if (!localTracks.audioTrack) return;
+    if (!localTrackState.audioTrackMuted) {
+      await localTracks.audioTrack.setMuted(true);
+      localTrackState.audioTrackMuted = true;
+      console.log('localUid', localUid)
+      document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-off.svg';
+      document.getElementById('mic-btn').style.backgroundColor = 'red';
+    } else {
+      await localTracks.audioTrack.setMuted(false);
+      localTrackState.audioTrackMuted = false;
+      document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-on.svg';
+      document.getElementById('mic-btn').style.backgroundColor = 'green';
+    }
+  };
+
+  const handleCameraButtonClick = async () => {
+    console.log('handleCameraButtonClick called');
+    if (!localTrackState.videoTrackMuted) {
+      await localTracks.videoTrack.setMuted(true);
+      localTrackState.videoTrackMuted = true;
+      document.getElementById('camera-btn').style.backgroundColor = 'rgb(255, 80, 80, 0.7)';
+    } else {
+      await localTracks.videoTrack.setMuted(false);
+      localTrackState.videoTrackMuted = false;
+      document.getElementById('camera-btn').style.backgroundColor = '#1f1f1f8e';
+    }
+  };
+
+  const handleLeaveButtonClick = async () => {
+    console.log('handleLeaveButtonClick called');
+    document.getElementById('join-wrapper').style.display = 'none';
+    document.getElementById('foot').style.display = 'block';
+    document.getElementById('user-streams').style.display = 'none';
+    document.getElementById('user-streams').innerHTML = '';
+    // add class to user-streams
+
+    console.log('Disconnecting from channel');
+    for (const trackName in localTracks) {
+      let track = localTracks[trackName];
+      if (track) {
+        track.stop();
+        track.close();
+        localTracks[trackName] = null;
+        track = null;
+      }
+    }
     await client.leave();
+    console.log('Disconnected from channel');
+    // remove class from user-streams
+    document.getElementById('user-streams').classList.remove('small');
+    document.getElementById('user-streams').classList.remove('video-player');
+    document.getElementById('user-streams').classList.remove('large');
+    document.getElementById('user-streams').style.display = 'none';
+    document.getElementById('user-streams').innerHTML = '';
+    remoteTracks = {};
+    localTracks = {};
+    localTrackState = {};
+    localUser = '';
+    localUid = '';
+    remoteUid = '';
+    config = {};
+
     window.location.reload();
   };
+
   const handleUserJoined = async (user, mediaType) => {
+    console.log('handleUserJoined called');
+    console.log('user', user);
+    console.log('mediaType', mediaType);
+    console.log('remoteTracks', remoteTracks);
+    remoteTracks[user.uid] = user;
+    console.log('number of users connected pre join: ', client.remoteUsers.length);
+    if (client.remoteUsers.length > 1) {
+      //  block user from joining
+      console.log('block user from joining');
+      handleUserLeft(user);
+      handleLeaveButtonClick();
+      return;
+    }
+    console.log('number of users connected: ', client.remoteUsers.length);
     await client.subscribe(user, mediaType);
 
     if (mediaType === 'video') {
-      // const remoteTrack = await client.subscribe(user, mediaType);
-      // remoteTrack.play(user.uid);
-      setVideoTrack(user.videoTrack);
-      setUsers((previousUsers) => [...previousUsers, user]);
+      const player = document.getElementById('user-streams');
+      if (player) {
+        player.style.display = 'flex';
+        player.insertAdjacentHTML('beforeend', playerHtml(user.uid));
+        const userVideo = document.getElementById(`video-wrapper-${user.uid}`);
+        console.log('useid', user.uid)
+        user.videoTrack.play(`stream-${user.uid}`);
+        userVideo.classList.add('video-player');
+        console.log('applyuing class')
+        if (localUid === config.uid) {
+          const videoWrapper = document.getElementById(`video-wrapper-${localUid}`);
+          if (videoWrapper) {
+            videoWrapper.classList.add('small');
+            console.log('small class applied')
+          } else {
+            console.error(`Element with id video-wrapper-${config.uid} not found`);
+          }
+        }
+        else {
+          userVideo.classList.add('large');
+        }
+      }
+      else {
+        console.error('Player element not found.');
+      }
     }
+
     if (mediaType === 'audio') {
-      // const remoteTrack = await client.subscribe(user, mediaType);
-      // remoteTrack.play();
-      setAudioTrack(user.audioTrack);
       user.audioTrack.play();
     }
-    // make video class large
-    document.querySelector(`.video-player`).classList.replace('large');
-
   };
-
 
   const handleUserLeft = (user) => {
-    setUsers((previousUsers) => previousUsers.filter((u) => u.uid !== user.uid));
+    const newRemoteTracks = { ...remoteTracks };
+    delete newRemoteTracks[user.uid];
+    remoteTracks = newRemoteTracks;
+    const player = document.getElementById(`video-wrapper-${user.uid}`);
+    if (player) player.remove();
+    client.unsubscribe(user);
+    // handleLeaveButtonClick();
   };
-  useEffect(() => {
-    client.on('user-published', handleUserJoined);
-    client.on('user-left', handleUserLeft);
 
-    client
-      .join(appID, channel, token, uid)
-      .then((uid) =>
-        Promise.all([
-          AgoraRTC.createMicrophoneAndCameraTracks(
-            {
-              audio: {
-                autoGainControl: true,
-                echoCancellation: true,
-                noiseSuppression: true,
-                sampleRate: 48000,
-              },
-              video: {
-                frameRate: 30,
-                facingMode: "user",
-              },
-            }
-
-          ).catch((e) => console.error(e)),
-
-          uid,
-        ])
-      )
-      .then(([tracks, uid]) => {
-        const [audioTrack, videoTrack] = tracks;
-        setLocalTracks(tracks)
-        setUsers((previousUsers) => [
-          ...previousUsers,
-          {
-            uid,
-            videoTrack,
-            audioTrack,
-          },
-        ]);
-        client.publish(tracks);
-
-
-
-
-      });
-    return () => {
-
-      // cleanup
-      const tracks = localTracks.map((track) => track.trackId);
-
-      client.off('user-published', handleUserJoined);
-      client.off('user-left', handleUserLeft);
-      client.unpublish(tracks).then(() => client.leave());
-    };
-
-  }, []);
-
-
+  const handleVolumeIndicator = (evt) => {
+    for (let i = 0; evt.length > i; i++) {
+      const speaker = evt[i].uid;
+      const volume = evt[i].level;
+      const element = document.getElementById(`volume-${speaker}`);
+      if (element) {
+        element.src = volume > 0 ? '/img/assets/volume-on.svg' : '/img/assets/volume-off.svg';
+      }
+    }
+  };
 
 
   return (
-    <section className="room">
-      <div id="videos">
-        {users.map((user) => {
-          return (
-            <div
-              key={user.uid}
-              className={`video-player ${user.uid === localUid && isVideoOn ? 'small' : 'large'}`}
-              hidden={user.uid === localUid ? !isVideoOn : false}
-            >
-              <VideoPlayer user={user} />
-            </div>
-          );
-        })}
-
-        <div className="controls">
-          {(
-            <>
-              <button
-                onClick={() => turnOnMicrophone()}
-                className={isAudioOn ? "button-on" : ""}
-              >
-                Turn {isAudioOn ? "off" : "on"} Microphone
-              </button>
-              <button
-                onClick={() => turnOnCamera()}
-                className={isVideoOn ? "button-on" : ""}
-              >
-                Turn {isVideoOn ? "off" : "on"} camera
-              </button>
-              <button onClick={leaveCall}>Leave Call</button>
-            </>
-          )}
-        </div>
+    <div className='room'>
+      <div id="join-wrapper">
+        <input type="text" id="username" />
+        <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
       </div>
-
-      {/* <div className="chat-room">
-				<ul className="messages">
-					{messages.map((message, index) => (
-						<li key={index}>{message}</li>
-					))}
-				</ul>
-				<form onSubmit={handleSendMessage}>
-					<input
-						type="text"
-						value={newMessage}
-						onChange={handleNewMessageChange}
-						placeholder="Type your message here"
-					/>
-					<button className='text-md p-2 pt-1 pb-1 rounded text-white' type="submit">Send</button>
-				</form>
-			</div> */}
-    </section>
+      <div id="user-streams">
+        <div id="foot" style={{ display: 'block' }}>
+          <button id="mic-btn" onClick={handleMicButtonClick}>Toggle Microphone</button>
+          <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
+          <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
+        </div></div>
+    </div>
   );
 };
 

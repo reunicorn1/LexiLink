@@ -8,7 +8,7 @@ import { useAuth } from '../AuthContext';
 export default function BrowsingSection () {
     const { authToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, md: true });
-    const [isClicked, setIsClicked] = useState();
+    const [isClicked, setIsClicked] = useState(null);
     const [page, setPage] = useState(1);
     const [mentors, setMentors] = useState([]);
     const [favorites, setFavorites] = useState([]);
