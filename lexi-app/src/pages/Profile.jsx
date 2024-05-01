@@ -3,14 +3,20 @@ import { Icon } from '@chakra-ui/react'
 import { MdOutlineMail, MdOutlineSettings } from "react-icons/md";
 import { FaRegUser } from "react-icons/fa";
 import ProfileInfo from '../components/ProfileInfo';
+import Account from '../components/Account';
+import Email from '../components/Email';
+import { useAuth } from '../AuthContext';
+
 
 export default function Profile() {
+    const { user } = useAuth();
+
     return <Box display="flex" justifyContent="center" m="30px">
         <Box bg="white" rounded="xl" maxW="1000" width="100%">
             <Flex alignItems={'center'} m="35px">
-                <Avatar size="md" src="/img/unicorn.png"></Avatar>
+                <Avatar size="md" src={user.profile_picture}></Avatar>
                 <Box ml="15px">
-                    <Heading fontSize={'xl'}>Reem Osama</Heading>
+                    <Heading fontSize={'xl'}>{user.first_name} {user.last_name}</Heading>
                     <Text fontSize={'sm'}>Your Profile</Text>
                 </Box>
             </Flex>
@@ -26,10 +32,10 @@ export default function Profile() {
                         <ProfileInfo/>
                     </TabPanel>
                     <TabPanel>
-                        <p>two!</p>
+                        <Account />
                     </TabPanel>
                     <TabPanel>
-                        <p>three!</p>
+                        <Email />
                     </TabPanel>
                 </TabPanels>
             </Tabs>

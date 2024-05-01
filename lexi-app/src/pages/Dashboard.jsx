@@ -38,7 +38,7 @@ export default function Dashboard() {
         <Flex direction="column" maxW={isLargeScreen ? "500px" : undefined}>
             <Flex m="20px" bg="white" boxShadow='lg' direction="column" textAlign="center" p="30px" rounded={'xl'}>
                 <Center>
-                    <Avatar size="xl" bg="brand.700"src={user.profile_pic} mb="0px"></Avatar>
+                    <Avatar size="xl" bg="brand.700"src={user.profile_picture} mb="0px"></Avatar>
                 </Center>
                 <Center>
                     <Heading mt="10px" mb="3px"size="xl">Hello, {user.first_name}</Heading>
@@ -85,7 +85,7 @@ export default function Dashboard() {
                     </Flex>
                     <UpcomingClass></UpcomingClass>
                 </Box>
-                <Spacer></Spacer>
+                {/* <Spacer></Spacer> */}
                 <Favorites></Favorites>
             </Box>
         </Box>
