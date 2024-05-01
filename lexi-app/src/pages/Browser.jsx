@@ -103,7 +103,7 @@ export default function Browser () {
                                 <Box w="100%" textAlign="center" p="5px">
                                     <RangeSlider defaultValue={[4, 70]} min={4} max={80} step={10}  onChange={handleChange}>
                                         <RangeSliderTrack bg='red.100'>
-                                            <RangeSliderFilledTrack bg='brand.800' />
+                                            <RangeSliderFilledTrack bg='brand.700' />
                                         </RangeSliderTrack>
                                         <RangeSliderThumb boxSize={3} index={0} />
                                         <RangeSliderThumb boxSize={3} index={1} />
