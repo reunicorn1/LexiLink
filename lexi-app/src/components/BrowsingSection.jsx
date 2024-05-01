@@ -108,7 +108,7 @@ export default function BrowsingSection () {
         {/* fixed section */}
         { isLargeScreen && 
 
-        <Box m="20px" ml="10px"mt="0px" w="100%"  height="150vh" overflowY="auto" top="0" >
+        <Box m="20px" ml="10px"mt="0px" w="100%"  height="150vh" overflowY="auto" top="0">
             {loading ? (
             <Card>
                 <Box display="flex" justifyContent="center" alignItems="center" height="200px">
