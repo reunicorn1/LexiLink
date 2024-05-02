@@ -4,7 +4,7 @@
 from models.UserModel import UserModel
 from models.BaseModel import Base, store
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Numeric, Enum, ForeignKey
+from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, JSON
 
 
 class StudentMentors(Base):
@@ -35,7 +35,11 @@ choices = ('Community', 'Professional')
               'Community'),
         price_per_hour=(Column(Numeric(precision=10, scale=2), nullable=True,
                         default=0), 0),
-        availability=(Column(String(255), nullable=True), ''),
+        availability=(Column(JSON, nullable=True, default=dict({
+            "days": [],
+            "startTime": [],
+            "endTime": []
+            })), {}),
         demo_video=(Column(String(255), nullable=True), ''),
         role=(Column(String(10), nullable=False, default='mentor'), 'mentor'),
         students=(relationship('StudentModel',

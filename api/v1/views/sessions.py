@@ -110,7 +110,7 @@ class Sessions(Resource):
             return make_response(jsonify({"error": "Student not found"}), 404)
         data['mentor_id'] = mentor.id
         data['student_id'] = student.id
-        data['date'] = datetime.fromisoformat(data['date'])
+        data['date'] = datetime.fromisoformat(data['date']).date("Y-m-d")
         data['time'] = datetime.fromisoformat(data['time']).strftime("%H:%M:%S")
         data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
         

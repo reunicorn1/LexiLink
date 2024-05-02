@@ -13,7 +13,12 @@ def random_type():
 
 
 def random_availability():
-    return random.choice(["Morning", "Afternoon", "Evening", "Night"])
+    availability = {
+            "days": random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
+            "startTime": random.choice(["08:00", "09:00", "10:00", "11:00"]),
+            "endTime": random.choice(["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"])
+            }
+    return availability
 
 
 def random_expertise():

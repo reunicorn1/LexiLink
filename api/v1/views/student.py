@@ -183,8 +183,7 @@ class FavoriteMentors(Resource):
         student.favorite_mentors.append(mentor)
         student.save()
         return make_response(jsonify({}), 200)
-
-
+    
     @std.expect(auth_parser, student_mentor_model)
     @jwt_required()
     def delete(self):
