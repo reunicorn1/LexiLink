@@ -9,8 +9,8 @@ import {
     RangeSliderFilledTrack,
     RangeSliderThumb
   } from '@chakra-ui/react'
-import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import { SearchIcon, ChevronDownIcon} from '@chakra-ui/icons'
+import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement, Tag, TagLabel, TagCloseButton } from '@chakra-ui/react'
+import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useState, useEffect } from 'react';
 import axios from "axios";
 import BrowsingSection from '../components/BrowsingSection';
@@ -20,24 +20,66 @@ export default function Browser () {
     const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });
     const img = <Image m="20px"src="/img/faces-3.png" maxW={{base: "80%", lg: "40%"}} height="auto" ></Image>
-    const [slider, setSlider] = useState([4, 70]);
+    const [slider, setSlider] = useState([0, 100]);
+    const [checkedLanguages, setCheckedLanguages] = useState([]);
+    const [checkedTypes, setCheckedTypes] = useState([]);
+    const [search, setSearch] = useState("");
+    const [isClicked, setIsClicked] = useState(false);
 
     const handleChange = (newValue) => {
         setSlider(newValue);
     };
-    const [countries, setCountries] = useState([]); 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
-                response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-                setCountries(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-    }, []);
+
+    const handleLangChange = (lang) => {
+        if (checkedLanguages.includes(lang)) {
+            setCheckedLanguages(checkedLanguages.filter(item => item !== lang));
+        } else {
+            setCheckedLanguages([...checkedLanguages, lang]);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        if (isClicked) {
+            setIsClicked(false);
+        }
+        const { value } = e.currentTarget;
+        setSearch(value);
+    }
+
+    const handleSearch = (e) => {
+        setIsClicked(true);
+    }
+
+    const handleTypesChange = (type) => {
+        if (checkedTypes.includes(type)) {
+            setCheckedTypes(checkedTypes.filter(item => item !== type));
+        } else {
+            setCheckedTypes([...checkedTypes, type]);
+        }
+    };
+
+    function TagClose({children}) {
+        <Tag size='lg' colorScheme='red' borderRadius='full'>
+            <TagCloseButton />
+            <TagLabel>
+                {children}
+            </TagLabel>
+        </Tag>
+    }
+
+    // const [countries, setCountries] = useState([]); 
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
+    //             response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+    //             setCountries(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //         }
+    //     };
+    //     fetchData();
+    // }, []);
     
     
     return <>
@@ -53,7 +95,7 @@ export default function Browser () {
         </Box>
         <Box display="flex"  justifyContent="center" >
             {/* search box */}
-            <Box p="40px" w={{base:"100%", lg: "60%"}}>
+            <Box p="40px" w={{base:"100%", lg: "50%"}}>
                 <InputGroup size='md' color="white">
                     <Input
                         boxShadow="md"
@@ -61,9 +103,11 @@ export default function Browser () {
                         color='black'
                         placeholder='Search for Mentors'
                         bg="white"
+                        value={search}
+                        onChange={handleInputChange}
                     />
                     <InputRightElement width='4.5rem'>
-                        <Button h='1.75rem' size='sm' colorScheme='teal' rounded={"xl"}>
+                        <Button h='1.75rem' size='sm' colorScheme='teal' rounded={"xl"} onClick={handleSearch}>
                             <SearchIcon />
                         </Button>
                     </InputRightElement>
@@ -75,21 +119,21 @@ export default function Browser () {
                         </MenuButton>
                         <MenuList>
                             <MenuItem>
-                                <Checkbox size='sm' colorScheme='red'>Professional mentor</Checkbox>
+                                <Checkbox size='sm' colorScheme='red' isChecked={checkedTypes.includes('Professional')} onChange={() => handleTypesChange('Professional')}>Professional mentor</Checkbox>
                             </MenuItem>
                             <MenuItem>
-                                <Checkbox size='sm' colorScheme='red'>Community mentor</Checkbox>
+                                <Checkbox size='sm' colorScheme='red' isChecked={checkedTypes.includes('Community')} onChange={() => handleTypesChange('Community')}>Community mentor</Checkbox>
                             </MenuItem>
                         </MenuList>
                     </Menu>
                     <Menu closeOnSelect={false} boundary={"scrollParent"}>
                         <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full" overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
-                            <Text display={{base: "none", sm: "block"}}>First language</Text>
+                            <Text display={{base: "none", sm: "block"}}>Language</Text>
                         </MenuButton>
                         <MenuList height="300px" overflowY="auto">
                             {languages.map((lang) => (
                                 <MenuItem key={lang}>
-                                    <Checkbox size='sm' colorScheme='red'>{lang}</Checkbox>
+                                    <Checkbox size='sm' colorScheme='red' isChecked={checkedLanguages.includes(lang)} onChange={() => handleLangChange(lang)}>{lang}</Checkbox>
                                 </MenuItem>
                             ))}
                         </MenuList>
@@ -101,7 +145,7 @@ export default function Browser () {
                         <MenuList>
                             <MenuItem> 
                                 <Box w="100%" textAlign="center" p="5px">
-                                    <RangeSlider defaultValue={[4, 70]} min={4} max={80} step={10}  onChange={handleChange}>
+                                    <RangeSlider defaultValue={[0, 100]} min={4} max={100} step={10}  onChange={handleChange}>
                                         <RangeSliderTrack bg='red.100'>
                                             <RangeSliderFilledTrack bg='brand.700' />
                                         </RangeSliderTrack>
@@ -116,6 +160,6 @@ export default function Browser () {
                 </Box>
             </Box>
         </Box>
-        <BrowsingSection />
+        <BrowsingSection filter={[checkedTypes, checkedLanguages, slider]} search={isClicked ? search : null}/>
     </>
 }

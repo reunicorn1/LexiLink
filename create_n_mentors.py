@@ -21,6 +21,8 @@ def random_expertise():
     return random.choice(["IELTS", "TOEFL", "TOEIC",
                           "Business English", "General English"])
 
+def random_language():
+    return random.choice(["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
 
 def random_mentor():
     """
@@ -51,8 +53,8 @@ def random_mentor():
             "last_name": fake.last_name(),
             "country": fake.country(),
             "nationality": fake.country(),
-            "first_language": fake.language_code(),
-            "other_languages": fake.language_code(),
+            "first_language": random_language(),
+            "other_languages": random_language(),
             "profile_picture": fake.image_url(),
             "expertise": random_expertise(),
             "price_per_hour": fake.random_int(min=10, max=100),
