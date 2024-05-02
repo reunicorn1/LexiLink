@@ -28,7 +28,7 @@ class IntervalField(fields.Raw):
         # Assuming 'value' is a datetime.timedelta object
         return {'days': value.days, 'seconds': value.seconds, 'microseconds': value.microseconds}
 
-filter_model = sessions.model('Filter', {
+filter_model = sessions.model('Filter_Session', {
     'mentor': fields.String(description='Mentor ID'),
     'student': fields.String(description='Student ID'),
     'date': fields.DateTime(description='Date'),

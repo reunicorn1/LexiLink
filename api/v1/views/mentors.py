@@ -14,14 +14,16 @@ from api.v1.views.parsers import auth_parser, query_parser
 
 mentor = Namespace('mentor', description='Mentor related operations')
 
+availability_model = mentor.model('Availability', {
+    'days': fields.List(fields.String, description='Days available'),
+    'startTime': fields.String(description='Start time of availability'),
+    'endTime': fields.String(description='End time of availability'),
+})
+
 filter_model = mentor.model('Filter', {
     'expertise': fields.String(description='Expertise'),
     # availability is a json object
-    'availability': fields.Nested({
-        'days': fields.List(fields.String, description='Days available'),
-        'startTime': fields.String(description='Start time of availability'),
-        'end_time': fields.String(description='End time of availability'),
-    }, description='Availability'),
+    'availability': fields.Nested(availability_model, description='Availability'),
     'price_per_hour': fields.Integer(description='Price per hour'),
     'type': fields.String(description='Type')
 })

@@ -16,9 +16,15 @@ from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.extensions import login_manager
 from api.v1.views.parsers import auth_parser
+from sqlalchemy.sql._elements_constructors import desc
 
 auth = Namespace('auth', description='Authentication')
 
+availability_model = auth.model('Availability', {
+    'days': fields.List(fields.String, description='Days available'),
+    'startTime': fields.String(description='Start time of availability'),
+    'endTime': fields.String(description='End time of availability'),
+})
 user_model = auth.model('UserModel', {
     'email': fields.String(),
     'username': fields.String(),
@@ -32,11 +38,7 @@ user_model = auth.model('UserModel', {
     'profile_picture': fields.String(),
     'expertise': fields.String(),
     'price_per_hour': fields.Integer(),
-    'availability': fields.Nested({
-        'days': fields.List(fields.String, description='Days available'),
-        'startTime': fields.String(description='Start time of availability'),
-        'end_time': fields.String(description='End time of availability'),
-    }, description='Availability'),
+    'availability': fields.Nested(availability_model, description='Availability'),
     'type': fields.String(),
     'bio': fields.String(),
     'demo_video': fields.String(),
