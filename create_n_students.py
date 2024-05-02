@@ -56,7 +56,8 @@ def register_student_with_mentor(student_email,
     # login as student
     response = requests.post("http://127.0.0.1:5000/auth/login/",
                              json={"email": student_email,
-                                   "password": student_password, "user_type": "student"})
+                                   "password": student_password,
+                                   "user_type": "student"})
     if response.status_code == 200:
         access_token = response.json()["access_token"]
         response = requests.post(

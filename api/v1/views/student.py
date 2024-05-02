@@ -35,6 +35,7 @@ student_model = std.model('Student', {
 
 @std.route('/profile', strict_slashes=False)
 class Profile(Resource):
+    """"" Profile related operations """
     @jwt_required()
     @std.expect(auth_parser)
     def get(self):
@@ -75,19 +76,20 @@ class Profile(Resource):
 
 
 @std.route('/mentors/all/', strict_slashes=False)
-class Mentors(Resource):
-    @std.expect(auth_parser)
+class StudentMentors(Resource):
     @jwt_required()
+    @std.expect(auth_parser)
     def get(self):
         """ Retrieves all mentors of this student """
-        username = get_jwt_identity()
         claims = get_jwt()
         if claims['user_type'] != 'student':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
-        student = storage.find_by("StudentModel", username=username)
+        student = storage.find_by("StudentModel", username=current_user.username)
         if student is None:
             return make_response(jsonify({"error": "Not found"}), 404)
         mentors = student.mentors
+        if not mentors:
+            return make_response(jsonify({"mentors": []}), 200)
         return make_response(jsonify({"mentors": [mentor.to_dict()
                                                   for mentor in mentors]}),
                              200)

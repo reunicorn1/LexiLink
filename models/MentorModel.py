@@ -14,13 +14,21 @@ class StudentMentors(Base):
                         primary_key=True)
     mentor_id = Column(String(60), ForeignKey('Mentor_Model.id'),
                        primary_key=True)
+class MentorSession(Base):
+    '''StudentMentorSession class Association Table.'''
+    __tablename__ = 'Mentor_Session'
+    enntor_id = Column(String(60), ForeignKey('Mentor_Model.id'),
+                        primary_key=True)
+    session_id = Column(String(60), ForeignKey('Session_Model.id'),
+                        primary_key=True)
+
 
 
 choices = ('Community', 'Professional')
 
 
 @store(
-        'students',
+        'students', 'sessions',
         expertise=(Column(String(255), nullable=False), ''),
         bio=(Column(String(255), nullable=True), ''),
         type=(Column(Enum(*choices), nullable=False, default='Community'),
@@ -32,9 +40,16 @@ choices = ('Community', 'Professional')
         role=(Column(String(10), nullable=False, default='mentor'), 'mentor'),
         students=(relationship('StudentModel',
                   secondary='Student_Mentors',
-                  cascade='all',
+                  cascade='all, delete-orphan',
+                  single_parent=True,
                   backref='mentors',
-                  lazy='dynamic'), [])
+                  lazy='dynamic'), []),
+        sessions=(relationship('SessionModel',
+                                      secondary='Mentor_Session',
+                                      cascade='all, delete-orphan',
+                                      viewonly=True,
+                                      single_parent=True,
+                                      lazy='dynamic'), []),
                   )
 class MentorModel(UserModel, Base):
     '''MentorModel class.
