@@ -37,8 +37,8 @@ choices = ('Community', 'Professional')
                         default=0), 0),
         availability=(Column(JSON, nullable=True, default=dict({
             "days": [],
-            "startTime": [],
-            "endTime": []
+            "startTime": "",
+            "endTime": ""
             })), {}),
         demo_video=(Column(String(255), nullable=True), ''),
         role=(Column(String(10), nullable=False, default='mentor'), 'mentor'),

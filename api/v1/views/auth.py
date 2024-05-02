@@ -12,7 +12,7 @@ from flask_jwt_extended import (
         get_jwt,
         current_user,
 )
-from flask_restx import Resource, Namespace, fields
+from flask_restx import Resource, Namespace, fields, parser
 from models import storage
 from api.v1.extensions import login_manager
 from api.v1.views.parsers import auth_parser
@@ -32,7 +32,11 @@ user_model = auth.model('UserModel', {
     'profile_picture': fields.String(),
     'expertise': fields.String(),
     'price_per_hour': fields.Integer(),
-    'availability': fields.String(),
+    'availability': fields.Nested({
+        'days': fields.List(description='Days available'),
+        'startTime': fields.String(description='Start time of availability'),
+        'end_time': fields.String(description='End time of availability'),
+    }, description='Availability'),
     'type': fields.String(),
     'bio': fields.String(),
     'demo_video': fields.String(),

@@ -16,7 +16,12 @@ mentor = Namespace('mentor', description='Mentor related operations')
 
 filter_model = mentor.model('Filter', {
     'expertise': fields.String(description='Expertise'),
-    'availability': fields.String(description='Availability'),
+    # availability is a json object
+    'availability': fields.Nested({
+        'days': fields.List(description='Days available'),
+        'startTime': fields.String(description='Start time of availability'),
+        'end_time': fields.String(description='End time of availability'),
+    }, description='Availability'),
     'price_per_hour': fields.Integer(description='Price per hour'),
     'type': fields.String(description='Type')
 })
