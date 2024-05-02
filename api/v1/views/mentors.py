@@ -18,7 +18,7 @@ filter_model = mentor.model('Filter', {
     'expertise': fields.String(description='Expertise'),
     # availability is a json object
     'availability': fields.Nested({
-        'days': fields.List(description='Days available'),
+        'days': fields.List(fields.String, description='Days available'),
         'startTime': fields.String(description='Start time of availability'),
         'end_time': fields.String(description='End time of availability'),
     }, description='Availability'),
