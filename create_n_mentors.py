@@ -13,13 +13,21 @@ def random_type():
 
 
 def random_availability():
-    return random.choice(["Morning", "Afternoon", "Evening", "Night"])
+    availability = {
+            "days": random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
+            "startTime": random.choice(["08:00", "09:00", "10:00", "11:00"]),
+            "endTime": random.choice(["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"])
+            }
+    return availability
 
 
 def random_expertise():
     """ expertise in teaching english """
     return random.choice(["IELTS", "TOEFL", "TOEIC",
                           "Business English", "General English"])
+
+def random_language():
+    return random.choice(["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
 
 
 def random_mentor():
@@ -51,8 +59,8 @@ def random_mentor():
             "last_name": fake.last_name(),
             "country": fake.country(),
             "nationality": fake.country(),
-            "first_language": fake.language_code(),
-            "other_languages": fake.language_code(),
+            "first_language": random_language(),
+            "other_languages": random_language(),
             "profile_picture": fake.image_url(),
             "expertise": random_expertise(),
             "price_per_hour": fake.random_int(min=10, max=100),
