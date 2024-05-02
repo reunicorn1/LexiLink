@@ -39,7 +39,7 @@ export default function ProfileInfo() {
         const file = event.target.files[0];
         setInput({
             ...input,
-            profile_picture: file // Store the file object directly (not recommended)
+            profile_picture: file
         })
     }
 
@@ -86,15 +86,35 @@ export default function ProfileInfo() {
     }
 
     const handleClick = () => {
+        const formdata = new FormData();
         for (let value in input) {
             if (!input[value]) {
                 delete input[value];
-            }    
+            }
         }
+        formdata.append("profile_picture", input.profile_picture);
+        
         (async () => {
             try {
-                const response = await axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + authToken}, method: 'PUT', data: input} );
+                const response = await axios.request({
+                    url: "http://127.0.0.1:5000/student/profile",
+                    headers: {
+                        Authorization: "Bearer " + authToken,
+                    },
+                    method: 'PUT',
+                    data: input // Pass formdata directly
+                });
+                
                 if (response.status == 200) {
+                    const res_pic = await axios.request({
+                        url: "http://127.0.0.1:5000/student/profile/picture",
+                        headers: {
+                            Authorization: "Bearer " + authToken,
+                            'Content-Type': 'multipart/form-data' // Set content type here
+                        },
+                        method: 'PUT',
+                        data: formdata // Pass formdata directly
+                    });
                     getProfile();
                     handleToast();
                 }
@@ -102,6 +122,7 @@ export default function ProfileInfo() {
                 console.error('Error updating the data of the user', error);
             }
         })();
+
     }
   
     const handleInputChange = (e) => {
@@ -117,8 +138,7 @@ export default function ProfileInfo() {
             <Box  display="flex" gap={10}>
                     <Box  w="70%">
                         <FormLabel>Profile picture</FormLabel>
-                        <Input variant='filled' name="profile_picture" value={input.profile_picture} onChange={handleInputChange}></Input>
-                        {/* <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg"></Input> */}
+                        <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg" onChange={handleFileChange}></Input>
                         <FormLabel mt={3}>First name</FormLabel>
                         <Input variant='filled' name="first_name" value={input.first_name} onChange={handleInputChange}></Input>
                         <FormLabel mt={3}>Last name</FormLabel>

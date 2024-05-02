@@ -9,7 +9,7 @@ import {
     RangeSliderFilledTrack,
     RangeSliderThumb
   } from '@chakra-ui/react'
-import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement, Tag, TagLabel, TagCloseButton } from '@chakra-ui/react'
+import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useState, useEffect } from 'react';
 import axios from "axios";
@@ -58,15 +58,6 @@ export default function Browser () {
         }
     };
 
-    function TagClose({children}) {
-        <Tag size='lg' colorScheme='red' borderRadius='full'>
-            <TagCloseButton />
-            <TagLabel>
-                {children}
-            </TagLabel>
-        </Tag>
-    }
-
     // const [countries, setCountries] = useState([]); 
     // useEffect(() => {
     //     const fetchData = async () => {
@@ -84,7 +75,7 @@ export default function Browser () {
     
     return <>
         <Box display="flex"  justifyContent="center" bg="brand.800" color="white">
-            <Box display={{base: "block", lg: "flex"}}  p="60px" pt="10px" maxW="1200px">
+            <Box display={{base: "block", lg: "flex"}}  p="60px" pt="10px" maxW="1250px">
                 <Box pt="70px" m={{base: "0px", lg:"10px"}}>
                     <Tag size={'md'} mb={4} variant="outline" color="white" textDecoration="none" borderWidth={2}><Text as="b">1-on-1 Sessions</Text></Tag>
                     <Heading fontSize="4xl" mb={4}>Empower Your Learning Journey with Tailored Mentorship</Heading>
