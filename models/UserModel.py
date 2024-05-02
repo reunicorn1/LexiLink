@@ -2,7 +2,7 @@
 '''Module defines `UserModel` class'''
 import os
 from models.BaseModel import BaseModel, store
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Enum
 from flask_login import UserMixin
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -10,7 +10,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 UPLOAD_FOLDER = 'lexi-app/public/profile_pictures'
 
-
+languages = ["English", "Mandarin Chinese", "Hindi", 
+             "Spanish", "French", "Standard Arabic",
+             "Bengali", "Portuguese", "Russian", "Urdu",
+             "Indonesian", "Standard German", "Japanese",
+             "Nigerian Pidgin", "Egyptian Spoken Arabic",
+             "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"]
 @store(
         email=(Column(String(128), nullable=False, unique=True), ''),
         password=(Column(String(500), nullable=False), ''),
@@ -19,8 +24,8 @@ UPLOAD_FOLDER = 'lexi-app/public/profile_pictures'
         last_name=(Column(String(128), nullable=False), ''),
         country=(Column(String(128), nullable=False), ''),
         nationality=(Column(String(128), nullable=False), ''),
-        first_language=(Column(String(128), nullable=False), ''),
-        other_languages=(Column(String(128), nullable=True), ''),
+        first_language=(Column(Enum(*languages), nullable=False), 'English'),
+        other_languages=(Column(Enum(*languages), nullable=True), 'English'),
         profile_picture=(Column(String(128), nullable=True), ''),
         )
 class UserModel(BaseModel, UserMixin):

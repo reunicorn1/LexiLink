@@ -12,6 +12,8 @@ def random_proficiency():
     """ proficiency in teaching english """
     return random.choice(["Beginner", "Intermediate", "Advanced"])
 
+def random_language():
+    return random.choice(["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
 
 def random_student():
     """
@@ -36,8 +38,8 @@ def random_student():
         "last_name": fake.last_name(),
         "country": fake.country(),
         "nationality": fake.country(),
-        "first_language": fake.language_code(),
-        "other_languages": fake.language_code(),
+        "first_language": random_language(),
+        "other_languages": random_language(),
         "profile_picture": fake.image_url(),
         "proficiency": random_proficiency(),
         "user_type": "student"

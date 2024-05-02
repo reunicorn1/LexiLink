@@ -1,11 +1,12 @@
-import { Box, Card, CardBody, Heading, Avatar, Text, Button, Spacer, Divider, useBreakpointValue, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Badge, Tag, Flex, Spinner } from '@chakra-ui/react'
+import { Box, Card, CardBody, Heading, Avatar, Text, Button, Spacer, Divider, useBreakpointValue, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Badge, Tag, Flex, Spinner, useDisclosure } from '@chakra-ui/react'
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { Icon } from '@chakra-ui/react'
 import { useState, useEffect } from 'react';
 import axios from "axios";
 import { useAuth } from '../AuthContext';
+import SignUpAlert from './SignUpAlert';
 
-export default function BrowsingSection () {
+export default function BrowsingSection ({filter, search}) {
     const { authToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, md: true });
     const [isClicked, setIsClicked] = useState(null);
@@ -14,6 +15,7 @@ export default function BrowsingSection () {
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(false);
     const [love, setLove] = useState();
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     const handleClick = (mentor) => {
         allFavorites();
@@ -25,40 +27,100 @@ export default function BrowsingSection () {
           }, 1000); 
       };
 
-    const handleLike = (mentor) => {
-        if (love === mentor.id){
-            setLove(0)
-            console.log("deleting the like"); // WTF is this, why removing this line breaks the code!!!
-            (async () => {
-                try {
-                    const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'DELETE', data: {mentor: mentor.username}});
-                    console.log(`you removed the mentor: ${mentor.first_name} to your favorites`);
-                    // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
-                } catch(error){
-                    console.log("An error occured during removal from your favorites: ", error);
-                }
-            })();
+    const handleBook = (mentor) => {
+        if (!authToken) {
+            onOpen();
         } else {
-            setLove(mentor.id);
-            (async () => {
-                try {
-                    const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'POST', data: {mentor: mentor.username}});
-                    console.log(`you added the mentor: ${mentor.first_name} to your favorites`);
-                    // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
-                } catch(error){
-                    console.log("An error occured during adding a mentor to your favorites: ", error);
-                }
-            })();
+            // transition to the schedule page of this mentor
+            // Don't forget to add the mentor id or username to the url of the page
         }
     }
 
+    const handleSearching = async () => {
+        if (search) {
+            console.log("hi");
+            try {
+                let number = 1;
+                let searchResult = [];
+                let mentors;
+                do {
+                    const result = await axios.get("http://127.0.0.1:5000/mentor/all/", { params: { page: number } });
+                    mentors = result.data.mentors;
+
+                    searchResult = [...searchResult, ...mentors.filter(item => `${item.first_name} ${item.last_name}`.includes(search))];
+                    number++;
+                } while (mentors.length)
+                setMentors(searchResult);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        // You're almost there, you just need to stop the load more option when search is enabled, and provide a button where we reset the whole state of the page after successful search
+    };
+
+    const handleLike = (mentor) => {
+        if (!authToken) {
+            onOpen();
+        } else {
+            if (love === mentor.id){
+                setLove(0)
+                console.log("deleting the like"); // WTF is this, why removing this line breaks the code!!!
+                (async () => {
+                    try {
+                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'DELETE', data: {mentor: mentor.username}});
+                        console.log(`you removed the mentor: ${mentor.first_name} to your favorites`);
+                        // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
+                    } catch(error){
+                        console.log("An error occured during removal from your favorites: ", error);
+                    }
+                })();
+            } else {
+                setLove(mentor.id);
+                (async () => {
+                    try {
+                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'POST', data: {mentor: mentor.username}});
+                        console.log(`you added the mentor: ${mentor.first_name} to your favorites`);
+                        // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
+                    } catch(error){
+                        console.log("An error occured during adding a mentor to your favorites: ", error);
+                    }
+                })();
+            }
+        }
+    }
+
+    const handleLoad = () => {
+        setPage(page + 1);
+    }
+
+    const filtering  = (list) => {
+        // Filtering work on the basis of the known structure of the filter list that is given as an argument and 
+        // lives here as a global variable.
+        // filter is composed of [1] types, [2] langs, and [3] slider. All these are lists that are inspected indepedndetly and decisions are made
+        // based on their content.
+        if (filter && filter[0]) {
+            if (filter[0].length > 0) {
+                list = list.filter(item => filter[0].includes(item.type));
+            }
+            if (filter[1].length > 0) {
+                list = list.filter(item => (filter[1].includes(item.first_language) || filter[1].includes(item.other_languages)));
+            }
+            list = list.filter(item => item.price_per_hour <= filter[2][1] && item.price_per_hour >= filter[2][0]);
+        }
+        filter = null;
+        return list;
+    }
+
+    // I wanted to pass page as a variable in this function, but I just can't bc of the sync nature, I can't take out the setting functions to be be performed outside so the function can be reusable else where
     useEffect(()=> {
         const allMentors = (async () => {
             try {
                 const result = await axios.get("http://127.0.0.1:5000/mentor/all/", { params: {page: page} });
-                setMentors(result.data.mentors);
-                setIsClicked(result.data.mentors[0])
-                // here goes any filtering thing or maybe in another function, figure it out
+                setMentors([...mentors, ...result.data.mentors]);
+                if (page === 1) {
+                    setIsClicked(result.data.mentors[0])
+                }
+                console.log("this is filter ", filter);
             } catch(error){
                 console.log("An error occured during retrival of mentors from the database: ", error);
             }
@@ -66,27 +128,37 @@ export default function BrowsingSection () {
         allMentors();
     }, [page]);
 
+
+    useEffect(() => {
+        if (search) {
+            handleSearching();
+            filter = null;
+        }
+    }, [search])
+
     const allFavorites = (async () => {
         try {
             const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
             setFavorites(result.data.mentors);
-            // here goes any filtering thing or maybe in another function, figure it out
         } catch(error){
             console.log("An error occured during retrival of the favorite mentors for this user: ", error);
         }
     });
 
     useEffect(()=>{
-        allFavorites();
-        setLove(favorites.some((favorite) => (favorite.id === mentors[0].id)) ? mentors[0].id : 0);
-    },[mentors])
+        if (authToken) {
+            allFavorites();
+            setLove(favorites.some((favorite) => (favorite.id === mentors[0].id)) ? mentors[0].id : 0);
+        }
+    },[mentors]) // Mentors is placed here as a dependency bc the setMentors function is asynchronous so I can't apply useEffect and expect to work in it's own, unless I controlled executation
+    // And repeated it if necessary.
 
     return <Box display="flex" justifyContent="center">
-    <Box maxW="1250px" display="flex" justifyContent="center" overflowY="auto">
+    <Box maxW="1200px" display="flex" justifyContent="center" overflowY="auto">
         {/* scrollable section */}
         <Box m="20px" mr="10px" mt="0px" w="90%" overflowY="auto" height={{base: "auto", md:"150vh"}}>
-            {mentors.map((mentor, index) => (
-            <Card key={index} borderWidth={1.7} borderColor={isClicked?.id === mentor.id ? "brand.700" : "grey"} m="8px" p="10px" style={{ cursor: "pointer" }} onClick={()=> handleClick(mentor)} >
+            {filtering(mentors).map((mentor, index) => (
+            <Card key={index} borderWidth={1.7} borderColor={isClicked?.id === mentor.id ? "brand.700" : "grey"} m="15px" p="10px" style={{ cursor: "pointer" }} onClick={()=> handleClick(mentor)} >
                 <CardBody>
                     <Box display={{base:"block", sm: "flex"}} alignItems="center" textAlign={{base: "center", sm:"left"}} overflow="hidden" whiteSpace="wrap" textOverflow="ellipsis">
                         <Avatar m="10px" mb={3} size={{base: "xl", lg:"2xl"}} src={mentor.profile_picture} />
@@ -104,6 +176,7 @@ export default function BrowsingSection () {
                 </CardBody>
             </Card>
         ))}
+        <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>
         </Box>
         {/* fixed section */}
         { isLargeScreen && 
@@ -131,7 +204,6 @@ export default function BrowsingSection () {
                         <Flex mb={4} gap={2}>
                             <Tag>{isClicked?.first_language}</Tag>
                             <Tag>{isClicked?.other_languages}</Tag>
-                            <Tag>Arabic</Tag>
                         </Flex>
                         <Heading mb={1} fontSize="lg">Bio</Heading>
                         <Text mb={4}>{isClicked?.bio}</Text>
@@ -160,7 +232,7 @@ export default function BrowsingSection () {
                             </AccordionItem>
                             </Accordion>
                             <Box display="flex" alignItems="center" m="20px">
-                                <Button colorScheme="teal" w="80%">Book Now</Button>
+                                <Button colorScheme="teal" w="80%" onClick={() => handleBook(isClicked)}>Book Now</Button>
                                 <Spacer></Spacer>
                                 <Icon boxSize="30px" as={!love ? IoMdHeartEmpty : IoMdHeart} onClick={() => handleLike(isClicked)} style={{ cursor: "pointer" }}/>
                             </Box>
@@ -170,6 +242,7 @@ export default function BrowsingSection () {
             )}
         </Box>
         }
+        <SignUpAlert isOpen={isOpen} onClose={onClose}/>
     </Box>
 </Box>
 }

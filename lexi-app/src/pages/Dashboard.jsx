@@ -52,7 +52,7 @@ export default function Dashboard() {
                         </Stat>
 
                         <Stat rounded="xl" bg="orange.100" p="10px" m="10px">
-                            <StatLabel fontSize="md">Leasons</StatLabel>
+                            <StatLabel fontSize="md">Lessons</StatLabel>
                             <StatNumber fontSize="3xl">45</StatNumber>
                         </Stat>
                     </StatGroup>

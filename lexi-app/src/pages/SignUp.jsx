@@ -27,7 +27,7 @@ export default function SignUp () {
 
           (async () => {
             try {
-              const result = await axios.post("http://127.0.0.1:5000/auth/verify_email", { email: input.email });
+              const result = await axios.post("http://127.0.0.1:5000/auth/verify_email", { email: input.email, user_type: "student" });
             } catch (error) {
               if (error.response && error.response.status === 400) {
                 errors.email = error.response.data.error;
