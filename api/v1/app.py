@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 from flask import Flask, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
-from models import storage, db
-from os import getenv
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from flasgger import Swagger
 from sqlalchemy import create_engine, MetaData
 from flask_restx import Api
 from flask_migrate import Migrate
+from models import storage, db
 from api.v1.config import DevelopmentConfig
 from api.v1.extensions import login_manager
 from api.v1.views.auth import auth
 from api.v1.views.student import std
 from api.v1.views.mentors import mentor
+from api.v1.views.sessions import sessions
+
 
 
 db = SQLAlchemy()
@@ -41,6 +41,8 @@ def create_app():
     api.add_namespace(auth)
     api.add_namespace(std)
     api.add_namespace(mentor)
+    api.add_namespace(sessions)
+
 
     @app.teardown_appcontext
     def close_db(error):
@@ -76,6 +78,7 @@ def create_app():
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_data):
+        print(jwt_data)
         return make_response(jsonify({
             'message': 'The token has expired',
             'error': 'token_expired'

@@ -39,7 +39,8 @@ def random_student():
         "first_language": fake.language_code(),
         "other_languages": fake.language_code(),
         "profile_picture": fake.image_url(),
-        "proficiency": random_proficiency()
+        "proficiency": random_proficiency(),
+        "user_type": "student"
         }
 
 
@@ -53,7 +54,8 @@ def register_student_with_mentor(student_email,
     # login as student
     response = requests.post("http://127.0.0.1:5000/auth/login/",
                              json={"email": student_email,
-                                   "password": student_password})
+                                   "password": student_password,
+                                   "user_type": "student"})
     if response.status_code == 200:
         access_token = response.json()["access_token"]
         response = requests.post(

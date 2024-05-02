@@ -39,15 +39,19 @@ class PaymentModel(BaseModel, Base):
     '''
     __tablename__ = 'Payment_Model'
 
-    def __init__(self):
-        super().__init__()
-        if db:
-            __table_args__ = (
-                              ForeignKeyConstraint(['student_id'],
-                                                   ['Student_Model.id']),
-                              ForeignKeyConstraint(['mentor_id'],
-                                                   ['Mentor_Model.id']),
-                              PrimaryKeyConstraint('student_id',
-                                                   'mentor_id',
-                                                   'date')
-                              )
+#     def __init__(self, **kwargs):
+#         super().__init__()
+#         if db:
+#             __table_args__ = (
+#                               ForeignKeyConstraint(['student_id'],
+#                                                    ['Student_Model.id']),
+#                               ForeignKeyConstraint(['mentor_id'],
+#                                                    ['Mentor_Model.id']),
+#                               PrimaryKeyConstraint('student_id',
+#                                                    'mentor_id',
+#                                                    )
+#                               )
+#         for key, value in kwargs.items():
+#                 setattr(self, key, value)
+
+#         self.save()

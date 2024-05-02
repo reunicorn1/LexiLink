@@ -1,8 +1,14 @@
 #!/usr/bin/python3
 '''Module defines `UserModel` class'''
+import os
 from models.BaseModel import BaseModel, store
 from sqlalchemy import Column, String
 from flask_login import UserMixin
+from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash, generate_password_hash
+
+
+UPLOAD_FOLDER = 'lexi-app/public/profile_pictures'
 
 
 @store(
@@ -41,10 +47,17 @@ class UserModel(BaseModel, UserMixin):
     @hashed_password.setter
     def hashed_password(self, value):
         '''password setter'''
-        from werkzeug.security import generate_password_hash
         self.password = generate_password_hash(value)
 
     def verify_password(self, password):
         '''Verify password'''
-        from werkzeug.security import check_password_hash
         return check_password_hash(self.password, password)
+    
+    def save_profile_picture(self, file):
+        """save profile picture"""
+        if file:
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            self.profile_picture = filename
+            self.save()

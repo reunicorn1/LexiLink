@@ -2,7 +2,7 @@
 '''Module defines BaseModel class'''
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, time
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from os import getenv
@@ -50,12 +50,17 @@ class BaseModel:
             dictionary representaion of class attributes,
                 with `__class__` attr to manifest class instance
         '''
-        _dict = {k: v.isoformat() if isinstance(v, datetime) else
+        banned = ['password', 'mentors', 'sessions', 'session', 'students'
+                  'favorite_mentors', 'payment']
+        _dict = {k: v.isoformat() if any([isinstance(v, datetime),
+                                          isinstance(v, time)]) else
                  v for k, v in self.__dict__.items()
                  if k != '_sa_instance_state'}
         # _dict['__class__'] = self.__class__.__name__
-        if 'password' in _dict:
-            del _dict['password']
+        for k in banned:
+            if k in _dict:
+                del _dict[k]
+        
         return _dict
 
     def delete(self):
