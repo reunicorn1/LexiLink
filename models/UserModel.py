@@ -57,7 +57,7 @@ class UserModel(BaseModel, UserMixin):
     def verify_password(self, password):
         '''Verify password'''
         return check_password_hash(self.password, password)
-    
+
     def save_profile_picture(self, file):
         """save profile picture"""
         if file:
@@ -66,3 +66,4 @@ class UserModel(BaseModel, UserMixin):
             file.save(file_path)
             self.profile_picture = filename
             self.save()
+            print(file_path, filename)
