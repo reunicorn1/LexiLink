@@ -139,6 +139,7 @@ class Sessions(Resource):
         session.payment = payment
         session.save()
         student.sessions.append(session)
+        student.mentors.append(mentor)
         mentor.sessions.append(session)
         mentor.save()
         student.save()
