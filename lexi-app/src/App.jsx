@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound"
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room"
+import Schedule from "./pages/Schedule";
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/profile" element={<Profile />}></Route>
         <Route path="/dashboard" element={<Browser />}></Route>
         <Route path="/room" element={<Room />}></Route>
+        <Route path="/booking/:username" element={<Schedule />}></Route>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </AuthProvider>

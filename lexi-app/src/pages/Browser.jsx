@@ -7,13 +7,14 @@ import {
     RangeSlider,
     RangeSliderTrack,
     RangeSliderFilledTrack,
-    RangeSliderThumb
+    RangeSliderThumb,
+    TagCloseButton
   } from '@chakra-ui/react'
 import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons'
-import { useState, useEffect } from 'react';
-import axios from "axios";
+import { useState } from 'react';
 import BrowsingSection from '../components/BrowsingSection';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Browser () {
@@ -25,10 +26,16 @@ export default function Browser () {
     const [checkedTypes, setCheckedTypes] = useState([]);
     const [search, setSearch] = useState("");
     const [isClicked, setIsClicked] = useState(false);
+    const [read, setRead] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (newValue) => {
         setSlider(newValue);
     };
+
+    const handleReload = () => {
+        navigate(0);
+    }
 
     const handleLangChange = (lang) => {
         if (checkedLanguages.includes(lang)) {
@@ -48,6 +55,7 @@ export default function Browser () {
 
     const handleSearch = (e) => {
         setIsClicked(true);
+        setRead(true);
     }
 
     const handleTypesChange = (type) => {
@@ -75,7 +83,7 @@ export default function Browser () {
     
     return <>
         <Box display="flex"  justifyContent="center" bg="brand.800" color="white">
-            <Box display={{base: "block", lg: "flex"}}  p="60px" pt="10px" maxW="1250px">
+            <Box display={{base: "block", lg: "flex"}}  p="60px" pb="10px" pt="10px" maxW="1250px">
                 <Box pt="70px" m={{base: "0px", lg:"10px"}}>
                     <Tag size={'md'} mb={4} variant="outline" color="white" textDecoration="none" borderWidth={2}><Text as="b">1-on-1 Sessions</Text></Tag>
                     <Heading fontSize="4xl" mb={4}>Empower Your Learning Journey with Tailored Mentorship</Heading>
@@ -87,6 +95,7 @@ export default function Browser () {
         <Box display="flex"  justifyContent="center" >
             {/* search box */}
             <Box p="40px" w={{base:"100%", lg: "50%"}}>
+                {isClicked && <Tag mb={2}>{search}<TagCloseButton mr={2} onClick={handleReload}/></Tag>}
                 <InputGroup size='md' color="white">
                     <Input
                         boxShadow="md"
@@ -96,6 +105,7 @@ export default function Browser () {
                         bg="white"
                         value={search}
                         onChange={handleInputChange}
+                        isReadOnly={read}
                     />
                     <InputRightElement width='4.5rem'>
                         <Button h='1.75rem' size='sm' colorScheme='teal' rounded={"xl"} onClick={handleSearch}>
@@ -151,6 +161,6 @@ export default function Browser () {
                 </Box>
             </Box>
         </Box>
-        <BrowsingSection filter={[checkedTypes, checkedLanguages, slider]} search={isClicked ? search : null}/>
+        <BrowsingSection filter={[checkedTypes, checkedLanguages, slider]} search={isClicked ? search : null} setSearch={setSearch}/>
     </>
 }

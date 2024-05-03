@@ -18,7 +18,7 @@ sessions = Namespace('sessions', description='Session related operations')
 
 class IntervalField(fields.Raw):
     """ Class for IntervalField
-    Methods:   
+    Methods:
         format(self, value): converts timedelta to dict
 
     Args:
@@ -91,8 +91,8 @@ class Sessions(Resource):
                 sessions_pagination.append(session.to_dict())
             i += 1
         return make_response(jsonify({"sessions": [session for session in sessions_pagination]}), 200)
-    
-    
+
+
     @jwt_required()
     @sessions.expect(auth_parser, session_payment_model)
     def post(self):
@@ -101,7 +101,7 @@ class Sessions(Resource):
         if claims['user_type'] != 'student':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
         data = request.get_json()
-        
+
         student = storage.find_by("StudentModel", username=claims['identity'])
         mentor = storage.find_by("MentorModel", username=data['mentor'])
         if mentor is None:
@@ -110,11 +110,11 @@ class Sessions(Resource):
             return make_response(jsonify({"error": "Student not found"}), 404)
         data['mentor_id'] = mentor.id
         data['student_id'] = student.id
-        data['date'] = datetime.fromisoformat(data['date']).date("Y-m-d")
+        data['date'] = datetime.fromisoformat(data['date']).date()
         data['time'] = datetime.fromisoformat(data['time']).strftime("%H:%M:%S")
         data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
-        
-        
+
+
         payment_data = {
             'student_id': data['student_id'],
             'mentor_id': data['mentor_id'],
@@ -157,7 +157,7 @@ class Sessions(Resource):
         del data['session_id']
         session.update(**data)
         return make_response(jsonify(session.to_dict()), 200)
-        
+
 
 @sessions.route('/<string:session_id>', strict_slashes=False)
 class Session(Resource):
@@ -200,9 +200,9 @@ class Session(Resource):
             return make_response(jsonify({"error": "Not found"}), 404)
         session.delete()
         return make_response(jsonify({}), 200)
-    
-    
-    
+
+
+
 @sessions.route('/all', strict_slashes=False)
 class SessionsAll(Resource):
     """ Class for session related operations """
@@ -217,7 +217,7 @@ class SessionsAll(Resource):
             return make_response(jsonify({"sessions": []}), 200)
         print(sessions_list)
         return make_response(jsonify([session.to_dict() for session in sessions_list]), 200)
-    
+
     @sessions.expect(query_parser)
     def get(self):
         """ Retrieves all sessions """
