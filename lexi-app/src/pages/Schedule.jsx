@@ -1,18 +1,81 @@
-import { Stat, StatLabel, StatNumber, StatHelpText, Box, Heading, Text, Image, Divider, Icon, Button, Alert, AlertIcon, Avatar, Badge, Flex } from "@chakra-ui/react";
+import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Alert, AlertIcon, Avatar, Badge, Collapse } from "@chakra-ui/react";
 import { MdSunny } from "react-icons/md";
-import { IoIosTime } from "react-icons/io";
-import { FaCalendarWeek } from "react-icons/fa";
 import { IoMoon } from "react-icons/io5";
 import Calander from "../components/Calander";
-import { useParams, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 
 export default function Schedule() {
-    const {username} = useParams();
+    const navigate = useNavigate();
+    const now = dayjs();
+    const [selectDate, setSelecteDate] = useState(now);
+    const [selectTime, setSelectTime] = useState(null);
+    const [appear, setAppear] = useState(false)
+
 
     let location = useLocation();
     let mentor = location.state && location.state.mentor ? location.state.mentor : null;
-    console.log(mentor);
-   
+    console.log(mentor.availability);
+
+    useEffect(()=> {
+        setSelectTime(null);
+        if (selectDate !== now) {
+            console.log(selectDate, dayjs())
+            console.log("heyy")
+            setAppear(true);
+        }
+    }, [selectDate])
+
+    const generateTime = (time) => {
+        // The amount to be added depends on the duration of the session, by default we
+        // are assigning all sessions to be 30 mins
+        // This function will accept with 0 or 1 as an argument, if arg is 0 then we will return 
+        // times for th morning hours, 1 for the evening hours
+        // Honestly this function will fail in edge cases for example of the mentor endtime is 16:30
+        // The function will miss the session of 16:00 since it depends on hours to end the loop
+        // But this might be handled when the mentor select his available times in the first place
+        // if he isn't given the option of ending shift unless in a sharp hour
+        
+        const start = mentor.availability.startTime;
+        const end = mentor.availability.endTime;
+        const arrayofTimes = [];
+        
+
+        let [startHours, startMinutes] = start.split(':').map(Number);
+        let [endHours, endMinutes] = end.split(':').map(Number);
+
+        if (!time) {
+            endHours = 12;
+        } else {
+            startHours = 12
+        }
+
+        for (let h = startHours, m = startMinutes; h < endHours; ) {
+            arrayofTimes.push(`${h}:${m.toString().padStart(2, '0')}`)
+            m += 30
+            if (m >= 60) {
+                h += 1;
+                m -= 60;
+            }
+             // I'm only adding 30 minutes as a duration for every session
+             // Add more to m initially to declare the duration of the session
+        }
+        // Depending on sessions already booked you can filter the values of the list in this area
+
+        return arrayofTimes
+    }
+
+    const handleContinue = () => {
+        dayjs.extend(utc);
+
+        const time = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + selectTime);
+        const duration = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + '00:30'); // this is for the duration of the session which is by default 30 mins for now
+        navigate('/payment', { state: {mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format(), duration: duration.format(), status: "Approved", amount: mentor.price_per_hour, method: "auto"}})
+    }
+
     return <Box display="flex"  justifyContent="center">
         <Box display="flex" mb="30px">
             {/* Pick time card */}
@@ -20,53 +83,48 @@ export default function Schedule() {
                 {/* The calander section */}
                 <Box>
                     <Heading fontSize="xl" mb={2}>Schedule your lessons</Heading>
-                    <Calander />
-                    <Box display="flex" alignItems="center" bg="brand.800" maxW="350px" p="20px" mt="65px" rounded={'xl'} boxShadow={'xl'}>
-                        <Image src="/img/flower.png" maxW="70px" mr={4}></Image>
+                    <Calander selectDate={selectDate}  setSelecteDate={setSelecteDate} days={mentor.availability.days}/>
+                    <Box display="flex" alignItems="center" bg="brand.700" maxW="350px" p="20px" mt="65px" rounded={'xl'} boxShadow={'xl'}>
+                        <Image src="/img/flower.png" maxW="80px" mr={4}></Image>
                         <Box color="white">
-                            <Heading fontSize={'xl'}>Explore Your Mentors</Heading>
-                            <Text fontSize={'sm'}>Discover a Welcoming Tutor to Enhance Your English Journey</Text>
+                            <Heading fontSize={'lg'}>Prepare for your next lesson!</Heading>
+                            {selectDate !== now && <Text fontSize={'md'}>On {selectDate.format('dddd, D MMM')}</Text>}
                         </Box>
                     </Box>
                 </Box>
-                {/* The part under this must be removed if screen size is small and appear in a popover */}
                 <Divider orientation="vertical" ml={10} mr={10}></Divider>
-                {/* pick a slot section */}
-                <Box maxW="430px">
-                    <Heading fontSize="xl" mb={10}>Pick your slot</Heading>
-                    <Box borderLeft="4px" borderColor="brand.700" p="10px" mb={10}>
-                        <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={MdSunny}/>&nbsp;&nbsp;Morning</Heading>
-                        {/* map a list of times to be singly included in their own but */}
-                        <Box display="flex" flexWrap="wrap">
-                            <Button m="10px" width="80px">8:00</Button>
-                            <Button m="10px" width="80px">8:30</Button>
-                            <Button m="10px" width="80px">9:00</Button>
-                            <Button m="10px" width="80px">9:30</Button>
-                            <Button m="10px" width="80px">10:00</Button>
-                            <Button m="10px" width="80px">10:30</Button>
-                            <Button m="10px" width="80px">11:00</Button>
-                            <Button m="10px" width="80px">11:30</Button>
-                        </Box>
+                <Collapse in={appear} animateOpacity>
+                    {/* The part under this must be removed if screen size is small and appear in a popover */}
+                    <Box className="horizontal-transition">
+                          {/* pick a slot section */}
+                          
+                          <Box maxW="430px">
+                                <Heading fontSize="xl" mb={10}>Pick your slot</Heading>
+                                <Box borderLeft="4px" borderColor="brand.700" p="10px" mb={10}>
+                                    <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={MdSunny}/>&nbsp;&nbsp;Morning</Heading>
+                                    {/* map a list of times to be singly included in their own button */}
+                                    <Box display="flex" flexWrap="wrap">
+                                        {generateTime(0).map((time, index)=>(
+                                            <Button key={index} m="10px" width="80px" isActive={selectTime === time} onClick={()=>setSelectTime(time)}>{time}</Button>
+                                        ))}
+                                    </Box>
+                                </Box>
+                                <Box borderLeft="4px" borderColor="brand.800" p="10px">
+                                    <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={IoMoon}/>&nbsp;&nbsp;Evening</Heading>
+                                    {/* map a list of times to be singly included in their own button */}
+                                    <Box display="flex" flexWrap="wrap">
+                                        {generateTime(1).map((time, index)=>(
+                                            <Button key={index} m="10px" width="80px" isActive={selectTime === time} onClick={()=>setSelectTime(time)}>{time}</Button>
+                                        ))}
+                                    </Box>
+                                </Box>
+                                <Alert status='info' maxW="400px" mt="30px" >
+                                    <AlertIcon />
+                                    All times are in Central Time (US & Canada)
+                                </Alert>
+                            </Box>
                     </Box>
-                    <Box borderLeft="4px" borderColor="brand.800" p="10px">
-                        <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={IoMoon}/>&nbsp;&nbsp;Evening</Heading>
-                        {/* map a list of times to be singly included in their own but */}
-                        <Box display="flex" flexWrap="wrap">
-                            <Button m="10px" width="80px">1:00</Button>
-                            <Button m="10px" width="80px">1:30</Button>
-                            <Button m="10px" width="80px">2:00</Button>
-                            <Button m="10px" width="80px">3:30</Button>
-                            <Button m="10px" width="80px">4:00</Button>
-                            <Button m="10px" width="80px">6:30</Button>
-                            <Button m="10px" width="80px">8:00</Button>
-                            <Button m="10px" width="80px">8:30</Button>
-                        </Box>
-                    </Box>
-                    <Alert status='info' maxW="400px" mt="30px" >
-                        <AlertIcon />
-                        All times are in Central Time (US & Canada)
-                    </Alert>
-                </Box>
+                </Collapse>
             </Box>
             {/* The mentor card */}
             {mentor && 
@@ -76,23 +134,27 @@ export default function Schedule() {
                 <Badge mt={2}colorScheme={mentor.type === "Community" ? 'blue' : 'yellow'}>{mentor.type} Mentor</Badge>
                 <Text textAlign="left" mt="20px" mb="20px">{mentor.bio}</Text>
                 <Box mt="40px" textAlign="left">
+                {selectTime &&
                     <Stat>
                         <StatLabel>Time</StatLabel>
-                        <Heading fontSize="xl" mt={1} mb={1}>01:00 (GMT+04)</Heading>
+                        <Heading fontSize="xl" mt={1} mb={1}>{selectTime} (UTC-06)</Heading>
                         <Divider />
                     </Stat>
+                }
+                {selectDate !== now && 
                     <Stat>
                         <StatLabel>Date</StatLabel>
-                        <Heading mt={1} mb={1} fontSize="xl">Sat, 18 May</Heading>
+                        <Heading mt={1} mb={1} fontSize="xl">{selectDate.format('dddd, D MMM')}</Heading>
                         <Divider />
                     </Stat>
+                    }
                     <Stat>
                         <StatLabel>Price</StatLabel>
                         <StatNumber>${mentor.price_per_hour}</StatNumber>
                         <Divider />
                     </Stat>
                 </Box>
-                <Button isDisabled colorScheme="orange" mt="40px">Continue</Button>
+                <Button isDisabled={!selectTime} colorScheme="orange" mt="40px" onClick={handleContinue}>Continue</Button>
 
                 
             </Box>

@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room"
 import Schedule from "./pages/Schedule";
+import Payment from "./pages/Payment";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/dashboard" element={<Browser />}></Route>
         <Route path="/room" element={<Room />}></Route>
         <Route path="/booking/:username" element={<Schedule />}></Route>
+        <Route path="/payment" element={<Payment />}></Route>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </AuthProvider>
