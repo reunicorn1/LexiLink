@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import random
-import string
 import requests
 from faker import Faker
 import json
@@ -13,8 +12,12 @@ def random_type():
 
 
 def random_availability():
+    days = set()
+    for i in range(random.randint(1, 7)):
+        days.add(random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]))
+    days = list(days)
     availability = {
-            "days": random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
+            "days": days,
             "startTime": random.choice(["08:00", "09:00", "10:00", "11:00"]),
             "endTime": random.choice(["12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"])
             }
