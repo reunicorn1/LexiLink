@@ -21,8 +21,10 @@ availability_model = mentor.model('Availability', {
 })
 
 filter_model = mentor.model('Filter', {
-    'expertise': fields.String(description='Expertise'),
+    # 'expertise': fields.String(description='Expertise'),
     # availability is a json object
+    'first_language': fields.String(description='First Language'),
+    'other_languages': fields.List(fields.String, description='Other Languages'),
     'availability': fields.Nested(availability_model, description='Availability'),
     'price_per_hour': fields.Integer(description='Price per hour'),
     'type': fields.String(description='Type')

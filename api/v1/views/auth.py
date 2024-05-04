@@ -75,13 +75,6 @@ def load_user(email, user_type=None):
         return storage.find_by("MentorModel", email=email)
     return storage.find_by("StudentModel", email=email)
 
-@auth.route('/room', strict_slashes=False)
-class Room(Resource):
-    def get(self):
-        """ Get the room ID """
-        print('Room ID requested')
-        return make_response(jsonify({'roomID': '1'}), 200)
-
 
 @auth.route('/login', strict_slashes=False)
 class Login(Resource):
