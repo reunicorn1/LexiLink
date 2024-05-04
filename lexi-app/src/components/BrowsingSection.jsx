@@ -5,8 +5,9 @@ import { useState, useEffect } from 'react';
 import axios from "axios";
 import { useAuth } from '../AuthContext';
 import SignUpAlert from './SignUpAlert';
+import { useNavigate } from 'react-router-dom';
 
-export default function BrowsingSection ({filter, search}) {
+export default function BrowsingSection ({filter, search, setSearch}) {
     const { authToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, md: true });
     const [isClicked, setIsClicked] = useState(null);
@@ -16,7 +17,10 @@ export default function BrowsingSection ({filter, search}) {
     const [loading, setLoading] = useState(false);
     const [love, setLove] = useState();
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const navigate = useNavigate();
 
+    // Almost all issues related to search bar, except two things, the filtering still affect search results
+    // honestly I don't know if this is a bug or a feature. Also the page is not responsive enough.
     const handleClick = (mentor) => {
         allFavorites();
         setLove(favorites.some((favorite) => (favorite.id === mentor.id)) ? mentor.id : 0);
@@ -31,6 +35,7 @@ export default function BrowsingSection ({filter, search}) {
         if (!authToken) {
             onOpen();
         } else {
+            navigate(`/booking/${mentor.username}`, { state: {mentor} })
             // transition to the schedule page of this mentor
             // Don't forget to add the mentor id or username to the url of the page
         }
@@ -51,11 +56,11 @@ export default function BrowsingSection ({filter, search}) {
                     number++;
                 } while (mentors.length)
                 setMentors(searchResult);
+                setIsClicked(searchResult[0])
             } catch (error) {
                 console.log(error);
             }
         }
-        // You're almost there, you just need to stop the load more option when search is enabled, and provide a button where we reset the whole state of the page after successful search
     };
 
     const handleLike = (mentor) => {
@@ -133,6 +138,8 @@ export default function BrowsingSection ({filter, search}) {
         if (search) {
             handleSearching();
             filter = null;
+        } else {
+            setSearch("");
         }
     }, [search])
 
@@ -148,7 +155,7 @@ export default function BrowsingSection ({filter, search}) {
     useEffect(()=>{
         if (authToken) {
             allFavorites();
-            setLove(favorites.some((favorite) => (favorite.id === mentors[0].id)) ? mentors[0].id : 0);
+            setLove(favorites.some((favorite) => (favorite.id === mentors[0]?.id)) ? mentors[0]?.id : 0);
         }
     },[mentors]) // Mentors is placed here as a dependency bc the setMentors function is asynchronous so I can't apply useEffect and expect to work in it's own, unless I controlled executation
     // And repeated it if necessary.
@@ -176,10 +183,11 @@ export default function BrowsingSection ({filter, search}) {
                 </CardBody>
             </Card>
         ))}
-        <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>
+        {/* I couldn't hide the load more option when you remove the search  // if you can't beat them join them */}
+        {!search && <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>}
         </Box>
         {/* fixed section */}
-        { isLargeScreen && 
+        { (isLargeScreen && mentors.length) && 
 
         <Box m="20px" ml="10px"mt="0px" w="100%"  height="150vh" overflowY="auto" top="0">
             {loading ? (

@@ -38,6 +38,17 @@ form {
   display: none; /* Hide still image on hover */
 }
 
+.horizontal-transition {
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.3s ease-in-out; /* Transition width instead of height */
+}
+
+/* Set the initial width to 0 when collapsed */
+.horizontal-transition[aria-hidden="true"] {
+  width: 0;
+}
+
 /* RoomComponent */
 .room {
   position: relative;
