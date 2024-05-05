@@ -24,13 +24,11 @@ export const AuthProvider = ({ children }) => {
     }
   }, [authToken]);
 
-
-  useEffect(() => {
-    if (status === 410) {
-      refresh();
-    }
-    setStatus(200);
-}, [status])
+  // I tried to think of a way to update the access token whenever we ask for it, so it requests never fail, I'm not sure if this will fix the issue tho
+  const getAccess = () => {
+    refresh();
+    return authToken;
+  }
 
   const login = (token, refresh) => {
     setAuthToken(token);
@@ -61,7 +59,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ authToken, user, setUser, login, logout, status, setStatus, refresh }}>
+    <AuthContext.Provider value={{ authToken, getAccess, user, setUser, login, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );

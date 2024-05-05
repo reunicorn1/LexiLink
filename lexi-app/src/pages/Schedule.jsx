@@ -1,4 +1,4 @@
-import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Alert, AlertIcon, Avatar, Badge, Collapse } from "@chakra-ui/react";
+import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Alert, AlertIcon, Avatar, Badge, Collapse, useDisclosure } from "@chakra-ui/react";
 import { MdSunny } from "react-icons/md";
 import { IoMoon } from "react-icons/io5";
 import Calander from "../components/Calander";
@@ -9,13 +9,15 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
+import BookingSuccess from "../components/BookingSuccess";
 
 export default function Schedule() {
     const navigate = useNavigate();
     const now = dayjs();
     const [selectDate, setSelecteDate] = useState(now);
     const [selectTime, setSelectTime] = useState(null);
-    const { authToken, setUser, refresh } = useAuth();
+    const { getAccess } = useAuth();
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const [appear, setAppear] = useState(false)
     let location = useLocation();
     let mentor = location.state && location.state.mentor ? location.state.mentor : null;
@@ -77,10 +79,10 @@ export default function Schedule() {
         const state = {mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), status: "Approved", amount: mentor.price_per_hour, method: "auto"};
         (async () => {
             try {
-                const result = await axios.request({url: "http://127.0.0.1:5000/sessions/", headers: {Authorization: "Bearer " + authToken}, method: "POST", data: state});
+                const result = await axios.request({url: "http://127.0.0.1:5000/sessions/", headers: {Authorization: "Bearer " + getAccess()}, method: "POST", data: state});
                 console.log("wohooo!!!!")
+                onOpen();
             } catch (error) {
-                refresh();
                 console.log("An error occured during booking your session, click continue", error);
             }
         })();
@@ -169,6 +171,7 @@ export default function Schedule() {
                 
             </Box>
             }
+            <BookingSuccess isOpen={isOpen} onClose={onClose}/>
         </Box>
     </Box>
 }

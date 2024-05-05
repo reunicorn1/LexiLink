@@ -6,24 +6,21 @@ import axios from "axios";
 
 export default function Favorites() {
     const isLargeScreen = useBreakpointValue({ base: false, xl: true });
-    const { authToken, status, setStatus } = useAuth();
+    const { getAccess } = useAuth();
     const [mentors, setMentors] = useState(null);
 
     const getMentors = (async () => {
         try {
-            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
+            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + getAccess()} });
             setMentors(result.data.mentors);
         } catch (error) {
-            if (error.response.status === 410){
-                setStatus(410);
-            }
             console.log("An error occurred: in the favorites", error);
         }
     });
 
     const handleDelete = (async (mentor) => {
         try{
-            const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'DELETE', data: {mentor: mentor}} );
+            const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + getAccess()}, method: 'DELETE', data: {mentor: mentor}} );
             getMentors();
         } catch(error){
             console.log("An error occurred in deleting the favorites", error);
@@ -32,9 +29,7 @@ export default function Favorites() {
 
     useEffect(() => {
         getMentors();
-    }, [status]);
-
-    // Add a delete api so you make the buttons work, or ignore it totally and move on with your life
+    }, []);
 
     return (
         <>

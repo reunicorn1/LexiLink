@@ -8,26 +8,27 @@ import MenuDisplay from './Menu';
 export default function NavBar () {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const { authToken, setUser, refresh, status, setStatus } = useAuth();
+    const { authToken, getAccess, setUser } = useAuth();
     const [profilePic, setProfilePic] = useState("");
 
+    // This is marked as unhandled promise
     useEffect(() => {
         if (authToken) {
             (async () => {
                 try {
-                    console.log(authToken);
-                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + authToken} } );
+                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + getAccess()} } );
                     setUser(result.data);
                     setProfilePic(result.data.profile_picture);
                 } catch(error) {
-                    if (error.response.status === 410){
-                        setStatus(410);
+                    if (error.response && error.response.status === 410) {
                         console.log(error.response);
+                    } else {
+                        console.error("An error occurred:", error);
                     }
                 }
             })();
         }
-    },[status]);
+    },[]);
 
 
     return (

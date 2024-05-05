@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 
 
 export default function ProfileInfo() {
-    const { authToken, setUser } = useAuth();
+    const { getAccess, setUser } = useAuth();
     const fileInputRef = useRef(null);
     // const user = {
     //     "completed_lessons": 0,
@@ -49,8 +49,7 @@ export default function ProfileInfo() {
 
     const getProfile = (async () => {
         try {
-            console.log(authToken);
-            const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + authToken} } );
+            const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + getAccess()} } );
             setInput(result.data);
             setUser(result.data);
         } catch(error) {
@@ -93,7 +92,7 @@ export default function ProfileInfo() {
         }
         (async () => {
             try {
-                const response = await axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + authToken}, method: 'PUT', data: input} );
+                const response = await axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + getAccess()}, method: 'PUT', data: input} );
                 if (response.status == 200) {
                     getProfile();
                     handleToast();

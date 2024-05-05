@@ -8,7 +8,7 @@ import SignUpAlert from './SignUpAlert';
 import { useNavigate } from 'react-router-dom';
 
 export default function BrowsingSection ({filter, search, setSearch}) {
-    const { authToken } = useAuth();
+    const { authToken, getAccess } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, md: true });
     const [isClicked, setIsClicked] = useState(null);
     const [page, setPage] = useState(1);
@@ -72,7 +72,7 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                 console.log("deleting the like"); // WTF is this, why removing this line breaks the code!!!
                 (async () => {
                     try {
-                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'DELETE', data: {mentor: mentor.username}});
+                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + getAccess()}, method: 'DELETE', data: {mentor: mentor.username}});
                         console.log(`you removed the mentor: ${mentor.first_name} to your favorites`);
                         // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
                     } catch(error){
@@ -83,7 +83,7 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                 setLove(mentor.id);
                 (async () => {
                     try {
-                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + authToken}, method: 'POST', data: {mentor: mentor.username}});
+                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + getAccess()}, method: 'POST', data: {mentor: mentor.username}});
                         console.log(`you added the mentor: ${mentor.first_name} to your favorites`);
                         // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
                     } catch(error){
@@ -145,7 +145,7 @@ export default function BrowsingSection ({filter, search, setSearch}) {
 
     const allFavorites = (async () => {
         try {
-            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
+            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + getAccess()} });
             setFavorites(result.data.mentors);
         } catch(error){
             console.log("An error occured during retrival of the favorite mentors for this user: ", error);

@@ -14,7 +14,7 @@ import { useAuth } from '../AuthContext';
 
 export default function MenuDisplay ({children}) {
     const navigate = useNavigate();
-    const { authToken, logout } = useAuth();
+    const { getAccess, logout } = useAuth();
     const toast = useToast();
 
     const handleToast = async() => {
@@ -31,7 +31,7 @@ export default function MenuDisplay ({children}) {
     const handleLogOut = () => {
         (async () => {
             try {
-                const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + authToken} })
+                const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + getAccess()} })
                 logout();
                 navigate('/')
                 handleToast();
