@@ -116,8 +116,8 @@ export default function ProfileInfo() {
             <Box  display="flex" gap={10}>
                     <Box  w="70%">
                         <FormLabel>Profile picture</FormLabel>
-                        <Input variant='filled' name="profile_picture" value={input.profile_picture} onChange={handleInputChange}></Input>
-                        {/* <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg"></Input> */}
+                        {/* <Input variant='filled' name="profile_picture" value={input.profile_picture} onChange={handleInputChange}></Input> */}
+                        <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg"></Input>
                         <FormLabel mt={3}>First name</FormLabel>
                         <Input variant='filled' name="first_name" value={input.first_name} onChange={handleInputChange}></Input>
                         <FormLabel mt={3}>Last name</FormLabel>

@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 from models import storage
 from api.v1.views.parsers import auth_parser, query_parser
 from datetime import datetime, timedelta
+from flask_jwt_extended.exceptions import UserClaimsVerificationError
 
 
 
@@ -101,7 +102,6 @@ class Sessions(Resource):
         if claims['user_type'] != 'student':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
         data = request.get_json()
-
         student = storage.find_by("StudentModel", username=claims['identity'])
         mentor = storage.find_by("MentorModel", username=data['mentor'])
         if mentor is None:
@@ -139,7 +139,8 @@ class Sessions(Resource):
         session.payment = payment
         session.save()
         student.sessions.append(session)
-        student.mentors.append(mentor)
+        if mentor not in student.mentors:
+            student.mentors.append(mentor)
         mentor.sessions.append(session)
         mentor.save()
         student.save()
@@ -225,3 +226,53 @@ class SessionsAll(Resource):
         sessions_list = storage.query("SessionModel", page=page, per_page=10)
         return make_response(jsonify([session.to_dict() for session in sessions_list]), 200)
 
+@sessions.route('/room/<string:session_id>', strict_slashes=False)
+class Room(Resource):
+    @jwt_required()
+    @sessions.expect(auth_parser)
+    def get(self, session_id):
+        """ Get the room ID """
+        claims = get_jwt()
+        date = datetime.now().date()
+        if claims['user_type'] not in ['mentor', 'student']:
+            return make_response(jsonify({"error": "Unauthorized"}), 401)
+        if claims['user_type'] == 'mentor':
+            mentor = storage.find_by("MentorModel", username=claims['identity'])
+            session = storage.find_by("SessionModel", mentor_id=mentor.id, id=session_id)
+            student = storage.find_by("StudentModel", id=session.student_id)
+        else:
+            student = storage.find_by("StudentModel", username=claims['identity'])
+            session = storage.find_by("SessionModel", student_id=student.id, id=session_id)
+            mentor = storage.find_by("MentorModel", id=session.mentor_id)
+        if not mentor or not student or not session:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        if session.date < date:
+            return make_response(jsonify({"error": "Session has passed"}), 400)
+        elif session.status != 'Approved':
+            return make_response(jsonify({"error": "Session is not approved"}), 400)
+        else:
+            # generate room ID using session ID and student ID and mentor ID
+            room_id = session_id[:8] + student.id[:8] + mentor.id[:8]
+
+            return make_response(jsonify({'roomID': room_id}), 200)
+
+
+@sessions.route('/status/<string:session_id>', strict_slashes=False)
+class Status(Resource):
+    """ Class for session status modification related operations """
+    @jwt_required()
+    @sessions.expect(auth_parser)
+    def put(self, session_id):
+        """ Updates a session status """
+        claims = get_jwt()
+        data = request.get_json()
+        if not data or 'status' not in data:
+            return make_response(jsonify({"error": "Missing status"}), 400)
+        if claims['user_type'] != 'mentor':
+            return make_response(jsonify({"error": "Unauthorized"}), 401)
+        session = storage.find_by("SessionModel", id=session_id)
+        if session is None:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        session.status = data['status']
+        session.save()
+        return make_response(jsonify(session.to_dict()), 200)

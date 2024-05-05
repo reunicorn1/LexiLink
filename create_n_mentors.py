@@ -32,6 +32,13 @@ def random_expertise():
 def random_language():
     return random.choice(["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
 
+
+def random_languages():
+    languages = set()
+    for i in range(random.randint(1, 5)):
+        languages.add(random_language())
+    return list(languages)
+
 def random_mentor():
     """
     {
@@ -62,7 +69,7 @@ def random_mentor():
             "country": fake.country(),
             "nationality": fake.country(),
             "first_language": random_language(),
-            "other_languages": random_language(),
+            "other_languages": random_languages(),
             "profile_picture": fake.image_url(),
             "expertise": random_expertise(),
             "price_per_hour": fake.random_int(min=10, max=100),

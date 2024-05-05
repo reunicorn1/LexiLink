@@ -21,8 +21,10 @@ availability_model = mentor.model('Availability', {
 })
 
 filter_model = mentor.model('Filter', {
-    'expertise': fields.String(description='Expertise'),
+    # 'expertise': fields.String(description='Expertise'),
     # availability is a json object
+    'first_language': fields.String(description='First Language'),
+    'other_languages': fields.List(fields.String, description='Other Languages'),
     'availability': fields.Nested(availability_model, description='Availability'),
     'price_per_hour': fields.Integer(description='Price per hour'),
     'type': fields.String(description='Type')
@@ -31,6 +33,15 @@ filter_model = mentor.model('Filter', {
 mentor_student_model = mentor.model('MentorStudent', {
     'student': fields.String(),
     })
+
+@mentor.route('/<string:id>/', strict_slashes=False)
+class MentorById(Resource):
+    def get(self, id):
+        """ Retrieves a mentor """
+        user = storage.find_by("MentorModel", id=id)
+        if user is None:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        return make_response(jsonify(user.to_dict()), 200)
 
 
 @mentor.route('/profile/', strict_slashes=False)
@@ -42,10 +53,10 @@ class Mentor(Resource):
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
-        mentor = storage.find_by("MentorModel", username=current_user.username)
-        if mentor is None:
+        user = storage.find_by("MentorModel", username=current_user.username)
+        if user is None:
             return make_response(jsonify({"error": "Not found"}), 404)
-        return make_response(jsonify(mentor.to_dict()), 200)
+        return make_response(jsonify(user.to_dict()), 200)
 
     @jwt_required()
     @mentor.expect(auth_parser)
@@ -54,12 +65,12 @@ class Mentor(Resource):
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
-        mentor = storage.find_by("MentorModel", username=current_user.usernam)
-        if mentor is None:
+        user = storage.find_by("MentorModel", username=current_user.usernam)
+        if user is None:
             return make_response(jsonify({"error": "Not found"}), 404)
         data = request.get_json()
-        mentor.update(**data)
-        return make_response(jsonify(mentor.to_dict()), 200)
+        user.update(**data)
+        return make_response(jsonify(user.to_dict()), 200)
 
     @jwt_required()
     @mentor.expect(auth_parser)
@@ -68,10 +79,10 @@ class Mentor(Resource):
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
-        mentor = storage.find_by("MentorModel", username=current_user.username)
-        if mentor is None:
+        user = storage.find_by("MentorModel", username=current_user.username)
+        if user is None:
             return make_response(jsonify({"error": "Not found"}), 404)
-        mentor.delete()
+        user.delete()
         return make_response(jsonify({}), 200)
 
 
@@ -86,8 +97,8 @@ class Mentors(Resource):
                                 page=page, per_page=10)
         if mentors is None:
             return make_response(jsonify({"error": "Not found"}), 404)
-        return make_response(jsonify({"mentors": [mentor.to_dict()
-                                                  for mentor in mentors]}),
+        return make_response(jsonify({"mentors": [user.to_dict()
+                                                  for user in mentors]}),
                              200)
 
     @mentor.expect(query_parser)
@@ -98,8 +109,8 @@ class Mentors(Resource):
                                 page=page, per_page=10)
         if mentors is None:
             return make_response(jsonify({"error": "Not found"}), 404)
-        return make_response(jsonify({"mentors": [mentor.to_dict()
-                                                  for mentor in mentors]}),
+        return make_response(jsonify({"mentors": [user.to_dict()
+                                                  for user in mentors]}),
                              200)
 
 
@@ -128,12 +139,12 @@ class Students(Resource):
         if claims['user_type'] != 'mentor':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
         data = request.get_json()
-        mentor = storage.find_by("MentorModel", username=current_user.username)
+        user = storage.find_by("MentorModel", username=current_user.username)
         student = storage.find_by("StudentModel", username=data.get('student'))
-        if mentor is None:
+        if user is None:
             return make_response(jsonify({"error": "Mentor not found"}), 404)
         if student is None:
             return make_response(jsonify({"error": "Student not found"}), 404)
-        mentor.students.append(student)
-        mentor.save()
+        user.students.append(student)
+        user.save()
         return make_response(jsonify({"status": "success"}), 200)
