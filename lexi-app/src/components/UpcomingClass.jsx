@@ -37,8 +37,7 @@ export default function UpcomingClass() {
         (async () => {
             try{
                 const result = await axios.get("http://127.0.0.1:5000/sessions/", { headers: {Authorization: "Bearer " + getAccess()} })
-                setSessions(result.data.sessions.sort((a, b) => b.date - a.date).slice(0, 5))
-                console.log(sessions);
+                setSessions(result.data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5))
             } catch(error) {
                 console.log(error);
             }
@@ -77,6 +76,7 @@ export default function UpcomingClass() {
                         </Td>
                     </Tr>
                     : <>
+                        {console.log("this is sessions", sessions)}
                         {sessions.map((session, index) => (
                         <Tr key={index}>
                             {/* Create a for loop for every upcoming session to register it's info  */}

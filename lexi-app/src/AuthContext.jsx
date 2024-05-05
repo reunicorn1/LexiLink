@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token, refresh) => {
     setAuthToken(token);
-    setRefreshToken (refresh);
+    setRefreshToken(refresh);
     
     // It doesn't make sense to me why these two down there don't work while the setting functions work normally when you login
     localStorage.setItem('authToken', authToken);
