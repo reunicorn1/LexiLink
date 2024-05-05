@@ -8,7 +8,7 @@ import MenuDisplay from './Menu';
 export default function NavBar () {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const { authToken, setUser, refresh } = useAuth();
+    const { authToken, setUser, refresh, status, setStatus } = useAuth();
     const [profilePic, setProfilePic] = useState("");
 
     useEffect(() => {
@@ -21,13 +21,13 @@ export default function NavBar () {
                     setProfilePic(result.data.profile_picture);
                 } catch(error) {
                     if (error.response.status === 410){
+                        setStatus(410);
                         console.log(error.response);
-                        refresh();
                     }
                 }
             })();
         }
-    },[]);
+    },[status]);
 
 
     return (

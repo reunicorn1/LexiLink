@@ -6,7 +6,7 @@ import axios from "axios";
 
 export default function Favorites() {
     const isLargeScreen = useBreakpointValue({ base: false, xl: true });
-    const { authToken, refresh } = useAuth();
+    const { authToken, status, setStatus } = useAuth();
     const [mentors, setMentors] = useState(null);
 
     const getMentors = (async () => {
@@ -14,6 +14,9 @@ export default function Favorites() {
             const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
             setMentors(result.data.mentors);
         } catch (error) {
+            if (error.response.status === 410){
+                setStatus(410);
+            }
             console.log("An error occurred: in the favorites", error);
         }
     });
@@ -29,7 +32,7 @@ export default function Favorites() {
 
     useEffect(() => {
         getMentors();
-    }, [authToken]);
+    }, [status]);
 
     // Add a delete api so you make the buttons work, or ignore it totally and move on with your life
 

@@ -9,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('authToken'));
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'));
   const [user, setUser] = useState({});
+  const [status, setStatus] = useState();
+
 
   // After trial and error I found that bc of the nature of js aync functions, the only thing that can control updating the access token is useEffect
   useEffect(() => {
@@ -21,6 +23,14 @@ export const AuthProvider = ({ children }) => {
 
     }
   }, [authToken]);
+
+
+  useEffect(() => {
+    if (status === 410) {
+      refresh();
+    }
+    setStatus(200);
+}, [status])
 
   const login = (token, refresh) => {
     setAuthToken(token);
@@ -51,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ authToken, user, setUser, login, logout, refresh }}>
+    <AuthContext.Provider value={{ authToken, user, setUser, login, logout, status, setStatus, refresh }}>
       {children}
     </AuthContext.Provider>
   );

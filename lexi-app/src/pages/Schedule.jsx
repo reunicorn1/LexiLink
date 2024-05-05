@@ -3,8 +3,10 @@ import { MdSunny } from "react-icons/md";
 import { IoMoon } from "react-icons/io5";
 import Calander from "../components/Calander";
 import { useLocation } from "react-router-dom";
+import { useAuth } from '../AuthContext';
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 
@@ -13,9 +15,8 @@ export default function Schedule() {
     const now = dayjs();
     const [selectDate, setSelecteDate] = useState(now);
     const [selectTime, setSelectTime] = useState(null);
+    const { authToken, setUser, refresh } = useAuth();
     const [appear, setAppear] = useState(false)
-
-
     let location = useLocation();
     let mentor = location.state && location.state.mentor ? location.state.mentor : null;
     console.log(mentor.availability);
@@ -73,7 +74,16 @@ export default function Schedule() {
 
         const time = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + selectTime);
         const duration = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + '00:30'); // this is for the duration of the session which is by default 30 mins for now
-        navigate('/payment', { state: {mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format(), duration: duration.format(), status: "Approved", amount: mentor.price_per_hour, method: "auto"}})
+        const state = {mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), status: "Approved", amount: mentor.price_per_hour, method: "auto"};
+        (async () => {
+            try {
+                const result = await axios.request({url: "http://127.0.0.1:5000/sessions/", headers: {Authorization: "Bearer " + authToken}, method: "POST", data: state});
+                console.log("wohooo!!!!")
+            } catch (error) {
+                refresh();
+                console.log("An error occured during booking your session, click continue", error);
+            }
+        })();
     }
 
     return <Box display="flex"  justifyContent="center">
