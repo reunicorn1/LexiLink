@@ -113,8 +113,8 @@ class Sessions(Resource):
         data['date'] = datetime.fromisoformat(data['date']).date()
         data['time'] = datetime.fromisoformat(data['time']).strftime("%H:%M:%S")
         data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
-        
-        
+
+
         payment_data = {
             'student_id': data['student_id'],
             'mentor_id': data['mentor_id'],
@@ -139,7 +139,8 @@ class Sessions(Resource):
         session.payment = payment
         session.save()
         student.sessions.append(session)
-        student.mentors.append(mentor)
+        if mentor not in student.mentors:
+            student.mentors.append(mentor)
         mentor.sessions.append(session)
         mentor.save()
         student.save()
@@ -244,7 +245,7 @@ class Room(Resource):
             session = storage.find_by("SessionModel", student_id=student.id, id=session_id)
             mentor = storage.find_by("MentorModel", id=session.mentor_id)
         if not mentor or not student or not session:
-            return make_response(jsonify({"error": "Not found"}), 404)    
+            return make_response(jsonify({"error": "Not found"}), 404)
         if session.date < date:
             return make_response(jsonify({"error": "Session has passed"}), 400)
         elif session.status != 'Approved':
@@ -252,7 +253,26 @@ class Room(Resource):
         else:
             # generate room ID using session ID and student ID and mentor ID
             room_id = session_id[:8] + student.id[:8] + mentor.id[:8]
-            
+
             return make_response(jsonify({'roomID': room_id}), 200)
 
 
+@sessions.route('/status/<string:session_id>', strict_slashes=False)
+class Status(Resource):
+    """ Class for session status modification related operations """
+    @jwt_required()
+    @sessions.expect(auth_parser)
+    def put(self, session_id):
+        """ Updates a session status """
+        claims = get_jwt()
+        data = request.get_json()
+        if not data or 'status' not in data:
+            return make_response(jsonify({"error": "Missing status"}), 400)
+        if claims['user_type'] != 'mentor':
+            return make_response(jsonify({"error": "Unauthorized"}), 401)
+        session = storage.find_by("SessionModel", id=session_id)
+        if session is None:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        session.status = data['status']
+        session.save()
+        return make_response(jsonify(session.to_dict()), 200)
