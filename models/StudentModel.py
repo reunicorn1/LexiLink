@@ -36,7 +36,7 @@ class StudentSession(Base):
              'student'),
        favorite_mentors=(relationship('MentorModel',
                                       secondary='Student_Favorite_Mentors',
-                                      cascade='all, delete-orphan',
+                                      cascade='all',
                                       single_parent=True,
                                       lazy='dynamic'), []),
         sessions=(relationship('SessionModel',

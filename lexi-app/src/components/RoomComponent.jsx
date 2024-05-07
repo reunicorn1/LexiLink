@@ -314,8 +314,7 @@ t
         </div>
         <div id="user-streams">
           <div id="foot" style={{ display: 'block' }}>
-            {/* <button id='mic-btn' onClick={handleMicClick}>Toggle Microphone</button> */}
-            <Flex justifyContent="center" alignItems="center" textAlign="center" w="50px" h="50px" id='mic-btn' bg={micvar ? "brand.700" : "black"} p="10px" rounded="full" boxShadow="xl" style={{cursor: "pointer"}} onClick={handleMicClick}><Icon color="white" boxSize="25px" as={micvar ? IoMdMic : IoMdMicOff }/></Flex>
+            <button id='mic-btn' onClick={handleMicClick}>Toggle Microphone</button>
             <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
             <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
           </div>

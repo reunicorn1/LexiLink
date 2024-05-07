@@ -4,8 +4,8 @@ import RoomComponent from "../components/RoomComponent";
 
 export default function Room() {
 	const [joined, setJoined] = useState(false);
-	// const { sessionid } = useParams();
-	const sessionid = "0cd0f587-0d58-4cbe-babf-4679c19b97be";
+	const { sessionid } = useParams();
+	// const sessionid = "0cd0f587-0d58-4cbe-babf-4679c19b97be";
 	return (
 		<div className="Video-Room">
 			<h1>Agora Video Chat</h1>

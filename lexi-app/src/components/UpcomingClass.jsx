@@ -80,19 +80,17 @@ export default function UpcomingClass() {
         }
         return (0)
     }
-
     
     // Apparently I can't get the room after the session time has passed
-    const getRoomId = (async (id) => {
-        try {
-            const result = await axios.get(`http://127.0.0.1:5000/sessions/room/${id}`, { headers: {Authorization: "Bearer " + getAccess(), session_id: id} } );
-            console.log(result.data)
-            return result.data
-        } catch (error){
-            console.log(error);
-        }
-    });
-
+    // const getRoomId = (async (id) => {
+    //     try {
+    //         const result = await axios.get(`http://127.0.0.1:5000/sessions/room/${id}`, { headers: {Authorization: "Bearer " + getAccess(), session_id: id} } );
+    //         console.log(result.data)
+    //         return result.data
+    //     } catch (error){
+    //         console.log(error);
+    //     }
+    // });
 
     const TimeDifference = (day, time) => {
         const currentTime = dayjs();
@@ -151,7 +149,7 @@ export default function UpcomingClass() {
                             <Td>{session.duration.substring(3, 5)} min</Td>{/* Duration */}
                             { sessionNow(session.date, session.time, session.status, session.id) ? 
                                 <Td>{sessionNow(session.date, session.time, session.status, session.id) === 2 ? 
-                                    <Button size="xs" colorScheme='teal' onClick={()=>navigate(`/room/${getRoomId(session.id)}`)}>Session started!</Button> : 
+                                    <Button size="xs" colorScheme='teal' onClick={()=>navigate(`/room/${session.id}`)}>Session started!</Button> : 
                                     <Badge textDecoration="none" colorScheme="teal">Starts in {TimeDifference(session.date, session.time)}</Badge>
                                 }
                                 </Td> :

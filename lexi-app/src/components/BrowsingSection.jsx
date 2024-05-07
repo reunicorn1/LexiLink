@@ -72,7 +72,7 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                 console.log("deleting the like"); // WTF is this, why removing this line breaks the code!!!
                 (async () => {
                     try {
-                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + getAccess()}, method: 'DELETE', data: {mentor: mentor.username}});
+                        const result = await axios.delete("http://127.0.0.1:5000/student/mentors/favorites/",  {headers: {Authorization: "Bearer " + getAccess()}, data: {mentor: mentor.username}});
                         console.log(`you removed the mentor: ${mentor.first_name} to your favorites`);
                         // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
                     } catch(error){
@@ -174,8 +174,8 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                             <Badge colorScheme={mentor.type === "Community" ? 'blue' : 'yellow'}>{mentor.type} Mentor</Badge>
                             <Text mt="3px">Languages:&nbsp;
                                  <Tag m="2px">{mentor.first_language}</Tag>
-                                 {mentor.other_languages.map((lang)=>(
-                                    <Tag  m="2px">{lang}</Tag>
+                                 {mentor.other_languages.map((lang, index)=>(
+                                    <Tag key={index} m="2px">{lang}</Tag>
                                  ))}
                                  </Text>
                             <Text mt={2}>{mentor.bio}</Text>
@@ -215,8 +215,8 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                         <Heading mb={2} fontSize="lg">Languages</Heading>
                         <Flex mb={4} gap={2} flexWrap="wrap">
                             <Tag m="2px">{isClicked?.first_language}</Tag>
-                            {isClicked?.other_languages.map((lang)=>(
-                                <Tag m="2px">{lang}</Tag>
+                            {isClicked?.other_languages.map((lang, index)=>(
+                                <Tag key={index} m="2px">{lang}</Tag>
                                  ))}
                         </Flex>
                         <Heading mb={1} fontSize="lg">Bio</Heading>

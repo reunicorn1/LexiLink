@@ -189,6 +189,12 @@ class Session(Resource):
         if session is None:
             return make_response(jsonify({"error": "Not found"}), 404)
         data = request.get_json()
+        if "date" in data:
+            data['date'] = datetime.fromisoformat(data['date']).date()
+        if "time" in data:
+            data['time'] = datetime.fromisoformat(data['time']).strftime("%H:%M:%S")
+        if "duration" in data:
+            data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
         session.update(**data)
         return make_response(jsonify(session.to_dict()), 200)
 
@@ -255,9 +261,9 @@ class Room(Resource):
         elif session.status != 'Approved':
             return make_response(jsonify({"error": "Session is not approved"}), 400)
         else:
-            # session.mentor_token = None
-            # session.student_token = None
-            # session.save()
+            session.mentor_token = None
+            session.student_token = None
+            session.save()
             user = claims['user_type'] == 'student'
             channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
             token = (session.mentor_token, session.student_token)[user]
@@ -268,7 +274,7 @@ class Room(Resource):
             appCertificate = getenv('AGORA_CERTIFICATE')
             account = user_id
             role = 1
-            start_time = datetime.combine(session.date, session.time)
+            start_time = datetime.combine(session.date + timedelta(hours=12), session.time)
             expire_time = start_time + timedelta(hours=session.duration.hour, minutes=session.duration.minute)
             privilegeExpiredTs = int(expire_time.timestamp())
             token = RtcTokenBuilder.buildTokenWithAccount(appId, appCertificate, channelName, account, role, privilegeExpiredTs)
