@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refresh = () => {
-    (async ()=>{
+    return (async () => {
       try {
         const result = await axios.get("http://127.0.0.1:5000/auth/refresh", { headers: {Authorization: "Bearer " + refreshToken} } );
         setAuthToken(result.data.access_token);

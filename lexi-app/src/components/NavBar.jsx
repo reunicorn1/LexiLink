@@ -5,10 +5,10 @@ import axios from "axios";
 import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
 
-export default function NavBar () {
+export default function NavBar() {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const { authToken, getAccess, setUser } = useAuth();
+    const { authToken, refresh, setUser } = useAuth();
     const [profilePic, setProfilePic] = useState("");
 
     // This is marked as unhandled promise
@@ -16,43 +16,52 @@ export default function NavBar () {
         if (authToken) {
             (async () => {
                 try {
-                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + getAccess()} } );
+                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + authToken } });
                     setUser(result.data);
                     setProfilePic(result.data.profile_picture);
-                } catch(error) {
+                } catch (error) {
                     if (error.response && error.response.status === 410) {
+                        refresh().then(
+                            data => {
+                                console.log(data);
+                            }
+                        ).catch(
+                            error => {
+                                console.log(error);
+                            }
+                        );
                         console.log(error.response);
                     } else {
-                        console.error("An error occurred:", error);
+                        console.error("An error occurred:", error.response.data);
                     }
                 }
             })();
         }
-    },[]);
+    }, []);
 
 
     return (
-            <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white"  rounded="full" boxShadow='base'>
-                <Box>
-                    <Link to='/'><Image src="/img/logo.png" alt="Logo" boxSize="auto" width="100px" height="auto"/></Link>
-                </Box>
-                <Spacer></Spacer>
-                {isSmallScreen ? null : <>
-                        <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
-                        <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
-                        <Link to='/room'><Button colorScheme='gray' color={location === '/room' ? 'brand.700' : 'black'} variant='ghost'>Room</Button></Link> 
-                    </>}
-                {authToken ? <Box ml={4} className="image-container">
-                    <MenuDisplay>
-                        { profilePic ? 
-                            <Avatar size="sm" bg='red.500' src={profilePic}></Avatar> 
-                            : <>
-                                <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
-                                <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
-                            </>
-                        }
-                    </MenuDisplay>
-                 </Box> : 
+        <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white" rounded="full" boxShadow='base'>
+            <Box>
+                <Link to='/'><Image src="/img/logo.png" alt="Logo" boxSize="auto" width="100px" height="auto" /></Link>
+            </Box>
+            <Spacer></Spacer>
+            {isSmallScreen ? null : <>
+                <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
+                <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
+                <Link to='/room'><Button colorScheme='gray' color={location === '/room' ? 'brand.700' : 'black'} variant='ghost'>Room</Button></Link>
+            </>}
+            {authToken ? <Box ml={4} className="image-container">
+                <MenuDisplay>
+                    {profilePic ?
+                        <Avatar size="sm" bg='red.500' src={profilePic}></Avatar>
+                        : <>
+                            <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
+                            <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
+                        </>
+                    }
+                </MenuDisplay>
+            </Box> :
                 <Box>
                     <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
                     <Link to='/sign-up' ><Button colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>

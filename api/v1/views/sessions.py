@@ -244,49 +244,51 @@ class Room(Resource):
         date = datetime.now().date()
         if claims['user_type'] not in ['mentor', 'student']:
             return make_response(jsonify({"error": "Unauthorized"}), 401)
-        if claims['user_type'] == 'mentor':
-            mentor = storage.find_by("MentorModel", username=claims['identity'])
-            session = storage.find_by("SessionModel", mentor_id=mentor.id, id=session_id)
-            student = storage.find_by("StudentModel", id=session.student_id)
-            user_id = mentor.id
-        else:
-            student = storage.find_by("StudentModel", username=claims['identity'])
-            session = storage.find_by("SessionModel", student_id=student.id, id=session_id)
-            mentor = storage.find_by("MentorModel", id=session.mentor_id)
-            user_id = student.id
-        if not mentor or not student or not session:
-            return make_response(jsonify({"error": "Not found"}), 404)
+        try:
+            if claims['user_type'] == 'mentor':
+                mentor = storage.find_by("MentorModel", username=claims['identity'])
+                session = storage.find_by("SessionModel", mentor_id=mentor.id, id=session_id)
+                student = storage.find_by("StudentModel", id=session.student_id)
+                user_id = mentor.id
+            else:
+                student = storage.find_by("StudentModel", username=claims['identity'])
+                session = storage.find_by("SessionModel", student_id=student.id, id=session_id)
+                mentor = storage.find_by("MentorModel", id=session.mentor_id)
+                user_id = student.id
+            if not mentor or not student or not session:
+                return make_response(jsonify({"error": "Not found"}), 404)
+        except Exception as e:
+            return make_response(jsonify({"error": str(e)}), 400)
         if session.date.date() < date:
             return make_response(jsonify({"error": "Session has passed"}), 400)
-        elif session.status != 'Approved':
+        if session.status != 'Approved':
             return make_response(jsonify({"error": "Session is not approved"}), 400)
-        else:
-            session.mentor_token = None
-            session.student_token = None
-            session.save()
-            user = claims['user_type'] == 'student'
-            channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
-            token = (session.mentor_token, session.student_token)[user]
-            if token is not None:
-                return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
-            # generate room ID using session ID and student ID and mentor ID
-            appId = getenv('AGORA_APPID')
-            appCertificate = getenv('AGORA_CERTIFICATE')
-            account = user_id
-            role = 1
-            start_time = datetime.combine(session.date, session.time)
-            start_time = start_time + timedelta(hours=12)
-            print("start_time", start_time)
-            expire_time = start_time + timedelta(hours=session.duration.hour, minutes=session.duration.minute)
-            print("expire_time", expire_time)
-            privilegeExpiredTs = int(expire_time.timestamp())
-            token = RtcTokenBuilder.buildTokenWithAccount(appId, appCertificate, channelName, account, role, privilegeExpiredTs)
-            if user:
-                session.student_token = token
-            else:
-                session.mentor_token = token
-            session.save()
+        session.mentor_token = None
+        session.student_token = None
+        session.save()
+        user = claims['user_type'] == 'student'
+        channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
+        token = (session.mentor_token, session.student_token)[user]
+        if token is not None:
             return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
+        # generate room ID using session ID and student ID and mentor ID
+        appId = getenv('AGORA_APPID')
+        appCertificate = getenv('AGORA_CERTIFICATE')
+        account = user_id
+        role = 1
+        start_time = datetime.combine(session.date, session.time)
+        start_time = start_time + timedelta(hours=12)
+        print("start_time", start_time)
+        expire_time = start_time + timedelta(hours=session.duration.hour, minutes=session.duration.minute)
+        print("expire_time", expire_time)
+        privilegeExpiredTs = int(expire_time.timestamp())
+        token = RtcTokenBuilder.buildTokenWithAccount(appId, appCertificate, channelName, account, role, privilegeExpiredTs)
+        if user:
+            session.student_token = token
+        else:
+            session.mentor_token = token
+        session.save()
+        return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
 
 
 

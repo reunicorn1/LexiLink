@@ -14,6 +14,8 @@ from api.v1.views.auth import auth
 from api.v1.views.student import std
 from api.v1.views.mentors import mentor
 from api.v1.views.sessions import sessions
+from datetime import timedelta
+
 
 
 
@@ -36,6 +38,7 @@ def create_app():
     cors.init_app(app, resources={r"/*": {"origins": "*"}})
     login_manager.init_app(app)
     jwt.init_app(app)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=1)
     metadata.reflect(bind=create_engine(app.config['SQLALCHEMY_DATABASE_URI']))
     api.init_app(app)
     api.add_namespace(auth)

@@ -8,7 +8,7 @@ import SignUpAlert from './SignUpAlert';
 import { useNavigate } from 'react-router-dom';
 
 export default function BrowsingSection ({filter, search, setSearch}) {
-    const { authToken, getAccess } = useAuth();
+    const { authToken, refresh } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, md: true });
     const [isClicked, setIsClicked] = useState(null);
     const [page, setPage] = useState(1);
@@ -72,10 +72,22 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                 console.log("deleting the like"); // WTF is this, why removing this line breaks the code!!!
                 (async () => {
                     try {
-                        const result = await axios.delete("http://127.0.0.1:5000/student/mentors/favorites/",  {headers: {Authorization: "Bearer " + getAccess()}, data: {mentor: mentor.username}});
+                        const result = await axios.delete("http://127.0.0.1:5000/student/mentors/favorites/", { headers: { Authorization: "Bearer " + authToken }, data: { mentor: mentor.username } });
                         console.log(`you removed the mentor: ${mentor.first_name} to your favorites`);
                         // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
-                    } catch(error){
+                    } catch (error) {
+                        if (error.response.status === 410) {
+                            refresh().then(
+                                data => {
+                                    console.log(data);
+                                }
+                            ).catch(
+                                error => {
+                        console.log(error);
+                    }
+                );
+                            handleLike(mentor);
+                        }
                         console.log("An error occured during removal from your favorites: ", error);
                     }
                 })();
@@ -83,10 +95,22 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                 setLove(mentor.id);
                 (async () => {
                     try {
-                        const result = await axios.request({url: "http://127.0.0.1:5000/student/mentors/favorites/",  headers: {Authorization: "Bearer " + getAccess()}, method: 'POST', data: {mentor: mentor.username}});
+                        const result = await axios.request({ url: "http://127.0.0.1:5000/student/mentors/favorites/", headers: { Authorization: "Bearer " + authToken }, method: 'POST', data: { mentor: mentor.username } });
                         console.log(`you added the mentor: ${mentor.first_name} to your favorites`);
                         // add a toast here to show people they added someone to their favorites, or not you're free to do whatever :/
-                    } catch(error){
+                    } catch (error) {
+                        if (error.response.status === 410) {
+                            refresh().then(
+                                data => {
+                                    handleLike(mentor);
+                                    console.log(data);
+                                }
+                            ).catch(
+                                error => {
+                                    console.log(error);
+                                }
+                            );
+                        }
                         console.log("An error occured during adding a mentor to your favorites: ", error);
                     }
                 })();
@@ -145,9 +169,21 @@ export default function BrowsingSection ({filter, search, setSearch}) {
 
     const allFavorites = (async () => {
         try {
-            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + getAccess()} });
+            const result = await axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: {Authorization: "Bearer " + authToken} });
             setFavorites(result.data.mentors);
         } catch(error){
+            if (error.response.status === 410) {
+                refresh().then(
+                    data => {
+                        allFavorites();
+                        console.log(data);
+                    }
+                ).catch(
+                    error => {
+                        console.log(error);
+                    }
+                );
+            }
             console.log("An error occured during retrival of the favorite mentors for this user: ", error);
         }
     });
