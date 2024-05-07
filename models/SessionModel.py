@@ -36,7 +36,6 @@ choices = ('Pending', 'Approved', 'Declined', 'Completed', 'Cancelled')
         payment=relationship('PaymentModel', backref='session',
                              cascade='all, delete-orphan', uselist=False,
                              lazy='dynamic'),
-        token=(Column(String(255), nullable=True), ''),
         mentor_token=(Column(String(255), nullable=True), ''),
         student_token=(Column(String(255), nullable=True), ''),
         )
