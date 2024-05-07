@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { IoMdMic } from "react-icons/io";
+import { IoMdMicOff } from "react-icons/io";
+import { BsCameraVideoFill } from "react-icons/bs";
+import { BsCameraVideoOffFill } from "react-icons/bs";
 import AgoraRTC from "agora-rtc-sdk-ng";
+import { Button, Box, Icon, Flex } from '@chakra-ui/react';
 
 const RoomComponent = () => {
+  const [mic, setmic] = useState(true); // Here I'm assuming the user agrees by default to open camera and mic
+  const [camera, setcamera] = useState(true)
+  let micvar = true;
 
   let config = {
     appid: import.meta.env.VITE_AGORA_APPID,
@@ -106,25 +114,33 @@ const RoomComponent = () => {
 
 
 
-  const handleMicButtonClick = async () => {
-    console.log('handleMicButtonClick called');
-    console.log('localTracks', localTracks);
-    if (!localTracks.audioTrack) return;
-    if (!localTrackState.audioTrackMuted) {
-      await localTracks.audioTrack.setMuted(true);
-      localTrackState.audioTrackMuted = true;
-      console.log('localUid', localUid)
-      document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-off.svg';
-      document.getElementById('mic-btn').style.backgroundColor = 'red';
-    } else {
-      await localTracks.audioTrack.setMuted(false);
-      localTrackState.audioTrackMuted = false;
-      document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-on.svg';
-      document.getElementById('mic-btn').style.backgroundColor = 'green';
-    }
-  };
+
+  const handleMicClick = () => {
+    const handleMicButtonClick = async () => {
+      console.log('handleMicButtonClick called');
+      console.log('localTracks', localTracks);
+      if (!localTracks.audioTrack) return;
+      if (!localTrackState.audioTrackMuted) {
+        await localTracks.audioTrack.setMuted(true);
+        localTrackState.audioTrackMuted = true;
+        console.log('localUid', localUid)
+        document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-off.svg';
+        document.getElementById('mic-btn').style.backgroundColor = 'red';
+      } else {
+        await localTracks.audioTrack.setMuted(false);
+        localTrackState.audioTrackMuted = false;
+        document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-on.svg';
+        document.getElementById('mic-btn').style.backgroundColor = 'greenf';
+
+        micvar = !micvar;
+t
+      }
+    };
+    handleMicButtonClick();
+  }
 
   const handleCameraButtonClick = async () => {
+    // setcamera(!camera);
     console.log('handleCameraButtonClick called');
     if (!localTrackState.videoTrackMuted) {
       await localTracks.videoTrack.setMuted(true);
@@ -248,16 +264,18 @@ const RoomComponent = () => {
 
   return (
     <div className='room'>
-      <div id="join-wrapper">
-        <input type="text" id="username" />
-        <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
-      </div>
-      <div id="user-streams">
-        <div id="foot" style={{ display: 'block' }}>
-          <button id="mic-btn" onClick={handleMicButtonClick}>Toggle Microphone</button>
-          <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
-          <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
-        </div></div>
+        <div id="join-wrapper">
+          <input type="text" id="username" />
+          <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
+        </div>
+        <div id="user-streams">
+          <div id="foot" style={{ display: 'block' }}>
+            {/* <button id='mic-btn' onClick={handleMicClick}>Toggle Microphone</button> */}
+            <Flex justifyContent="center" alignItems="center" textAlign="center" w="50px" h="50px" id='mic-btn' bg={micvar ? "brand.700" : "black"} p="10px" rounded="full" boxShadow="xl" style={{cursor: "pointer"}} onClick={handleMicClick}><Icon color="white" boxSize="25px" as={micvar ? IoMdMic : IoMdMicOff }/></Flex>
+            <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
+            <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
+          </div>
+        </div>
     </div>
   );
 };
