@@ -45,10 +45,14 @@ export default function Schedule() {
         const start = mentor.availability.startTime;
         const end = mentor.availability.endTime;
         const arrayofTimes = [];
+        const localtimezoneoffset = dayjs().utcOffset();
+        const differenceInHours = Math.floor(localtimezoneoffset / 60);
         
 
         let [startHours, startMinutes] = start.split(':').map(Number);
+        startHours += differenceInHours;
         let [endHours, endMinutes] = end.split(':').map(Number);
+        endHours += differenceInHours;
 
         if (!time) {
             endHours = 12;
@@ -73,8 +77,11 @@ export default function Schedule() {
 
     const handleContinue = () => {
         dayjs.extend(utc);
-
-        const time = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + selectTime);
+        const localtimezoneoffset = dayjs().utcOffset();
+        const differenceInHours = Math.floor(localtimezoneoffset / 60);
+        const newtime = selectTime.split(':').map(Number);
+        newtime[0] -= differenceInHours;
+        const time = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + newtime.join(':'));
         const duration = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + '00:30'); // this is for the duration of the session which is by default 30 mins for now
         const state = {mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), status: "Approved", amount: mentor.price_per_hour, method: "auto"};
         (async () => {

@@ -62,8 +62,14 @@ export default function UpcomingClass() {
       };
 
     const settingTime = (date, time) => {
+        const localtimezoneoffset = dayjs().utcOffset();
+        // convert time to datetime and add local timezone offset
+        const differenceInHours = Math.floor(localtimezoneoffset / 60);
+        const localTime = {hours: parseInt(time.split(':')[0]) + differenceInHours, minutes: parseInt(time.split(':')[1])}
+        const newtime = `${localTime.hours}:${localTime.minutes}`
         const dateform = dayjs.utc(date + 'Z')
-        const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + time);
+        const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + newtime);
+
         return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
     }
 

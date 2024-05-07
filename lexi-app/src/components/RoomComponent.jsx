@@ -66,35 +66,36 @@ const RoomComponent = ({sessionid}) => {
     [config.uid, localTracks.audioTrack, localTracks.videoTrack] = await Promise.all([
       client.join(config.appid, config.channel, config.token || null, config.uid || null),
       AgoraRTC.createMicrophoneAudioTrack(
-        {
-          encoderConfig: {
-            sampleRate: { min: 8000, ideal: 16000, max: 16000 },
-            channels: { min: 1, ideal: 2, max: 2 },
-          },
-        },
-        true,
-        {
-          encoderFallback: true,
-        }
+        // {
+        //   encoderConfig: {
+        //     sampleRate: { min: 8000, ideal: 16000, max: 16000 },
+        //     channels: { min: 1, ideal: 2, max: 2 },
+        //   },
+        // },
+        // true,
+        // {
+        //   encoderFallback: true,
+        // }
 
       ),
       AgoraRTC.createCameraVideoTrack(
-        {
-          encoderConfig: {
-            width: { min: 640, ideal: 1920, max: 1920 },
-            height: { min: 480, ideal: 1080, max: 1080 },
-            frameRate: { min: 15, ideal: 30, max: 60 },
-          },
-        },
-        true,
-        {
-          encoderFallback: true,
-        }
+        // {
+        //   encoderConfig: {
+        //     width: { min: 640, ideal: 1920, max: 1920 },
+        //     height: { min: 480, ideal: 1080, max: 1080 },
+        //     frameRate: { min: 15, ideal: 30, max: 60 },
+        //   },
+        // },
+        // true,
+        // {
+        //   encoderFallback: true,
+        // }
       )
     ]).catch(err => {
       console.log('errortest');
       console.error(err);
     });
+    localUid = config.uid;
 
     console.log('localTracks', localTracks);
     try {

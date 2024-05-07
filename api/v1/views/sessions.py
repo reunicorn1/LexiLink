@@ -274,8 +274,11 @@ class Room(Resource):
             appCertificate = getenv('AGORA_CERTIFICATE')
             account = user_id
             role = 1
-            start_time = datetime.combine(session.date + timedelta(hours=12), session.time)
+            start_time = datetime.combine(session.date, session.time)
+            start_time = start_time + timedelta(hours=12)
+            print("start_time", start_time)
             expire_time = start_time + timedelta(hours=session.duration.hour, minutes=session.duration.minute)
+            print("expire_time", expire_time)
             privilegeExpiredTs = int(expire_time.timestamp())
             token = RtcTokenBuilder.buildTokenWithAccount(appId, appCertificate, channelName, account, role, privilegeExpiredTs)
             if user:

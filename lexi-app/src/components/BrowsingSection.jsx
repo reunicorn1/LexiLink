@@ -174,9 +174,9 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                             <Badge colorScheme={mentor.type === "Community" ? 'blue' : 'yellow'}>{mentor.type} Mentor</Badge>
                             <Text mt="3px">Languages:&nbsp;
                                  <Tag m="2px">{mentor.first_language}</Tag>
-                                 {mentor.other_languages.map((lang, index)=>(
-                                    <Tag key={index} m="2px">{lang}</Tag>
-                                 ))}
+                                {Array.isArray(mentor?.other_languages) ? mentor.other_languages.map((lang, index) => (
+  <Tag key={index} m="2px">{lang}</Tag>
+)) : <Tag key={index} m="2px">{mentor.other_languages}</Tag>}
                                  </Text>
                             <Text mt={2}>{mentor.bio}</Text>
                         </Box>
@@ -215,9 +215,9 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                         <Heading mb={2} fontSize="lg">Languages</Heading>
                         <Flex mb={4} gap={2} flexWrap="wrap">
                             <Tag m="2px">{isClicked?.first_language}</Tag>
-                            {isClicked?.other_languages.map((lang, index)=>(
-                                <Tag key={index} m="2px">{lang}</Tag>
-                                 ))}
+                                            {Array.isArray(isClicked?.other_languages) ? isClicked.other_languages.map((lang, index) => (
+                                                <Tag key={index} m="2px">{lang}</Tag>
+                                            )) : null}
                         </Flex>
                         <Heading mb={1} fontSize="lg">Bio</Heading>
                         <Text mb={4}>{isClicked?.bio}</Text>
