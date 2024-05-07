@@ -13,17 +13,18 @@ import {
     Avatar,
     useBreakpointValue
 } from "@chakra-ui/react"
-import { useEffect } from "react";
-import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { useEffect, useState } from "react";
 import { useAuth } from '../AuthContext';
 import { Link, useNavigate } from "react-router-dom";
 import UpcomingClass from "../components/UpcomingClass";
 import Favorites from "../components/Favorites";
+import axios from "axios";
 
 
 export default function Dashboard() {
+    const [stats, setStats] = useState({minutes: 0, lessons: 0});
     const isLargeScreen = useBreakpointValue({ base: false, xl: true });
-    const { user, authToken } = useAuth();
+    const { user, authToken, getAccess } = useAuth();
 
     const navigate = useNavigate();
 
@@ -32,6 +33,25 @@ export default function Dashboard() {
             navigate("/");
         }
     }, [])
+
+    useEffect(() => {
+        (async () => {
+            try{
+                const result = await axios.get("http://127.0.0.1:5000/sessions/", { headers: {Authorization: "Bearer " + getAccess()} });
+                const newStats = {minutes: 0, lessons: 0}
+                result.data.sessions.forEach(element => {
+                    if (element.status === "Completed") {
+                        newStats.minutes += Number(element.duration.substring(3, 5));
+                        newStats.lessons ++;
+                    }
+                })
+                setStats(newStats);
+            } catch(error) {
+                console.log(error);
+            }
+        })();
+    }, [])
+
 
     return <>
     <Box display="flex" m="10px" flexDirection={!isLargeScreen ? 'column' : 'row'}justifyContent="center">
@@ -48,12 +68,12 @@ export default function Dashboard() {
                     <StatGroup> {/* Don't forget to add info about sessions of the student */}
                         <Stat rounded="xl" bg="teal.100" p="10px" m="10px">
                             <StatLabel fontSize="md">Minutes</StatLabel>
-                            <StatNumber fontSize="3xl">345,670</StatNumber>
+                            <StatNumber fontSize="3xl">{stats.minutes}</StatNumber>
                         </Stat>
 
                         <Stat rounded="xl" bg="orange.100" p="10px" m="10px">
                             <StatLabel fontSize="md">Lessons</StatLabel>
-                            <StatNumber fontSize="3xl">45</StatNumber>
+                            <StatNumber fontSize="3xl">{stats.lessons}</StatNumber>
                         </Stat>
                     </StatGroup>
                 </Box>
@@ -81,7 +101,6 @@ export default function Dashboard() {
                     <Flex alignItems={"center"} mb={4}>
                         <Heading fontSize={"xl"}>Your Lessons</Heading>
                         <Spacer></Spacer>
-                        <Link><Text>See all <ArrowForwardIcon/></Text></Link> {/* Add me a link */}
                     </Flex>
                     <UpcomingClass></UpcomingClass>
                 </Box>

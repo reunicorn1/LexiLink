@@ -272,6 +272,6 @@ video {
     border: none;
     color: #fff;
     font-size: 22px;
-    padding: 20px 30px;
+    /* padding: 20px 30px; */
     cursor: pointer;
 }

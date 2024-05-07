@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setAuthToken(null);
-    setRefreshToken (null);
+    setRefreshToken(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
   };
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         const result = await axios.get("http://127.0.0.1:5000/auth/refresh",{ headers: {Authorization: "Bearer " + refreshToken} } );
         setAuthToken(result.data.access_token);
         return (200);
-      } catch (error) {
+      } catch(error) {
         console.log(error.response.data);
       }
     })();

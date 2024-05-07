@@ -6,19 +6,24 @@ import {
     Th,
     Td,
     TableContainer,
-    Image,
     Flex,
     Box,
     Heading,
     Text,
     Badge,
+    Avatar,
+    Button
   } from '@chakra-ui/react'
   import { useEffect, useState } from 'react';
   import { useAuth } from '../AuthContext';
   import axios from 'axios';
   import dayjs from "dayjs";
   import utc from 'dayjs/plugin/utc';
+  import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+  import { useNavigate } from 'react-router-dom';
   dayjs.extend(utc);
+  dayjs.extend(isSameOrAfter);
+
   {/*
         --- Every status type has a certain color ---
         <Badge>Pending</Badge> -- pending has no color
@@ -30,6 +35,7 @@ import {
 */}
 
 export default function UpcomingClass() {
+    const navigate = useNavigate();
     const [sessions, setSessions] = useState();
     const { authToken, getAccess } = useAuth();
 
@@ -37,7 +43,11 @@ export default function UpcomingClass() {
         (async () => {
             try{
                 const result = await axios.get("http://127.0.0.1:5000/sessions/", { headers: {Authorization: "Bearer " + getAccess()} })
-                setSessions(result.data.sessions.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5))
+                const sessionsWithMentors = await Promise.all(result.data.sessions.map(async session => {
+                    const values = await retrieveMentor(session.mentor_id);
+                    return {...session, mentorName: values[0], mentorDp: values[1], mentorType: values[2]};
+                }));
+                setSessions(sessionsWithMentors.sort((a, b) => new Date(b.date) - new Date(a.date)))
             } catch(error) {
                 console.log(error);
             }
@@ -57,8 +67,57 @@ export default function UpcomingClass() {
         return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
     }
 
+    const sessionNow = (day, time, status, id) => {
+        if (status === "Approved") {
+            const currentTime = dayjs();
+            const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD')+ ' ' + time);
+            if (currentTime.isSame(sessionTime, "date")) {
+                if (currentTime.isSameOrAfter(sessionTime)){
+                    return (2)
+                }
+                return (1)
+            }
+        }
+        return (0)
+    }
+
+    
+    // Apparently I can't get the room after the session time has passed
+    const getRoomId = (async (id) => {
+        try {
+            const result = await axios.get(`http://127.0.0.1:5000/sessions/room/${id}`, { headers: {Authorization: "Bearer " + getAccess(), session_id: id} } );
+            console.log(result.data)
+            return result.data
+        } catch (error){
+            console.log(error);
+        }
+    });
+
+
+    const TimeDifference = (day, time) => {
+        const currentTime = dayjs();
+        const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD')+ ' ' + time);
+        const differenceInHours = sessionTime.diff(currentTime, 'hour');
+        if (differenceInHours === 0) {
+            return `${sessionTime.diff(currentTime, 'minute')} mins`
+        }
+        return `${differenceInHours} hrs`
+    }
+
+    const retrieveMentor = (mentorId) => {
+        return (async () => {
+            try {
+                const result = await axios.get(`http://127.0.0.1:5000/mentor/${mentorId}`);
+                return [`${result.data.first_name} ${result.data.last_name}`, result.data.profile_picture, result.data.type];
+            } catch (error) {
+                console.log(`An error occured during retrival of ${mentorId} info `, error);
+            }
+        })();
+    }
+
+
     return (
-        <TableContainer bg="white" rounded="xl" boxShadow="lg">
+        <TableContainer bg="white" rounded="xl" boxShadow="lg" maxH="41vh" overflowY="auto">
             <Table variant='simple'>
                 <Thead>
                     <Tr>
@@ -69,29 +128,35 @@ export default function UpcomingClass() {
                     </Tr>
                 </Thead>
                 <Tbody textAlign={'center'}>
-                    {!sessions ?
+                    {!sessions?.length ?
                     <Tr>
                         <Td>
                             <Text m="22px"> No Upcoming classes..</Text>
                         </Td>
                     </Tr>
                     : <>
-                        {console.log("this is sessions", sessions)}
                         {sessions.map((session, index) => (
                         <Tr key={index}>
                             {/* Create a for loop for every upcoming session to register it's info  */}
                             <Td>
                                 <Flex alignItems={'center'} mr={4}>
-                                    <Image rounded="full" maxW="50px" src="/img/unicorn.png"></Image>
+                                    <Avatar size="md" src={session.mentorDp}></Avatar>
                                     <Box ml="15px">
-                                        <Heading fontSize={'md'}>Name of Mentor</Heading>
-                                        <Text fontSize={'xs'}>Community Mentor</Text>
+                                        <Heading fontSize={'md'}>{session.mentorName}</Heading>
+                                        <Text fontSize={'xs'}>{session.mentorType} Mentor</Text>
                                     </Box>
                                 </Flex>
                             </Td>{/* Data of the mentor: name, profile pic, type of mentor */}
                             <Td>{settingTime(session.date, session.time)}</Td>{/* Date/time: you need to convert it to look readable */}
                             <Td>{session.duration.substring(3, 5)} min</Td>{/* Duration */}
-                            <Td><Badge textDecoration="none" colorScheme={statusColors[session.status]}>{session.status}</Badge></Td>{/* Status */}
+                            { sessionNow(session.date, session.time, session.status, session.id) ? 
+                                <Td>{sessionNow(session.date, session.time, session.status, session.id) === 2 ? 
+                                    <Button size="xs" colorScheme='teal' onClick={()=>navigate(`/room/${getRoomId(session.id)}`)}>Session started!</Button> : 
+                                    <Badge textDecoration="none" colorScheme="teal">Starts in {TimeDifference(session.date, session.time)}</Badge>
+                                }
+                                </Td> :
+                                <Td><Badge textDecoration="none" colorScheme={statusColors[session.status]}>{session.status}</Badge></Td>
+                            }
                         </Tr>
                         ))}
                     </>
