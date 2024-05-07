@@ -21,16 +21,12 @@ const RoomComponent = ({sessionid}) => {
         localUid = response.data.uid;
         channel = response.data.channel;
       }
-      // return both token and uid
       return token, localUid, channel;
     };
   let config = {
     appid: import.meta.env.VITE_AGORA_APPID,
-    // make a request to the server to get the token
-    // through a get request to "http://127.0.0.1:5000/sessions/room/<sessionid>"
     token: token,
     uid: localUid,
-    // channel: roomid
     channel: channel
   };
   let localTracks = {
@@ -63,7 +59,6 @@ const RoomComponent = ({sessionid}) => {
     console.log('config token', config.token);
     console.log('config uid', config.uid);
     console.log('config channel', config.channel);
-    // client.on("user-published", handleUserJoined);
     [config.uid, localTracks.audioTrack, localTracks.videoTrack] = await Promise.all([
       client.join(config.appid, config.channel, config.token || null, config.uid || null),
       AgoraRTC.createMicrophoneAudioTrack(
