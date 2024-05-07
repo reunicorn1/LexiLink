@@ -218,8 +218,12 @@ export default function BrowsingSection ({filter, search, setSearch}) {
                         <Heading mb={1} fontSize="lg">Expertise</Heading>
                         <Text mb={4}>{isClicked?.expertise}</Text>
                         <Divider orientation='horizontal' mb={6}/>
-                        <iframe width="100%" height="315"
+                        {/* <iframe width="100%" height="315"
                         src={isClicked?.demo_video}>
+                        </iframe> */}
+                        <iframe width="100%" height="315"
+                        src={isClicked?.demo_video} frameBorder="0"
+                        allow="autoplay; encrypted-media" allowFullScreen>
                         </iframe>
                         <Accordion mt={4} allowToggle>
                             <AccordionItem>

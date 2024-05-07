@@ -22,6 +22,10 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('refreshToken', refreshToken)
 
     }
+    return () => {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken', refreshToken)
+    }
   }, [authToken]);
 
   // I tried to think of a way to update the access token whenever we ask for it, so it requests never fail, I'm not sure if this will fix the issue tho
@@ -41,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setAuthToken(null);
-    setRefreshToken (null);
+    setRefreshToken(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
   };
@@ -49,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   const refresh = () => {
     (async ()=>{
       try {
-        const result = await axios.get("http://127.0.0.1:5000/auth/refresh",{ headers: {Authorization: "Bearer " + refreshToken} } );
+        const result = await axios.get("http://127.0.0.1:5000/auth/refresh", { headers: {Authorization: "Bearer " + refreshToken} } );
         setAuthToken(result.data.access_token);
         return (200);
       } catch (error) {

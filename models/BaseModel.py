@@ -2,7 +2,7 @@
 '''Module defines BaseModel class'''
 
 from uuid import uuid4
-from datetime import datetime, time
+from datetime import datetime, time, timezone
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from os import getenv
@@ -18,15 +18,15 @@ Base = declarative_base()
 class BaseModel:
     '''BaseModel class'''
     id = Column(String(60), primary_key=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),  nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     def __init__(self, *_, **kwargs):
         '''Instantiate an instance'''
         self.id = str(uuid4())
         if not len(kwargs):
-            self.created_at = datetime.utcnow()
-            self.updated_at = datetime.utcnow()
+            self.created_at = datetime.now(timezone.utc)
+            self.updated_at = datetime.now(timezone.utc)
             return
         for k, v in kwargs.items():
             if k != '__class__':
@@ -37,9 +37,9 @@ class BaseModel:
         '''updates the public instance attribute updated_at'''
         from models import storage
         if db:
-            self.updated_at = datetime.utcnow()
+            self.updated_at = datetime.now(timezone.utc)
         else:
-            self.updated_at = datetime.utcnow()
+            self.updated_at = datetime.now(timezone.utc)
         storage.new(self)
         storage.save()
 

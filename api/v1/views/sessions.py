@@ -8,6 +8,9 @@ from flask_jwt_extended import (
         get_jwt,
         current_user,
 )
+from agora_token_builder import RtcTokenBuilder
+from dotenv import load_dotenv
+from os import getenv
 from models import storage
 from api.v1.views.parsers import auth_parser, query_parser
 from datetime import datetime, timedelta
@@ -16,6 +19,9 @@ from flask_jwt_extended.exceptions import UserClaimsVerificationError
 
 
 sessions = Namespace('sessions', description='Session related operations')
+
+load_dotenv()
+
 
 class IntervalField(fields.Raw):
     """ Class for IntervalField
@@ -80,9 +86,6 @@ class Sessions(Resource):
         user = storage.find_by(cls=("MentorModel", "StudentModel")[claims['user_type'] == 'student'],
                                username=claims['identity'])
         sessions = user.sessions
-        for session in sessions:
-            print(session.to_dict())
-        # print(sessions)
         if not sessions:
             return make_response(jsonify({"sessions": []}), 200)
         sessions_pagination = []
@@ -216,7 +219,6 @@ class SessionsAll(Resource):
                                       page=page, per_page=10)
         if sessions_list is None:
             return make_response(jsonify({"sessions": []}), 200)
-        print(sessions_list)
         return make_response(jsonify([session.to_dict() for session in sessions_list]), 200)
 
     @sessions.expect(query_parser)
@@ -231,7 +233,7 @@ class Room(Resource):
     @jwt_required()
     @sessions.expect(auth_parser)
     def get(self, session_id):
-        """ Get the room ID """
+        """ Get the agora token """
         claims = get_jwt()
         date = datetime.now().date()
         if claims['user_type'] not in ['mentor', 'student']:
@@ -240,21 +242,44 @@ class Room(Resource):
             mentor = storage.find_by("MentorModel", username=claims['identity'])
             session = storage.find_by("SessionModel", mentor_id=mentor.id, id=session_id)
             student = storage.find_by("StudentModel", id=session.student_id)
+            user_id = mentor.id
         else:
             student = storage.find_by("StudentModel", username=claims['identity'])
             session = storage.find_by("SessionModel", student_id=student.id, id=session_id)
             mentor = storage.find_by("MentorModel", id=session.mentor_id)
+            user_id = student.id
         if not mentor or not student or not session:
             return make_response(jsonify({"error": "Not found"}), 404)
-        if session.date < date:
+        if session.date.date() < date:
             return make_response(jsonify({"error": "Session has passed"}), 400)
         elif session.status != 'Approved':
             return make_response(jsonify({"error": "Session is not approved"}), 400)
         else:
+            # session.mentor_token = None
+            # session.student_token = None
+            # session.save()
+            user = claims['user_type'] == 'student'
+            channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
+            token = (session.mentor_token, session.student_token)[user]
+            if token is not None:
+                return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
             # generate room ID using session ID and student ID and mentor ID
-            room_id = session_id[:8] + student.id[:8] + mentor.id[:8]
+            appId = getenv('AGORA_APPID')
+            appCertificate = getenv('AGORA_CERTIFICATE')
+            account = user_id
+            role = 1
+            start_time = datetime.combine(session.date, session.time)
+            expire_time = start_time + timedelta(hours=session.duration.hour, minutes=session.duration.minute)
+            privilegeExpiredTs = int(expire_time.timestamp())
+            token = RtcTokenBuilder.buildTokenWithAccount(appId, appCertificate, channelName, account, role, privilegeExpiredTs)
+            if user:
+                session.student_token = token
+            else:
+                session.mentor_token = token
+            session.save()
+            return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
 
-            return make_response(jsonify({'roomID': room_id}), 200)
+
 
 
 @sessions.route('/status/<string:session_id>', strict_slashes=False)

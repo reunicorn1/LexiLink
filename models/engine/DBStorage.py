@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """db_storage module"""
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, scoped_session
 from os import getenv
 from models.BaseModel import Base
@@ -195,4 +195,30 @@ class DBStorage:
             .offset((page - 1) * per_page)  # Offset for pagination
             .all()
         )
+        return query_result
+
+    def query_all(self, cls, **kwargs):
+        """Query by key-value pair with pagination.
+        Usage: query('StudentModel', page=1, per_page=10, email='email')
+        """
+        if cls is None:
+            return None
+        if type(cls) is str:
+            cls = classes[cls]
+        if not kwargs:
+            query_result = (
+                self.__session.query(cls)
+                .all()
+            )
+            return query_result
+        min_price = kwargs.pop('min_price', None)
+        max_price = kwargs.pop('max_price', None)
+        
+        query = self.__session.query(cls).filter_by(**kwargs)
+        if min_price is not None and max_price is not None:
+            query = query.filter(and_(cls.price_per_hour >= min_price, cls.price_per_hour <= max_price))
+
+        query_result = query.all()
+        
+        
         return query_result
