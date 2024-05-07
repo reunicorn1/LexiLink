@@ -4,18 +4,34 @@ import { IoMdMicOff } from "react-icons/io";
 import { BsCameraVideoFill } from "react-icons/bs";
 import { BsCameraVideoOffFill } from "react-icons/bs";
 import AgoraRTC from "agora-rtc-sdk-ng";
-import { Button, Box, Icon, Flex } from '@chakra-ui/react';
+import axios from 'axios';
+import { useAuth } from '../AuthContext';
 
-const RoomComponent = () => {
-  const [mic, setmic] = useState(true); // Here I'm assuming the user agrees by default to open camera and mic
-  const [camera, setcamera] = useState(true)
-  let micvar = true;
 
+
+const RoomComponent = ({sessionid}) => {
+  console.log('sessionid', sessionid);
+  const { authToken } = useAuth();
+  let token = null;
+  let localUid = null;
+  let channel = null;
+  const getToken = async () => {
+      const response = await axios.get(`http://127.0.0.1:5000/sessions/room/${sessionid}`, {headers: {Authorization: "Bearer " + authToken }});
+      if (response.status !== 200) {
+        throw new Error('Failed to get token');
+      }
+      else {
+        token = response.data.token;
+        localUid = response.data.uid;
+        channel = response.data.channel;
+      }
+      return token, localUid, channel;
+    };
   let config = {
     appid: import.meta.env.VITE_AGORA_APPID,
-    token: import.meta.env.VITE_AGORA_TOKEN,
-    uid: null,
-    channel: import.meta.env.VITE_AGORA_CHANNEL
+    token: token,
+    uid: localUid,
+    channel: channel
   };
   let localTracks = {
     audioTrack: null,
@@ -28,7 +44,6 @@ const RoomComponent = () => {
   let localUser = null
   let remoteTracks = {}
   let client = null
-  let localUid = null
   let remoteUid = null
   const playerHtml = (uid) => (
     `<div class="video-containers" id="video-wrapper-${uid}">
@@ -45,16 +60,41 @@ const RoomComponent = () => {
     client.on('volume-indicator', handleVolumeIndicator);
     client.enableAudioVolumeIndicator();
     console.log('joinStreams called');
-    // client.on("user-published", handleUserJoined);
+    console.log('config token', config.token);
+    console.log('config uid', config.uid);
+    console.log('config channel', config.channel);
     [config.uid, localTracks.audioTrack, localTracks.videoTrack] = await Promise.all([
       client.join(config.appid, config.channel, config.token || null, config.uid || null),
-      AgoraRTC.createMicrophoneAudioTrack(),
-      AgoraRTC.createCameraVideoTrack()
+      AgoraRTC.createMicrophoneAudioTrack(
+        {
+          encoderConfig: {
+            sampleRate: { min: 8000, ideal: 16000, max: 16000 },
+            channels: { min: 1, ideal: 2, max: 2 },
+          },
+        },
+        true,
+        {
+          encoderFallback: true,
+        }
+
+      ),
+      AgoraRTC.createCameraVideoTrack(
+        {
+          encoderConfig: {
+            width: { min: 640, ideal: 1920, max: 1920 },
+            height: { min: 480, ideal: 1080, max: 1080 },
+            frameRate: { min: 15, ideal: 30, max: 60 },
+          },
+        },
+        true,
+        {
+          encoderFallback: true,
+        }
+      )
     ]).catch(err => {
       console.log('errortest');
       console.error(err);
     });
-    localUid = config.uid;
 
     console.log('localTracks', localTracks);
     try {
@@ -105,6 +145,10 @@ const RoomComponent = () => {
 
   const handleJoinButtonClick = async () => {
     console.log('handleJoinButtonClick called');
+    token, localUid, channel = await getToken();
+    config.token = token;
+    config.uid = localUid;
+    config.channel = channel;
     localUser = document.getElementById('username').value;
     if (!username) return;
     document.getElementById('join-wrapper').style.display = 'none';

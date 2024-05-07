@@ -77,7 +77,7 @@ def random_mentor():
             "type": random_type(),
             "bio": fake.text(),
             # "demo_video": fake.url(),
-            "demo_video": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "demo_video": "https://www.youtube.com/embed/dQw4w9WgXcQ",
             "user_type": "mentor"
             }
 

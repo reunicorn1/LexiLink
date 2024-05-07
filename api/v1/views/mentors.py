@@ -10,6 +10,7 @@ from flask_jwt_extended import (
 )
 from models import storage
 from api.v1.views.parsers import auth_parser, query_parser
+from models.SessionModel import SessionModel
 
 
 mentor = Namespace('mentor', description='Mentor related operations')
@@ -29,6 +30,15 @@ filter_model = mentor.model('Filter', {
     'price_per_hour': fields.Integer(description='Price per hour'),
     'type': fields.String(description='Type')
 })
+
+language_model = mentor.model('Language', {
+    'languages': fields.List(fields.String, description='Language'),
+    'type': fields.String(description='Type'),
+    'min_price': fields.Integer(description='Price per hour'),
+    'max_price': fields.Integer(description='Price per hour')
+})
+
+
 
 mentor_student_model = mentor.model('MentorStudent', {
     'student': fields.String(),
@@ -148,3 +158,87 @@ class Students(Resource):
         user.students.append(student)
         user.save()
         return make_response(jsonify({"status": "success"}), 200)
+
+
+@mentor.route('/sessions/<string:mentor_id>', strict_slashes=False)
+class Sessions(Resource):
+    """ retrieves all sessions of a mentor sorted by date desc """
+    def get(self, mentor_id):
+        """ Retrieves all sessions """
+        user = storage.find_by("MentorModel", id=mentor_id)
+        if user is None:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        print("user", user.sessions)
+        for session in user.sessions:
+            print("session", session.to_dict())
+        sessions = user.sessions.order_by(SessionModel.date.desc()).all()
+        # sort by date desc
+        if sessions is None:
+            return make_response(jsonify({"error": "No sessions"}), 404)
+        return make_response(jsonify({"sessions": [session.to_dict()
+                                                    for session in sessions]}),
+                             200)
+        
+    
+    
+
+
+@mentor.route('/sessions/<string:session_id>', strict_slashes=False)
+class SessionsById(Resource):
+    def get(self, session_id):
+        """ Retrieves a session """
+        session = storage.find_by("SessionModel", id=session_id)
+        if session is None:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        return make_response(jsonify(session.to_dict()), 200)
+
+    @jwt_required()
+    @mentor.expect(auth_parser)
+    def post(self, session_id):
+        """ adds a session to a mentor """
+        session = storage.find_by("SessionModel", id=session_id)
+        if current_user and session and session not in current_user.sessions:
+            current_user.sessions.append(session)
+        sessions = current_user.sessions.order_by(SessionModel.date.desc()).all()
+        current_user.save()
+        return make_response(jsonify({"sessions": [session.to_dict()
+                                                    for session in sessions]}),
+                             200)
+
+
+
+@mentor.route('/filter/', strict_slashes=False)
+class Filter(Resource):
+    """ retrieves all mentors filtered by languages
+        each mentor has 2 language related attributes:
+        first_language (string) and other_languages (list)
+        check if languages are in the first_language or other_languages
+    """
+    @mentor.expect(language_model)
+    def post(self):
+        """ Retrieves all mentors """
+        mentors = set()
+        data = request.get_json()
+        languages = data.pop('languages', None)
+        if 'min_price' in data:
+            data['min_price'] = int(data['min_price'])
+        if 'max_price' in data:
+            data['max_price'] = int(data['max_price'])
+        
+            
+        mentors_query = storage.query_all(cls="MentorModel", **data)
+        if not languages:
+             return make_response(jsonify({"mentors": [user.to_dict()
+                                                  for user in mentors_query]}),
+                             200)
+        print(mentors_query)
+        for user in mentors_query:
+            langs = [user.first_language] + list(user.other_languages)
+            if set(languages).issubset(langs):
+                mentors.add(user)
+        
+        return make_response(jsonify({"mentors": [user.to_dict()
+                                                  for user in mentors]}),
+                             200)
+            
+            

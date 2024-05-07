@@ -51,7 +51,6 @@ choices = ('Community', 'Professional')
         sessions=(relationship('SessionModel',
                                       secondary='Mentor_Session',
                                       cascade='all, delete-orphan',
-                                      viewonly=True,
                                       single_parent=True,
                                       lazy='dynamic'), []),
                   )

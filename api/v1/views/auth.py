@@ -16,7 +16,6 @@ from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.extensions import login_manager
 from api.v1.views.parsers import auth_parser
-from sqlalchemy.sql._elements_constructors import desc
 
 auth = Namespace('auth', description='Authentication')
 
@@ -98,7 +97,6 @@ class Login(Resource):
                                                  additional_claims={
                                                      "user_type":
                                                      user_type})
-
             if data.get('remember'):
                 login_user(user)
             else:

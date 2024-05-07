@@ -8,7 +8,7 @@ import { useAuth } from '../AuthContext';
 export default function SignIn () {
     const { authToken, login, logout } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const [input, setInput] = useState({ email: "", password: "", user_type: "student"});
+    const [input, setInput] = useState({ email: "", password: "", user_type: "mentor"});
     const [formError, setFormError] = useState("");
     const navigate = useNavigate();
     const toast = useToast();
