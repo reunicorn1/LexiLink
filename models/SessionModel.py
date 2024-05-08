@@ -10,7 +10,6 @@ from sqlalchemy import (
                         Time,
                         )
 from sqlalchemy.orm import relationship
-from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 from models.BaseModel import BaseModel, Base, store, db
 
 choices = ('Pending', 'Approved', 'Declined', 'Completed', 'Cancelled')

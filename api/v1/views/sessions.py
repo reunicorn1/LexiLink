@@ -266,7 +266,6 @@ class Room(Resource):
         session.mentor_token = None
         session.student_token = None
         session.save()
-        user = claims['user_type'] == 'student'
         channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
         token = (session.mentor_token, session.student_token)[user]
         if token is not None:

@@ -213,12 +213,12 @@ class DBStorage:
             return query_result
         min_price = kwargs.pop('min_price', None)
         max_price = kwargs.pop('max_price', None)
-        
+
         query = self.__session.query(cls).filter_by(**kwargs)
         if min_price is not None and max_price is not None:
             query = query.filter(and_(cls.price_per_hour >= min_price, cls.price_per_hour <= max_price))
 
         query_result = query.all()
-        
-        
+
+
         return query_result

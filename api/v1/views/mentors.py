@@ -11,9 +11,11 @@ from flask_jwt_extended import (
 from models import storage
 from api.v1.views.parsers import auth_parser, query_parser
 from models.SessionModel import SessionModel
+from api.v1.views.responses import Responses
 
 
 mentor = Namespace('mentor', description='Mentor related operations')
+responses = Responses()
 
 availability_model = mentor.model('Availability', {
     'days': fields.List(fields.String, description='Days available'),
@@ -178,9 +180,9 @@ class Sessions(Resource):
         return make_response(jsonify({"sessions": [session.to_dict()
                                                     for session in sessions]}),
                              200)
-        
-    
-    
+
+
+
 
 
 @mentor.route('/sessions/<string:session_id>', strict_slashes=False)
@@ -224,8 +226,8 @@ class Filter(Resource):
             data['min_price'] = int(data['min_price'])
         if 'max_price' in data:
             data['max_price'] = int(data['max_price'])
-        
-            
+
+
         mentors_query = storage.query_all(cls="MentorModel", **data)
         if not languages:
              return make_response(jsonify({"mentors": [user.to_dict()
@@ -236,9 +238,9 @@ class Filter(Resource):
             langs = [user.first_language] + list(user.other_languages)
             if set(languages).issubset(langs):
                 mentors.add(user)
-        
+
         return make_response(jsonify({"mentors": [user.to_dict()
                                                   for user in mentors]}),
                              200)
-            
-            
+
+
