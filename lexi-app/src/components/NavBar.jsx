@@ -4,6 +4,7 @@ import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
+import MenuButtonN from './MenuButton';
 
 export default function NavBar() {
     const location = useLocation().pathname;
@@ -11,31 +12,34 @@ export default function NavBar() {
     const { authToken, refresh, setUser } = useAuth();
     const [profilePic, setProfilePic] = useState("");
 
+
+    const followup = (result) => {
+        setUser(result.data);
+        setProfilePic(result.data.profile_picture);
+    }
     // This is marked as unhandled promise
     useEffect(() => {
         if (authToken) {
-            (async () => {
+            const getProfile = async () => {
                 try {
                     const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + authToken } });
-                    setUser(result.data);
-                    setProfilePic(result.data.profile_picture);
+                    followup(result);
                 } catch (error) {
                     if (error.response && error.response.status === 410) {
-                        refresh().then(
+                        refresh()
+                        .then(
                             data => {
-                                console.log(data);
+                                axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + data } })
+                                .then(data => followup(data))
+                                .then(_ => console.log('--------refresh session successfully from NavBar----->'))
+                                .catch(err => console.log({err}))
                             }
-                        ).catch(
-                            error => {
-                                console.log(error);
-                            }
-                        );
-                        console.log(error.response);
-                    } else {
-                        console.error("An error occurred:", error.response.data);
+                        ).catch();
                     }
+                    console.error("An error occurred:", error.response.data);
                 }
-            })();
+            };
+            getProfile();
         }
     }, []);
 
@@ -46,10 +50,10 @@ export default function NavBar() {
                 <Link to='/'><Image src="/img/logo.png" alt="Logo" boxSize="auto" width="100px" height="auto" /></Link>
             </Box>
             <Spacer></Spacer>
-            {isSmallScreen ? null : <>
+            {isSmallScreen ? <MenuButtonN isloggedIn={Boolean(authToken)}/> : <>
                 <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
                 <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
-                <Link to='/room'><Button colorScheme='gray' color={location === '/room' ? 'brand.700' : 'black'} variant='ghost'>Room</Button></Link>
+                <Link to='/join-us'><Button colorScheme='gray' color={location === '/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link>
             </>}
             {authToken ? <Box ml={4} className="image-container">
                 <MenuDisplay>
@@ -61,7 +65,7 @@ export default function NavBar() {
                         </>
                     }
                 </MenuDisplay>
-            </Box> :
+            </Box> : !isSmallScreen &&
                 <Box>
                     <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
                     <Link to='/sign-up' ><Button colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
