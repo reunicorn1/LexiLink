@@ -22,9 +22,8 @@ from models import storage
 from api.v1.extensions import login_manager
 from api.v1.views.parsers import auth_parser
 from api.v1.views.responses import Responses
-
+from api.v1.views import auth
 # Create a namespace for the authentication routes
-auth = Namespace('auth', description='Authentication')
 
 # Create a responses object
 respond = Responses()

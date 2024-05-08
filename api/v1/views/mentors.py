@@ -12,9 +12,8 @@ from models import storage
 from api.v1.views.parsers import auth_parser, query_parser
 from models.SessionModel import SessionModel
 from api.v1.views.responses import Responses
+from api.v1.views import mentor
 
-
-mentor = Namespace('mentor', description='Mentor related operations')
 responses = Responses()
 
 availability_model = mentor.model('Availability', {

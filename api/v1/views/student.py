@@ -10,9 +10,8 @@ from flask_jwt_extended import (
 from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.views.parsers import auth_parser
+from api.v1.views import student as std
 
-
-std = Namespace('student', description='Student related operations')
 
 student_mentor_model = std.model('StudentMentor', {
     'mentor': fields.String(),
@@ -61,7 +60,7 @@ class Profile(Resource):
         if claims['user_type'] != 'student':
             return make_response(jsonify({"error": "Unauthorized"}), 401)
         if current_user:
-            data = request.get_json() 
+            data = request.get_json()
             current_user.update(**data)
             return make_response(jsonify(current_user.to_dict()), 200)
         return make_response(jsonify({'error': 'User not found'}), 404)
@@ -194,7 +193,7 @@ class FavoriteMentors(Resource):
         student.favorite_mentors.append(mentor)
         student.save()
         return make_response(jsonify({}), 200)
-    
+
     @std.expect(auth_parser, student_mentor_model)
     @jwt_required()
     def delete(self):

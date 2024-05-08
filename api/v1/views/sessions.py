@@ -15,10 +15,9 @@ from models import storage
 from api.v1.views.parsers import auth_parser, query_parser
 from datetime import datetime, timedelta
 from flask_jwt_extended.exceptions import UserClaimsVerificationError
+from api.v1.views import sessions
 
 
-
-sessions = Namespace('sessions', description='Session related operations')
 
 load_dotenv()
 
