@@ -37,21 +37,37 @@ import {
 export default function UpcomingClass() {
     const navigate = useNavigate();
     const [sessions, setSessions] = useState();
-    const { authToken, getAccess } = useAuth();
+    const { authToken, refresh } = useAuth();
+
+    const followup = async(result) => {
+        const sessionsWithMentors = await Promise.all(result.data.sessions.map(async session => {
+            const values = await retrieveMentor(session.mentor_id);
+            return {...session, mentorName: values[0], mentorDp: values[1], mentorType: values[2]};
+        }));
+        setSessions(sessionsWithMentors.sort((a, b) => new Date(b.date) - new Date(a.date)))
+    }
 
     useEffect(() => {
-        (async () => {
+        const gettingSessions = async () => {
             try{
-                const result = await axios.get("http://127.0.0.1:5000/sessions/", { headers: {Authorization: "Bearer " + getAccess()} })
-                const sessionsWithMentors = await Promise.all(result.data.sessions.map(async session => {
-                    const values = await retrieveMentor(session.mentor_id);
-                    return {...session, mentorName: values[0], mentorDp: values[1], mentorType: values[2]};
-                }));
-                setSessions(sessionsWithMentors.sort((a, b) => new Date(b.date) - new Date(a.date)))
+                const result = await axios.get("http://127.0.0.1:5000/sessions/", { headers: {Authorization: "Bearer " + authToken} });
+                await followup(result);
             } catch(error) {
-                console.log(error);
+                if (error.response.status === 410) {
+                    console.log('--------Oops error 410 while fetching sessions------------>')
+                    refresh()
+                    .then(data => {
+                        axios.get("http://127.0.0.1:5000/sessions/", { headers: {Authorization: "Bearer " + data} })
+                        .then(data => followup(data))
+                        .then(_ => console.log('--------refresh session successfully from Upcoming Classes----->'))
+                        .catch(err => console.log({err}))
+                })
+                .catch()
             }
-        })();
+            console.log(error);
+        }
+    }
+    gettingSessions();
     }, [])
 
     const statusColors = {

@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 
 
 export default function ProfileInfo() {
-    const { getAccess, setUser } = useAuth();
+    const { authToken, refresh, setUser } = useAuth();
     const fileInputRef = useRef(null);
     // const user = {
     //     "completed_lessons": 0,
@@ -47,16 +47,26 @@ export default function ProfileInfo() {
         setInput({ ...input, proficiency: value});
     };
 
+    const followup = (result) => {
+        setInput(result.data);
+        setUser(result.data);
+    }
     const getProfile = (async () => {
         try {
-            const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + getAccess()} } );
-            setInput(result.data);
-            setUser(result.data);
+            const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + authToken} } );
+            followup(result);
         } catch(error) {
             if (error.response.status === 410){
-                console.log(error.response);
-                refresh();
+                refresh()
+                .then(data => 
+                    {axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + data} } )
+                    .then(data => followup(data))
+                    .then(_ => console.log('--------refresh session successfully from Profile Info----->'))
+                    .catch(err => console.log({err}))
+            })
+            .catch()
             }
+            console.log(error);
         }
     });
 

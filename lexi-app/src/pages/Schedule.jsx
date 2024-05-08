@@ -14,6 +14,8 @@ import BookingSuccess from "../components/BookingSuccess";
 export default function Schedule() {
     const navigate = useNavigate();
     const now = dayjs();
+    const offset = dayjs().utcOffset();
+    const difference = Math.floor(offset / 60);
     const [selectDate, setSelecteDate] = useState(now);
     const [selectTime, setSelectTime] = useState(null);
     const { getAccess } = useAuth();
@@ -22,6 +24,7 @@ export default function Schedule() {
     let location = useLocation();
     let mentor = location.state && location.state.mentor ? location.state.mentor : null;
     console.log(mentor.availability);
+    
 
     useEffect(()=> {
         setSelectTime(null);
@@ -139,7 +142,7 @@ export default function Schedule() {
                                 </Box>
                                 <Alert status='info' maxW="400px" mt="30px" >
                                     <AlertIcon />
-                                    All times are in Central Time (US & Canada)
+                                    All times are shown in your Local Time Zone
                                 </Alert>
                             </Box>
                     </Box>
@@ -156,7 +159,7 @@ export default function Schedule() {
                 {selectTime &&
                     <Stat>
                         <StatLabel>Time</StatLabel>
-                        <Heading fontSize="xl" mt={1} mb={1}>{selectTime} (UTC-06)</Heading>
+                        <Heading fontSize="xl" mt={1} mb={1}>{selectTime} (UTC +{difference})</Heading>
                         <Divider />
                     </Stat>
                 }

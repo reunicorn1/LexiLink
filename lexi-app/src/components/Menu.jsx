@@ -14,7 +14,7 @@ import { useAuth } from '../AuthContext';
 
 export default function MenuDisplay ({children}) {
     const navigate = useNavigate();
-    const { getAccess, logout } = useAuth();
+    const { authToken, refresh, logout } = useAuth();
     const toast = useToast();
 
     const handleToast = async() => {
@@ -28,18 +28,31 @@ export default function MenuDisplay ({children}) {
           })();
     }
 
-    const handleLogOut = () => {
-        (async () => {
+    const followup = () => {
+        logout();
+        navigate('/')
+        handleToast();
+    }
+
+
+    const handleLogOut = async () => {
             try {
-                const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + getAccess()} })
-                logout();
-                navigate('/')
-                handleToast();
+                const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + authToken} })
+
             } catch(error) {
+                if (error.response && error.response.status === 410) {
+                    refresh()
+                    .then(data => {
+                        axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + data} })
+                        .then(followup())
+                        .then(_ => console.log('--------refresh session successfully from Menu during logging out----->'))
+                        .catch(err => console.log("an error occured during refreshing the token while logging out", err))
+                    }).catch();
+                }
                 console.log("Error while logging out of your account, try again")
             }
-        })();
-    }
+        }
+    
 
     return <Menu>
         <MenuButton>
