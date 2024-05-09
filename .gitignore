@@ -4,3 +4,5 @@ venv/
 test_create
 mentor.json
 student.json
+.vscode
+
