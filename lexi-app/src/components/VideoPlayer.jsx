@@ -13,7 +13,7 @@ const VideoPlayer = ({ user }) => {
 
     return (
         <div className='video'>
-            <video ref={ref}  autoPlay={true} />
+            <video ref={ref} autoPlay={true} />
         </div>
     )
 }

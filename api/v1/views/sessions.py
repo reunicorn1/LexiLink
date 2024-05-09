@@ -1,38 +1,24 @@
 #!/usr/bin/env python3
 """ Module for Mentor related operations """
-from flask import jsonify, request, make_response
-from flask_jwt_extended import jwt_required
-from flask_restx import Resource, Namespace, fields
-from flask_jwt_extended import (
-        jwt_required,
-        get_jwt,
-        current_user,
-)
+from datetime import datetime, timedelta
+from os import getenv
+
 from agora_token_builder import RtcTokenBuilder
 from dotenv import load_dotenv
-from os import getenv
-from models import storage
+from flask import jsonify, make_response, request
+from flask_jwt_extended import current_user, get_jwt, jwt_required
+from flask_restx import Namespace, Resource, fields
+
 from api.v1.views.parsers import auth_parser, query_parser
-from datetime import datetime, timedelta
-from flask_jwt_extended.exceptions import UserClaimsVerificationError
-from api.v1.views import sessions
+from models import storage
+from api.v1.views.responses import Responses
 
+sessions = Namespace('sessions', description='Session related operations')
 
+respond = Responses()
 
 load_dotenv()
 
-
-class IntervalField(fields.Raw):
-    """ Class for IntervalField
-    Methods:
-        format(self, value): converts timedelta to dict
-
-    Args:
-        fields (_type_): _description_
-    """
-    def format(self, value):
-        # Assuming 'value' is a datetime.timedelta object
-        return {'days': value.days, 'seconds': value.seconds, 'microseconds': value.microseconds}
 
 filter_model = sessions.model('Filter_Session', {
     'mentor': fields.String(description='Mentor ID'),
@@ -80,20 +66,21 @@ class Sessions(Resource):
         """ Retrieves all sessions of user """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         page = request.args.get('page', 1)
-        user = storage.find_by(cls=("MentorModel", "StudentModel")[claims['user_type'] == 'student'],
-                               username=claims['identity'])
-        sessions = user.sessions
-        if not sessions:
-            return make_response(jsonify({"sessions": []}), 200)
+        user = storage.find_by(cls=("MentorModel",
+                                    "StudentModel")[claims['user_type'] == 'student'],
+                                username=claims['identity'])
+        user_sessions = user.sessions
+        if not user_sessions:
+            return respond.ok({"sessions": []})
         sessions_pagination = []
         i = (int(page) - 1) * 10
-        for session in sessions:
-            if i < int(page) * 10 and i >= (int(page) - 1) * 10:
+        for session in user_sessions:
+            if (int(page) - 1) * 10 <= i < int(page) * 10:
                 sessions_pagination.append(session.to_dict())
             i += 1
-        return make_response(jsonify({"sessions": [session for session in sessions_pagination]}), 200)
+        return respond.ok({"sessions": sessions_pagination})
 
 
     @jwt_required()
@@ -102,14 +89,14 @@ class Sessions(Resource):
         """ Creates a session for a student """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         data = request.get_json()
         student = storage.find_by("StudentModel", username=claims['identity'])
         mentor = storage.find_by("MentorModel", username=data['mentor'])
         if mentor is None:
-            return make_response(jsonify({"error": "Mentor not found"}), 404)
+            return respond.not_found({"error": "Mentor not found"})
         if student is None:
-            return make_response(jsonify({"error": "Student not found"}), 404)
+            return respond.not_found({"error": "Student not found"})
         data['mentor_id'] = mentor.id
         data['student_id'] = student.id
         data['date'] = datetime.fromisoformat(data['date']).date()
@@ -146,7 +133,7 @@ class Sessions(Resource):
         mentor.sessions.append(session)
         mentor.save()
         student.save()
-        return make_response(jsonify(session.to_dict()), 201)
+        return respond.created(session.to_dict())
 
     @jwt_required()
     @sessions.expect(auth_parser, update_model)
@@ -154,12 +141,12 @@ class Sessions(Resource):
         """ Updates a session """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         data = request.get_json()
         session = storage.find_by("SessionModel", id=data['session_id'])
         del data['session_id']
         session.update(**data)
-        return make_response(jsonify(session.to_dict()), 200)
+        return respond.ok(session.to_dict())
 
 
 @sessions.route('/<string:session_id>', strict_slashes=False)
@@ -171,11 +158,11 @@ class Session(Resource):
         """ Retrieves a session """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
-        return make_response(jsonify(session.to_dict()), 200)
+            return respond.not_found("Not found")
+        return respond.ok(session.to_dict())
 
     @jwt_required()
     @sessions.expect(auth_parser, update_model)
@@ -183,10 +170,10 @@ class Session(Resource):
         """ Updates a session """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         data = request.get_json()
         if "date" in data:
             data['date'] = datetime.fromisoformat(data['date']).date()
@@ -195,7 +182,7 @@ class Session(Resource):
         if "duration" in data:
             data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
         session.update(**data)
-        return make_response(jsonify(session.to_dict()), 200)
+        return respond.ok(session.to_dict())
 
     @jwt_required()
     @sessions.expect(auth_parser)
@@ -203,12 +190,12 @@ class Session(Resource):
         """ Deletes a session """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         session.delete()
-        return make_response(jsonify({}), 200)
+        return respond.ok({"message": "Session deleted successfully"})
 
 
 
@@ -221,17 +208,17 @@ class SessionsAll(Resource):
         page = request.args.get('page', default=1, type=int)
         kwargs = request.get_json()
         sessions_list = storage.query("SessionModel", **kwargs,
-                                      page=page, per_page=10)
+                                        page=page, per_page=10)
         if sessions_list is None:
-            return make_response(jsonify({"sessions": []}), 200)
-        return make_response(jsonify([session.to_dict() for session in sessions_list]), 200)
+            return respond.ok({"sessions": []})
+        return respond.ok([session.to_dict() for session in sessions_list])
 
     @sessions.expect(query_parser)
     def get(self):
         """ Retrieves all sessions """
         page = request.args.get('page', default=1, type=int)
         sessions_list = storage.query("SessionModel", page=page, per_page=10)
-        return make_response(jsonify([session.to_dict() for session in sessions_list]), 200)
+        return respond.ok([session.to_dict() for session in sessions_list])
 
 @sessions.route('/room/<string:session_id>', strict_slashes=False)
 class Room(Resource):
@@ -242,7 +229,8 @@ class Room(Resource):
         claims = get_jwt()
         date = datetime.now().date()
         if claims['user_type'] not in ['mentor', 'student']:
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
+        user = claims['user_type'] == 'student'
         try:
             if claims['user_type'] == 'mentor':
                 mentor = storage.find_by("MentorModel", username=claims['identity'])
@@ -255,20 +243,20 @@ class Room(Resource):
                 mentor = storage.find_by("MentorModel", id=session.mentor_id)
                 user_id = student.id
             if not mentor or not student or not session:
-                return make_response(jsonify({"error": "Not found"}), 404)
+                return respond.not_found(f"Not found")
         except Exception as e:
-            return make_response(jsonify({"error": str(e)}), 400)
+            return respond.bad_request({"error": str(e)})
         if session.date.date() < date:
-            return make_response(jsonify({"error": "Session has passed"}), 400)
+            return respond.bad_request({"error": "Session has passed"})
         if session.status != 'Approved':
-            return make_response(jsonify({"error": "Session is not approved"}), 400)
+            return respond.bad_request({"error": "Session is not approved"})
         session.mentor_token = None
         session.student_token = None
         session.save()
         channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
         token = (session.mentor_token, session.student_token)[user]
         if token is not None:
-            return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
+            return respond.ok({"token": token, "uid": user_id, "channel": channelName})
         # generate room ID using session ID and student ID and mentor ID
         appId = getenv('AGORA_APPID')
         appCertificate = getenv('AGORA_CERTIFICATE')
@@ -286,7 +274,7 @@ class Room(Resource):
         else:
             session.mentor_token = token
         session.save()
-        return make_response(jsonify({"token": token, "uid": user_id, "channel": channelName}), 200)
+        return respond.ok({"token": token, "uid": user_id, "channel": channelName})
 
 
 
@@ -301,12 +289,12 @@ class Status(Resource):
         claims = get_jwt()
         data = request.get_json()
         if not data or 'status' not in data:
-            return make_response(jsonify({"error": "Missing status"}), 400)
+            return respond.bad_request({"error": "Missing status"})
         if claims['user_type'] != 'mentor':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         session.status = data['status']
         session.save()
-        return make_response(jsonify(session.to_dict()), 200)
+        return respond.ok(session.to_dict())

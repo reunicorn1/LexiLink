@@ -11,11 +11,10 @@ class Config:
     """
     This class defines the configuration settings for the Flask app.
     """
-    JWT_SECRET_KEY = config('SECRET_KEY')
+    SECRET_KEY = config('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = config('SQLALCHEMY_TRACK_MODIFICATIONS',
                                             cast=bool)
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    # JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     PROPAGATE_EXCEPTIONS = True
@@ -30,6 +29,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = storage.get_uri()
     SQLALCHEMY_ECHO = True
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=1)
 
 
 class ProductionConfig(Config):
@@ -39,6 +40,8 @@ class ProductionConfig(Config):
     """
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = storage.get_uri()
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=12)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
 
 class TestingConfig(Config):

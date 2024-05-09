@@ -31,10 +31,10 @@ from flask_migrate import Migrate
 from models import storage, db
 from api.v1.config import DevelopmentConfig
 from api.v1.extensions import login_manager
-from api.v1.views import auth
-from api.v1.views import student as std
-from api.v1.views import mentor
-from api.v1.views import sessions
+from api.v1.views.auth import auth
+from api.v1.views.student import std
+from api.v1.views.mentors import mentor
+from api.v1.views.sessions import sessions
 from api.v1.jwt_manager import JWTManagerWrapper
 from datetime import timedelta
 

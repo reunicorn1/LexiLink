@@ -5,12 +5,14 @@ import axios from "axios";
 import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
 import MenuButtonN from './MenuButton';
+import { useWithRefresh } from '../utils/useWithRefresh';
 
 export default function NavBar() {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { authToken, refresh, setUser } = useAuth();
     const [profilePic, setProfilePic] = useState("");
+    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
 
     const followup = (result) => {
@@ -21,23 +23,11 @@ export default function NavBar() {
     useEffect(() => {
         if (authToken) {
             const getProfile = async () => {
-                try {
-                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + authToken } });
-                    followup(result);
-                } catch (error) {
-                    if (error.response && error.response.status === 410) {
-                        refresh()
-                        .then(
-                            data => {
-                                axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + data } })
-                                .then(data => followup(data))
-                                .then(_ => console.log('--------refresh session successfully from NavBar----->'))
-                                .catch(err => console.log({err}))
-                            }
-                        ).catch();
-                    }
-                    console.error("An error occurred:", error.response.data);
-                }
+                await executor(
+                    (token) => axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + token } }),
+                    (data) => {
+                        followup(data);
+                    })
             };
             getProfile();
         }
@@ -50,7 +40,7 @@ export default function NavBar() {
                 <Link to='/'><Image src="/img/logo.png" alt="Logo" boxSize="auto" width="100px" height="auto" /></Link>
             </Box>
             <Spacer></Spacer>
-            {isSmallScreen ? <MenuButtonN isloggedIn={Boolean(authToken)}/> : <>
+            {isSmallScreen ? <MenuButtonN isloggedIn={Boolean(authToken)} /> : <>
                 <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
                 <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
                 <Link to='/join-us'><Button colorScheme='gray' color={location === '/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link>
@@ -66,10 +56,10 @@ export default function NavBar() {
                     }
                 </MenuDisplay>
             </Box> : !isSmallScreen &&
-                <Box>
-                    <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
-                    <Link to='/sign-up' ><Button colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
-                </Box>
+            <Box>
+                <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
+                <Link to='/sign-up' ><Button colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
+            </Box>
             }
         </Box>
     );

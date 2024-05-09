@@ -25,25 +25,35 @@ export default function SignIn () {
 
     const handleToast = async() => {
         // add a promise rejection handler
+        try {
         await toast({
             title: "You've been logged in successfully.",
             status: 'success',
             duration: 3000,
             isClosable: true,
-          })();
+          });
+          } catch (error) {
+            console.log(error);
+        }
     }
 
     const handleClick = () => {
         if (Object.values(input).every(value => value)) {
             (async ()=> {
                 try {
-                    const result = await axios.post("http://127.0.0.1:5000/auth/login", input);
-                    console.log(result.data);
-                    login(result.data.access_token, result.data.refresh_token);
-                    setTimeout(() => {
-                        navigate("/");
-                    }, 1000);
-                    handleToast();
+                    await axios.post("http://127.0.0.1:5000/auth/login", input)
+                    .then(data => {
+                            console.log(data.data);
+                        login(data.data.access_token, data.data.refresh_token);
+                        setTimeout(() => {
+                            navigate("/");
+                        }
+                        , 1000);
+                    }
+                    )
+                    .then(_ =>  handleToast()
+                    )
+                    .catch(error => console.log(error));
 
                 } catch (error){ setFormError("Email or Password provided are incorrect") }
             })();

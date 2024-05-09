@@ -19,12 +19,12 @@ from flask_jwt_extended import (
 from flask_migrate import check
 from flask_restx import Resource, Namespace, fields
 from models import storage
-from api.v1.extensions import login_manager
 from api.v1.views.parsers import auth_parser
 from api.v1.views.responses import Responses
-from api.v1.views import auth
-# Create a namespace for the authentication routes
+from api.v1.extensions import load_user
 
+
+auth = Namespace('auth', description='Authentication')
 # Create a responses object
 respond = Responses()
 
@@ -82,13 +82,6 @@ verify_username_model = auth.model('VerifyEmail', {
     })
 
 
-@login_manager.user_loader
-def load_user(email, user_type=None):
-    """ load user from database """
-    if user_type == 'mentor':
-        return storage.find_by("MentorModel", email=email)
-    return storage.find_by("StudentModel", email=email)
-
 
 def get_user_model(user_type):
     """ Get user type """
@@ -108,7 +101,6 @@ class Login(Resource):
     @auth.expect(login_model)
     def post(self):
         """ Perform user authentication and obtain JWT token """
-        error = None
         data = request.get_json()
         user_type = data.get('user_type')
         if not data or invalid_user(user_type):
@@ -130,8 +122,8 @@ class Login(Resource):
             else:
                 login_user(user)
             print(f'User {user.username} logged in')
-            return respond.ok(access_token=access_token,
-                              refresh_token=refresh_token)
+            return respond.ok({'access_token': access_token,
+                            'refresh_token': refresh_token})
 
         return respond.unauthorized(
                         'Invalid email or password. Please try again.')
@@ -195,7 +187,7 @@ class Refresh(Resource):
                                                "user_type": user_type
                                                    })
         print(f'User {current_user.username} refreshed token')
-        return respond.ok(access_token=access_token)
+        return respond.ok({"access_token": access_token})
 
 
 @auth.route('/verify_email', strict_slashes=False)

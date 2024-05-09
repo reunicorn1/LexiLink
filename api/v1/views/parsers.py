@@ -8,5 +8,5 @@ auth_parser.add_argument('Authorization', location='headers', required=True)
 
 query_parser = reqparse.RequestParser()
 query_parser.add_argument('page', type=int, required=False,
-                          default=1, help='Page number')
+                            default=1, help='Page number')
 

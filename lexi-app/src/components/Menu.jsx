@@ -6,26 +6,31 @@ import {
     MenuItem,
     Portal,
     useToast
-  } from '@chakra-ui/react'
+} from '@chakra-ui/react'
 import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../AuthContext';
+import { useWithRefresh } from '../utils/useWithRefresh';
 
-
-export default function MenuDisplay ({children}) {
+export default function MenuDisplay({ children }) {
     const navigate = useNavigate();
     const { authToken, refresh, logout } = useAuth();
     const toast = useToast();
+    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
-    const handleToast = async() => {
+    const handleToast = async () => {
         console.log("toast is here!!")
         // add a promise rejection handler
-        await toast({
-            title: "You've been logged out successfully.",
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          })();
+        try {
+            toast({
+                title: "You've been logged out successfully.",
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const followup = () => {
@@ -36,35 +41,24 @@ export default function MenuDisplay ({children}) {
 
 
     const handleLogOut = async () => {
-            try {
-                const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + authToken} })
-
-            } catch(error) {
-                if (error.response && error.response.status === 410) {
-                    refresh()
-                    .then(data => {
-                        axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + data} })
-                        .then(followup())
-                        .then(_ => console.log('--------refresh session successfully from Menu during logging out----->'))
-                        .catch(err => console.log("an error occured during refreshing the token while logging out", err))
-                    }).catch();
-                }
-                console.log("Error while logging out of your account, try again")
-            }
+            await executor(
+            (token) => axios.delete("http://127.0.0.1:5000/auth/logout", { headers: { Authorization: "Bearer " + token } }),
+            (_) => followup()
+        )
         }
-    
+
 
     return <Menu>
         <MenuButton>
             {children}
         </MenuButton>
         <Portal>
-        <MenuList>
-            <Link to="/profile"><MenuItem>Profile</MenuItem></Link>
-            <MenuItem>Invite a friend</MenuItem>
-            <MenuDivider />
-            <MenuItem color="red" onClick={handleLogOut}>Log Out</MenuItem>
-        </MenuList>
+            <MenuList>
+                <Link to="/profile"><MenuItem>Profile</MenuItem></Link>
+                <MenuItem>Invite a friend</MenuItem>
+                <MenuDivider />
+                <MenuItem color="red" onClick={handleLogOut}>Log Out</MenuItem>
+            </MenuList>
         </Portal>
     </Menu>
 }

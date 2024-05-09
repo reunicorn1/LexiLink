@@ -2,11 +2,13 @@ import { Box, Heading, Divider, Input, FormLabel, Avatar, Spacer, RadioGroup, Ra
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
+import { useWithRefresh } from '../utils/useWithRefresh';
 
 
 export default function ProfileInfo() {
     const { authToken, refresh, setUser } = useAuth();
     const fileInputRef = useRef(null);
+    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     // const user = {
     //     "completed_lessons": 0,
     //     "country": "Puerto Rico",
@@ -32,7 +34,7 @@ export default function ProfileInfo() {
 
 
     const [input, setInput] = useState({});
-    const [countries, setCountries] = useState([]); 
+    const [countries, setCountries] = useState([]);
     const toast = useToast();
 
     const handleFileChange = (event) => {
@@ -44,7 +46,7 @@ export default function ProfileInfo() {
     }
 
     const handleChange = (value) => {
-        setInput({ ...input, proficiency: value});
+        setInput({ ...input, proficiency: value });
     };
 
     const followup = (result) => {
@@ -52,22 +54,11 @@ export default function ProfileInfo() {
         setUser(result.data);
     }
     const getProfile = (async () => {
-        try {
-            const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + authToken} } );
-            followup(result);
-        } catch(error) {
-            if (error.response.status === 410){
-                refresh()
-                .then(data => 
-                    {axios.get("http://127.0.0.1:5000/student/profile", { headers: {Authorization: "Bearer " + data} } )
-                    .then(data => followup(data))
-                    .then(_ => console.log('--------refresh session successfully from Profile Info----->'))
-                    .catch(err => console.log({err}))
-            })
-            .catch()
-            }
-            console.log(error);
-        }
+        await executor(
+            (token) => axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + token } }),
+            (data) => followup(data)
+        );
+        refresh();
     });
 
     useEffect(() => {
@@ -84,35 +75,34 @@ export default function ProfileInfo() {
         getProfile();
     }, []);
 
-    const handleToast = async() => {
+    const handleToast = async () => {
         // add a promise rejection handler
         await toast({
             title: "Your profile has been updated successfully!",
             status: 'success',
             duration: 3000,
             isClosable: true,
-          })();
+        })();
     }
 
     const handleClick = () => {
         for (let value in input) {
             if (!input[value]) {
                 delete input[value];
-            }    
+            }
         }
         (async () => {
-            try {
-                const response = await axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + getAccess()}, method: 'PUT', data: input} );
-                if (response.status == 200) {
-                    getProfile();
+            await executor(
+                (token) => axios.put("http://127.0.0.1:5000/student/profile", input, { headers: { Authorization: "Bearer " + token } }),
+                (_) => {
+                    getProfile()
                     handleToast();
                 }
-            } catch (error) {
-                console.error('Error updating the data of the user', error);
-            }
+
+            );
         })();
     }
-  
+
     const handleInputChange = (e) => {
         const { name, value } = e.currentTarget;
         setInput({ ...input, [name]: value });
@@ -121,38 +111,38 @@ export default function ProfileInfo() {
 
     return <Box m="30px" mt="0px">
         <Heading fontSize="xl" mb={4}>Personal Information</Heading>
-        <Divider orientation='horizontal' mb={4}/>
+        <Divider orientation='horizontal' mb={4} />
         <Box>
-            <Box  display="flex" gap={10}>
-                    <Box  w="70%">
-                        <FormLabel>Profile picture</FormLabel>
-                        {/* <Input variant='filled' name="profile_picture" value={input.profile_picture} onChange={handleInputChange}></Input> */}
-                        <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg"></Input>
-                        <FormLabel mt={3}>First name</FormLabel>
-                        <Input variant='filled' name="first_name" value={input.first_name} onChange={handleInputChange}></Input>
-                        <FormLabel mt={3}>Last name</FormLabel>
-                        <Input variant='filled' name="last_name" value={input.last_name} onChange={handleInputChange}></Input>
-                    </Box>
-                    <Spacer></Spacer>
-                    <Avatar size="2xl" bg="brand.700" src={input.profile_picture}></Avatar>
+            <Box display="flex" gap={10}>
+                <Box w="70%">
+                    <FormLabel>Profile picture</FormLabel>
+                    {/* <Input variant='filled' name="profile_picture" value={input.profile_picture} onChange={handleInputChange}></Input> */}
+                    <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg"></Input>
+                    <FormLabel mt={3}>First name</FormLabel>
+                    <Input variant='filled' name="first_name" value={input.first_name} onChange={handleInputChange}></Input>
+                    <FormLabel mt={3}>Last name</FormLabel>
+                    <Input variant='filled' name="last_name" value={input.last_name} onChange={handleInputChange}></Input>
+                </Box>
+                <Spacer></Spacer>
+                <Avatar size="2xl" bg="brand.700" src={input.profile_picture}></Avatar>
             </Box>
-            <Divider orientation='horizontal' mt={7} mb={5}/>
+            <Divider orientation='horizontal' mt={7} mb={5} />
             <Box w="70%">
                 <FormLabel mt={3}>Country</FormLabel>
                 <Select variant='filled' name="country" value={input.country} onChange={handleInputChange}>
-                         {countries?.map((item, index) => (
-                            <option key={index} value={item.name.common}>
+                    {countries?.map((item, index) => (
+                        <option key={index} value={item.name.common}>
                             {item.name.common}
-                            </option>
-                         ))}
+                        </option>
+                    ))}
                 </Select>
                 <FormLabel mt={3}>Nationality</FormLabel>
                 <Select variant='filled' name="nationality" value={input.nationality} onChange={handleInputChange}>
-                         {countries?.map((item, index) => (
-                            <option key={index} value={item.name.common}>
+                    {countries?.map((item, index) => (
+                        <option key={index} value={item.name.common}>
                             {item.name.common}
-                            </option>
-                         ))}
+                        </option>
+                    ))}
                 </Select>
 
                 <FormLabel mt={3}>First language</FormLabel>
@@ -161,8 +151,8 @@ export default function ProfileInfo() {
                 <FormLabel mt={3}>Other languages</FormLabel>
                 <Input variant='filled' name="other_languages" value={input.other_languages} onChange={handleInputChange}></Input>
             </Box>
-            <Divider orientation='horizontal' mt={7} mb={5}/>
-            <RadioGroup variant='filled' mb="30px" name="proficiency"  value={input.proficiency} onChange={handleChange}>
+            <Divider orientation='horizontal' mt={7} mb={5} />
+            <RadioGroup variant='filled' mb="30px" name="proficiency" value={input.proficiency} onChange={handleChange}>
                 <FormLabel mt={3}>Proficiency</FormLabel>
                 <Stack>
                     <Radio mr={1} value='0'>0 - No proficiency</Radio>

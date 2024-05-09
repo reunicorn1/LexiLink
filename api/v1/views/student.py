@@ -10,7 +10,11 @@ from flask_jwt_extended import (
 from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.views.parsers import auth_parser
-from api.v1.views import student as std
+from api.v1.views.responses import Responses
+
+std = Namespace('student', description='Student related operations')
+
+respond = Responses()
 
 
 student_mentor_model = std.model('StudentMentor', {
@@ -47,10 +51,10 @@ class Profile(Resource):
         """ Retrieves a user's profile data """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         if current_user:
-            return make_response(jsonify(current_user.to_dict()), 200)
-        return make_response(jsonify({'error': 'User not found'}), 404)
+            return respond.ok(current_user.to_dict())
+        return respond.not_found("User not found")
 
     @std.expect(auth_parser, student_model)
     @jwt_required()
@@ -58,12 +62,12 @@ class Profile(Resource):
         """ Updates a user's profile data """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         if current_user:
             data = request.get_json()
             current_user.update(**data)
-            return make_response(jsonify(current_user.to_dict()), 200)
-        return make_response(jsonify({'error': 'User not found'}), 404)
+            return respond.ok(current_user.to_dict())
+        return respond.not_found('User not found')
 
     @jwt_required()
     @std.expect(auth_parser)
@@ -71,13 +75,15 @@ class Profile(Resource):
         """ Deletes a student """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel",
                                   username=current_user.username)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         student.delete()
-        return make_response(jsonify({}), 200)
+        return respond.ok({"message": "Student deleted successfully"})
+
+
 
 # get student by id
 
@@ -87,8 +93,8 @@ class Student(Resource):
         """ Retrieves a student """
         student = storage.find_by("StudentModel", id=id)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
-        return make_response(jsonify(student.to_dict()), 200)
+            return respond.not_found("Not found")
+        return respond.ok(student.to_dict())
 
     @std.expect(auth_parser, student_model)
     @jwt_required()
@@ -96,13 +102,13 @@ class Student(Resource):
         """ Updates a student """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", id=id)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         data = request.get_json()
         student.update(**data)
-        return make_response(jsonify(student.to_dict()), 200)
+        return respond.ok(student.to_dict())
 
     @std.expect(auth_parser)
     @jwt_required()
@@ -110,12 +116,12 @@ class Student(Resource):
         """ Deletes a student """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", id=id)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         student.delete()
-        return make_response(jsonify({}), 200)
+        return respond.ok({"message": "Student deleted successfully"})
 
 
 @std.route('/mentors/all/', strict_slashes=False)
@@ -126,16 +132,13 @@ class StudentMentors(Resource):
         """ Retrieves all mentors of this student """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", username=current_user.username)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         mentors = student.mentors
-        if not mentors:
-            return make_response(jsonify({"mentors": []}), 200)
-        return make_response(jsonify({"mentors": [mentor.to_dict()
-                                                  for mentor in mentors]}),
-                             200)
+        return respond.ok({"mentors": [mentor.to_dict()
+                                        for mentor in mentors]})
 
     @std.expect(auth_parser, student_mentor_model)
     @jwt_required()
@@ -144,17 +147,17 @@ class StudentMentors(Resource):
         username = get_jwt_identity()
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", username=username)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         data = request.get_json()
         mentor = storage.find_by("MentorModel", username=data.get('mentor'))
         if mentor is None:
-            return make_response(jsonify({"error": "Mentor not found"}), 404)
+            return respond.not_found("Mentor not found")
         student.mentors.append(mentor)
         student.save()
-        return make_response(jsonify({}), 200)
+        return respond.ok({})
 
 
 @std.route('/mentors/favorites/', strict_slashes=False)
@@ -166,14 +169,13 @@ class FavoriteMentors(Resource):
         username = get_jwt_identity()
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", username=username)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         mentors = student.favorite_mentors
-        return make_response(jsonify({"mentors": [mentor.to_dict()
-                                                  for mentor in mentors]}),
-                             200)
+        return respond.ok({"mentors": [mentor.to_dict()
+                                        for mentor in mentors]})
 
     @std.expect(auth_parser, student_mentor_model)
     @jwt_required()
@@ -182,14 +184,14 @@ class FavoriteMentors(Resource):
         username = get_jwt_identity()
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", username=username)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         data = request.get_json()
         mentor = storage.find_by("MentorModel", username=data.get('mentor'))
         if mentor is None:
-            return make_response(jsonify({"error": "Mentor not found"}), 404)
+            return respond.not_found("Mentor not found")
         student.favorite_mentors.append(mentor)
         student.save()
         return make_response(jsonify({}), 200)
@@ -201,16 +203,14 @@ class FavoriteMentors(Resource):
         username = get_jwt_identity()
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return make_response(jsonify({"error": "Unauthorized"}), 401)
+            return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel", username=username)
         if student is None:
-            return make_response(jsonify({"error": "Not found"}), 404)
+            return respond.not_found("Not found")
         data = request.get_json()
         mentor = storage.find_by("MentorModel", username=data.get('mentor'))
         if mentor is None:
-            return make_response(jsonify({"error": "Mentor not found"}), 404)
+            return respond.not_found("Mentor not found")
         student.favorite_mentors.remove(mentor)
         student.save()
-        return make_response(jsonify({}), 200)
-
-
+        return respond.ok({})
