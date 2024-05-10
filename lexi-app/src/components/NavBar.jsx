@@ -43,7 +43,7 @@ export default function NavBar() {
             {isSmallScreen ? <MenuButtonN isloggedIn={Boolean(authToken)} /> : <>
                 <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
                 <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
-                <Link to='/join-us'><Button colorScheme='gray' color={location === '/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link>
+                <Link to='/mentor'><Button colorScheme='gray' color={location === '/mentor/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link>
             </>}
             {authToken ? <Box ml={4} className="image-container">
                 <MenuDisplay>
