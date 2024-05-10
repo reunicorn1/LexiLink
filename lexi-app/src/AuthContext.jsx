@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { createAuthProvider } from 'react-token-auth';
-import { API_URL } from '../utils/config';
+import { API_URL } from './utils/config';
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
