@@ -26,7 +26,7 @@ export default function MenuButtonN({isloggedIn}) {
       <MenuGroup title='Navigation'>
         <Link to='/'><MenuItem>Home</MenuItem></Link>
         <Link to='/browse'><MenuItem>Browse a Mentor</MenuItem></Link>
-        <Link to="/join-us"><MenuItem>Join Us</MenuItem></Link>
+        <Link to="/mentor/"><MenuItem>Join Us</MenuItem></Link>
       </MenuGroup>
       <MenuDivider />
       {!isloggedIn &&

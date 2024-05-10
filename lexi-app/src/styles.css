@@ -11,6 +11,10 @@ form {
     margin-top: 20px;
 }
 
+.underline {
+  text-decoration: underline;
+}
+
 .fixed-section {
   position: sticky !important;
   top: 0;

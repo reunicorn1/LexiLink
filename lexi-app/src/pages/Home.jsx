@@ -6,6 +6,7 @@ import Footer from "../components/Footer"
 import { useEffect } from "react";
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
+import Video from "../components/Video"
 
 
 export default function Home () {

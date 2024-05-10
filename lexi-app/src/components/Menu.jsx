@@ -38,7 +38,7 @@ export default function MenuDisplay ({children}) {
     const handleLogOut = async () => {
             try {
                 const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + authToken} })
-
+                followup();
             } catch(error) {
                 if (error.response && error.response.status === 410) {
                     refresh()

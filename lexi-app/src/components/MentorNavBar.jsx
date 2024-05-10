@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
 import MenuButtonN from './MenuButton';
 
-export default function NavBar() {
+export default function MentorNavBar() {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { authToken, refresh, setUser } = useAuth();
@@ -45,32 +45,16 @@ export default function NavBar() {
 
 
     return (
-        <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white" rounded="full" boxShadow='base'>
+        <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white" rounded="2xl" boxShadow='base'>
             <Box>
-                <Link to='/'><Image src="/img/logo.png" alt="Logo" boxSize="auto" width="100px" height="auto" /></Link>
+                <Link to='/'><Image src="/img/logo-2.png" alt="Logo" boxSize="auto" width="100px" height="auto" /></Link>
             </Box>
             <Spacer></Spacer>
-            {isSmallScreen ? <MenuButtonN isloggedIn={Boolean(authToken)}/> : <>
-                <Link to='/'><Button colorScheme='gray' color={(location === '/' || location === '/dashboard') ? 'brand.700' : 'black'} variant='ghost'>Home</Button></Link>
-                <Link to='/browse'><Button colorScheme='gray' color={location === '/browse' ? 'brand.700' : 'black'} variant='ghost'>Browse a Tutor</Button></Link>
-                <Link to='/mentor'><Button colorScheme='gray' color={location === '/mentor/join-us' ? 'brand.700' : 'black'} variant='ghost'>Join Us</Button></Link>
-            </>}
-            {authToken ? <Box ml={4} className="image-container">
-                <MenuDisplay>
-                    {profilePic ?
-                        <Avatar size="sm" bg='red.500' src={profilePic}></Avatar>
-                        : <>
-                            <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
-                            <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
-                        </>
-                    }
-                </MenuDisplay>
-            </Box> : !isSmallScreen &&
+
                 <Box>
-                    <Link to='/sign-in'><Button colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
-                    <Link to='/sign-up' ><Button colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
+                    <Link to='/mentor/sign-in'><Button size="sm" colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
+                    <Link to='/mentor/sign-up' ><Button size="sm" colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
                 </Box>
-            }
         </Box>
     );
 };

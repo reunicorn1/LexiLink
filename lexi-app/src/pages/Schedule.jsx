@@ -142,7 +142,7 @@ export default function Schedule() {
                                 </Box>
                                 <Alert status='info' maxW="400px" mt="30px" >
                                     <AlertIcon />
-                                    All times are shown in your Local Time Zone
+                                    All times are shown in your local time zone
                                 </Alert>
                             </Box>
                     </Box>
