@@ -16,6 +16,7 @@ import { useRef } from "react";
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
 import axios from "axios";
+import { useWithRefresh } from '../utils/useWithRefresh';
 
 
 
@@ -24,6 +25,7 @@ export default function Account() {
     const cancelRef = useRef()
     const { authToken, logout } = useAuth();
     const navigate = useNavigate();
+    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
     // const handleLogOut = () => {
     //     (async () => {
@@ -42,15 +44,16 @@ export default function Account() {
     // deleteAccount multiple times doesn't seem to cause any errors which doesn't make sense if the user
     // actually was deleted from the database
     const deleteAccount = (async () => {
-        try {
-            const result = await axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + authToken}, method: 'DELETE'} );
-            console.log("I deleted the user");
-            onClose();
-            logout();
-            navigate('/')
-        } catch(error) {
-            console.log("An error occurred in deleting your account", error);
-        }
+            await executor(
+              (token) => axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + token}, method: 'DELETE'} ),
+              (data) => {
+                console.log(data);
+                console.log("I deleted the user");
+                onClose();
+                logout();
+                navigate('/');
+              }
+            );
     });
 
     return <Box  m="30px" mt="0px">

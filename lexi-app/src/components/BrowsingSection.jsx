@@ -6,6 +6,8 @@ import axios from "axios";
 import { useAuth } from '../AuthContext';
 import SignUpAlert from './SignUpAlert';
 import { useNavigate } from 'react-router-dom';
+import { useWithRefresh } from '../utils/useWithRefresh';
+
 
 export default function BrowsingSection({ filter, search, setSearch }) {
   const { authToken, refresh } = useAuth();
@@ -66,68 +68,16 @@ export default function BrowsingSection({ filter, search, setSearch }) {
       onOpen();
     } else {
       if (love === mentor.id) {
-        setLove(0)        
-        const withrefresh = async () => {
-          try {
-            const result = await axios.delete("http://127.0.0.1:5000/student/mentors/favorites/", { headers: { Authorization: "Bearer " + authToken }, data: { mentor: mentor.username } });
-            console.log(`you removed the mentor: ${mentor.first_name} to your favorites`);
-          } catch (error) {
-            if (error.response.status === 410) {
-              refresh().then(
-                data => {
-                  console.log(data);
-                  axios.delete("http://127.0.0.1:5000/student/mentors/favorites/",
-                    {
-                      headers: { Authorization: "Bearer " + data },
-                      data: { mentor: mentor.username }
-                    })
-                    .then(_ => console.log('-----------referesh------->'))
-                    .catch(err => console.log({ err }))
-                }
-              ).catch(
-                error => {
-                  console.log(error);
-                }
-              );
-            }
-            console.log("An error occured during removal from your favorites: ", error);
-          }
-        };
-        await withrefresh();
-        
+        setLove(0)
+        await executor(
+          (token) => axios.delete("http://127.0.0.1:5000/student/mentors/favorites/", { headers: { Authorization: "Bearer " + token }, data: { mentor: mentor.username } }),
+          (_) => console.log(`you removed the mentor: ${mentor.first_name} to your favorites`));
+
       } else {
         setLove(mentor.id);
-        
-        const withLikes = async () => {
-          try {
-            const result = await axios.request({
-              url: "http://127.0.0.1:5000/student/mentors/favorites/",
-              headers: { Authorization: "Bearer " + authToken }, method: 'POST', data: { mentor: mentor.username }
-            });
-            console.log(`you added the mentor: ${mentor.first_name} to your favorites`);
-          } catch (error) {
-            if (error.response.status === 410) {
-              refresh().then(
-                data => {
-                  console.log(data);
-                  const result = axios.request({
-                    url: "http://127.0.0.1:5000/student/mentors/favorites/",
-                    headers: { Authorization: "Bearer " + data }, method: 'POST', data: { mentor: mentor.username }
-                  })
-                    .then(data => conosle.log({ data }, '<------after referesh likes---------'))
-                    .catch(err => console.log({ err }))
-                }
-              ).catch(
-                error => {
-                  console.log(error);
-                }
-              );
-            }
-            console.log("An error occured during adding a mentor to your favorites: ", error);
-          }
-        };
-        await withLikes();
-        
+        await executor(
+          (token) => axios.post("http://127.0.0.1:5000/student/mentors/favorites/", { mentor: mentor.username }, { headers: { Authorization: "Bearer " + token } }),
+          (_) => console.log(`you added the mentor: ${mentor.first_name} to your favorites`));
       }
     }
   }
@@ -194,7 +144,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   }, [mentors]) // Mentors is placed here as a dependency bc the setMentors function is asynchronous so I can't apply useEffect and expect to work in it's own, unless I controlled executation
   // And repeated it if necessary.
 
-  
+
   return <Box display="flex" justifyContent="center">
     <Box maxW="1200px" display="flex" justifyContent="center" overflowY="auto">
       {/* scrollable section */}
@@ -298,90 +248,4 @@ export default function BrowsingSection({ filter, search, setSearch }) {
       <SignUpAlert isOpen={isOpen} onClose={onClose} />
     </Box>
   </Box>
-}
-
-/**
- * hook that makes ajax request and if token expires retry again,
- * with the refresh token.
- * @param {() => Promise<void>} ajax - function return a promise
- * @param {Function} callback - any function to be executed after promise fullfiled
- * @param {boolean} isImmediate - a flag to immediately trigger the ajax request or not 
- * 
- * @returs {object}
- */
-function useWithRefresh({ ajax = async () => { }, callback = () => { }, isImmediate = true }) {
-  const [isLoading, setLoading] = useState(false)
-  const [isSuccess, setSuccess] = useState(false)
-  const [isRefreshing, setRefresh] = useState(false)
-  const [data, setData] = useState();
-  const { refresh, authToken } = useAuth();
-
-  const executor = (ajax, cb) => {
-    setLoading(true)
-    ajax(authToken)
-      .then(data => {
-        cb(data)
-        setSuccess(true)
-        setData(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        if (err.response.status == 410) {
-          setRefresh(true)
-          refresh()
-            .then(data => {
-              ajax(data)
-                .then(data => {
-                  cb(data)
-                  setSuccess(true)
-                  setLoading(false)
-                  setData(data)
-                })
-                .catch(err => console.log({ err }))
-            })
-            .catch(err => console.log({ err }))
-        }
-
-      })
-  }
-
-  useEffect(() => {
-    let ignore = false;
-
-    if (isImmediate && !ignore) {
-      setLoading(true)
-      ajax(authToken)
-        .then(data => {
-          setSuccess(true)
-          setData(data)
-          setLoading(false)
-          callback(data)
-        })
-        .catch(err => {
-          if (err.response.status == 410) {
-            setRefresh(true)
-            refresh()
-              .then(data => {
-                ajax(data)
-                  .then(data => {
-                    callback(data)
-                    setSuccess(true)
-                    setLoading(false)
-                    setData(data)
-                  })
-                  .catch(err => console.log({ err }))
-              })
-              .catch(err => console.log({ err }))
-          }
-        })
-    }
-
-    // cleanup
-    return () => {
-      ignore = true;
-    }
-  }, [])
-
-
-  return [executor, { isSuccess, isLoading, data, isRefreshing }]
 }

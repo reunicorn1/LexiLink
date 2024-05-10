@@ -10,14 +10,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 UPLOAD_FOLDER = 'lexi-app/public/profile_pictures'
 
-languages = ["English", "Mandarin Chinese", "Hindi", 
+languages = ["English", "Mandarin Chinese", "Hindi",
              "Spanish", "French", "Standard Arabic",
              "Bengali", "Portuguese", "Russian", "Urdu",
              "Indonesian", "Standard German", "Japanese",
              "Nigerian Pidgin", "Egyptian Spoken Arabic",
              "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"]
 @store(
-        email=(Column(String(128), nullable=False, unique=True), ''),
+        email=(Column(String(128), nullable=False, unique=True, index=True), ''),
         password=(Column(String(500), nullable=False), ''),
         username=(Column(String(128), nullable=False, unique=True), ''),
         first_name=(Column(String(128), nullable=False), ''),

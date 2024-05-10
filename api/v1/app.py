@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+"""_
+This module creates the Flask app and initializes the extensions
+and database.
+
+
+Args:
+    app (Flask app): The Flask app instance. Managed by the create_app
+                    function and api using flask_restx.
+    db (SQLAlchemy): The SQLAlchemy instance. Managed by the create_app
+                    function.
+    migration (Migrate): The Migrate instance. Managed by the create_app
+                    function.
+    cors (CORS): The CORS instance. Managed by the create_app function.
+    jwt (JWTManager): The JWTManager instance. Managed by the create_app
+                    function.
+    metadata (MetaData): The MetaData instance. Managed by the create_app
+
+
+Returns:
+    app: The Flask app instance with the extensions and database initialized.
+"""
 from flask import Flask, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -14,22 +35,27 @@ from api.v1.views.auth import auth
 from api.v1.views.student import std
 from api.v1.views.mentors import mentor
 from api.v1.views.sessions import sessions
+from api.v1.jwt_manager import JWTManagerWrapper
 from datetime import timedelta
-
 
 
 
 db = SQLAlchemy()
 migration = Migrate()
 cors = CORS()
-jwt = JWTManager()
 metadata = MetaData()
 
 api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
 
 
 def create_app():
-    """ Create Flask app """
+    """
+    This function creates the Flask app and initializes the extensions
+    and database.
+
+    """
+
+
     app = Flask(__name__, template_folder='templates')
     app.config.from_object(DevelopmentConfig)
     load_dotenv()
@@ -37,8 +63,11 @@ def create_app():
     migration.init_app(app, db)
     cors.init_app(app, resources={r"/*": {"origins": "*"}})
     login_manager.init_app(app)
-    jwt.init_app(app)
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=1)
+
+    jwt_wrapper = JWTManagerWrapper()
+    jwt_wrapper.init_app(app)
+
+
     metadata.reflect(bind=create_engine(app.config['SQLALCHEMY_DATABASE_URI']))
     api.init_app(app)
     api.add_namespace(auth)
@@ -64,60 +93,5 @@ def create_app():
         """
         return make_response(jsonify({'error': "Not found"}), 404)
 
-    @jwt.user_lookup_loader
-    def user_lookup_callback(_jwt_header, jwt_data):
-        identity = jwt_data["sub"]
-        print(jwt_data)
-        if identity:
-            if jwt_data['user_type'] == 'student':
-                return storage.find_by("StudentModel", username=identity)
-            elif jwt_data['user_type'] == 'mentor':
-                return storage.find_by("MentorModel", username=identity)
-        return None
-
-    @jwt.additional_claims_loader
-    def add_claims_to_access_token(identity):
-        return {'identity': identity}
-
-    @jwt.expired_token_loader
-    def expired_token_callback(jwt_header, jwt_data):
-        print(jwt_data)
-        return make_response(jsonify({
-            'message': 'The token has expired',
-            'error': 'token_expired'
-        }), 410)
-
-    @jwt.invalid_token_loader
-    def invalid_token_callback(error):
-        return make_response(jsonify({
-            'message': 'Signature verification failed',
-            'error': 'invalid_token'
-        }), 411)
-
-    @jwt.unauthorized_loader
-    def unauthorized_loader(error):
-        return make_response(jsonify({
-            'message': 'Request does not contain an access token',
-            'error': 'authorization_required'
-        }), 412)
-
-    @jwt.needs_fresh_token_loader
-    def needs_fresh_token_callback():
-        return make_response(jsonify({
-            'message': 'The token is not fresh',
-            'error': 'fresh_token_required'
-        }), 413)
-
-    @jwt.revoked_token_loader
-    def revoked_token_callback(jwt_header, jwt_data):
-        return make_response(jsonify({
-            'message': 'The token has been revoked',
-            'error': 'token_revoked'
-        }), 444)
-
-    @jwt.token_in_blocklist_loader
-    def check_if_token_in_blocklist(jwt_header, jwt_data):
-        return storage.find_by("BlockListModel",
-                               jwt=jwt_data['jti']) is not None
 
     return app

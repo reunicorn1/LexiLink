@@ -102,4 +102,4 @@ if __name__ == "__main__":
     if len(argv) == 2:
         create_n_mentors(int(argv[1]))
     else:
-        create_n_mentors(n=2)
+        create_n_mentors(n=100)

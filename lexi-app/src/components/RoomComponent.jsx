@@ -6,27 +6,27 @@ import { BsCameraVideoOffFill } from "react-icons/bs";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
+import { useWithRefresh } from '../utils/useWithRefresh';
 
 
 
-const RoomComponent = ({sessionid}) => {
-  console.log('sessionid', sessionid);
+const RoomComponent = ({ sessionid }) => {
+  const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
   const { authToken } = useAuth();
   let token = null;
   let localUid = null;
   let channel = null;
   const getToken = async () => {
-      const response = await axios.get(`http://127.0.0.1:5000/sessions/room/${sessionid}`, {headers: {Authorization: "Bearer " + authToken }});
-      if (response.status !== 200) {
-        throw new Error('Failed to get token');
-      }
-      else {
+    await executor(
+      (token) => axios.get(`http://127.0.0.1:5000/sessions/room/${sessionid}`, { headers: { Authorization: "Bearer " + token } }),
+      (response) => {
         token = response.data.token;
         localUid = response.data.uid;
         channel = response.data.channel;
       }
-      return token, localUid, channel;
-    };
+    );
+    return token, localUid, channel;
+  };
   let config = {
     appid: import.meta.env.VITE_AGORA_APPID,
     token: token,
@@ -117,12 +117,12 @@ const RoomComponent = ({sessionid}) => {
       console.error('Player element not found.');
     }
     if (localTracks.videoTrack && player) {
-    //   const playerHtml = (uid) => (
-    //     `<div class="video-containers" id="video-wrapper-${uid}">
-    //   <p class="user-uid"><img class="volume-icon" id="volume-${uid}" src="/img/assets/volume-on.svg" /></p>
-    //   <div class="video-player player" id="stream-${uid}"></div>
-    // </div>`
-    //   );
+      //   const playerHtml = (uid) => (
+      //     `<div class="video-containers" id="video-wrapper-${uid}">
+      //   <p class="user-uid"><img class="volume-icon" id="volume-${uid}" src="/img/assets/volume-on.svg" /></p>
+      //   <div class="video-player player" id="stream-${uid}"></div>
+      // </div>`
+      //   );
 
 
       player.insertAdjacentHTML('beforeend', playerHtml(config.uid));
@@ -178,7 +178,7 @@ const RoomComponent = ({sessionid}) => {
         document.getElementById('mic-btn').style.backgroundColor = 'greenf';
 
         micvar = !micvar;
-t
+        t
       }
     };
     handleMicButtonClick();
@@ -309,17 +309,17 @@ t
 
   return (
     <div className='room'>
-        <div id="join-wrapper">
-          <input type="text" id="username" />
-          <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
+      <div id="join-wrapper">
+        <input type="text" id="username" />
+        <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
+      </div>
+      <div id="user-streams">
+        <div id="foot" style={{ display: 'block' }}>
+          <button id='mic-btn' onClick={handleMicClick}>Toggle Microphone</button>
+          <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
+          <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
         </div>
-        <div id="user-streams">
-          <div id="foot" style={{ display: 'block' }}>
-            <button id='mic-btn' onClick={handleMicClick}>Toggle Microphone</button>
-            <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
-            <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
-          </div>
-        </div>
+      </div>
     </div>
   );
 };
