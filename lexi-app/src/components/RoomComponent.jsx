@@ -33,6 +33,7 @@ const RoomComponent = ({ sessionid }) => {
     uid: localUid,
     channel: channel
   };
+	console.log('config', config);
   let localTracks = {
     audioTrack: null,
     videoTrack: null
