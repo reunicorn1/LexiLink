@@ -1,1 +1,1 @@
-export const API_URL = 'http://lexilink.us.to/api'
+export const API_URL = 'https://lexilink.us.to/api'
