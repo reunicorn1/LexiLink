@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import random
 import requests
 from faker import Faker
@@ -88,9 +88,10 @@ def create_n_mentors(n):
     http://127.0.0.1:5000/mentor/signup/
     content-type: application/json
     """
+    url="https://lexilink.pals.com.np/api"
     for _ in range(n):
         mentor = random_mentor()
-        response = requests.post("http://127.0.0.1:5000/auth/signup/",
+        response = requests.post(f"{url}/auth/signup/",
                                  json=mentor)
         if response.status_code == 200:
             with open("mentor.json", "a+") as f:

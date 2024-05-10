@@ -1,6 +1,5 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import random
-import string
 import requests
 from faker import Faker
 import json
@@ -54,14 +53,15 @@ def register_student_with_mentor(student_email,
     http://127.0.0.1:5000/student/mentors/favorites/
     """
     # login as student
-    response = requests.post("http://127.0.0.1:5000/auth/login/",
+    url="https://lexilink.pals.com.np/api"
+    response = requests.post(f"{url}/auth/login/",
                              json={"email": student_email,
                                    "password": student_password,
                                    "user_type": "student"})
     if response.status_code == 200:
         access_token = response.json()["access_token"]
         response = requests.post(
-                        "http://127.0.0.1:5000/student/mentors/favorites/",
+                        f"{url}/student/mentors/favorites/",
                         json={"mentor": mentor_username},
                         headers={"Authorization":
                                  f"Bearer {access_token}"})
@@ -78,7 +78,8 @@ def create_n_students(n):
     content-type: application/json
     """
     # get mentors
-    mentors_response = requests.get("http://127.0.0.1:5000/mentor/all?page=1")
+    url="https://lexilink.pals.com.np/api"
+    mentors_response = requests.get(f"{url}/mentor/all?page=1")
     if mentors_response.status_code == 200:
         mentors = mentors_response.json()["mentors"]
     else:
@@ -86,7 +87,7 @@ def create_n_students(n):
         return
     for _ in range(n):
         student = random_student()
-        response = requests.post("http://127.0.0.1:5000/auth/signup/",
+        response = requests.post(f"{url}/auth/signup/",
                                  json=student)
         register_student_with_mentor(student["email"], student["password"],
                                      random.choice(mentors)["username"])

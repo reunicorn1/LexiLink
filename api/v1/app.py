@@ -45,7 +45,8 @@ migration = Migrate()
 cors = CORS()
 metadata = MetaData()
 
-api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
+api = Api(version='1.0', prefix='/api', title='Lexilink Restful API', doc='/docs')
+
 
 
 def create_app():
