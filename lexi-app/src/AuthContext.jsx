@@ -1,8 +1,8 @@
 import axios from 'axios';
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { createAuthProvider } from 'react-token-auth';
+import { API_URL } from '../utils/config';
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   const refresh = () => {
     return (async () => {
       try {
-        const result = await axios.get("http://127.0.0.1:5000/auth/refresh", { headers: {Authorization: "Bearer " + refreshToken} } );
+        const result = await axios.get(`${API_URL}/auth/refresh`, { headers: {Authorization: "Bearer " + refreshToken} } );
         setAuthToken(result.data.access_token);
         console.log("refresh token");
         return (result.data.access_token);

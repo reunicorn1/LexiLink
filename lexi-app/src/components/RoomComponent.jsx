@@ -7,7 +7,7 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import { useWithRefresh } from '../utils/useWithRefresh';
-
+import { API_URL } from '../utils/config';
 
 
 const RoomComponent = ({ sessionid }) => {
@@ -18,7 +18,7 @@ const RoomComponent = ({ sessionid }) => {
   let channel = null;
   const getToken = async () => {
     await executor(
-      (token) => axios.get(`http://127.0.0.1:5000/sessions/room/${sessionid}`, { headers: { Authorization: "Bearer " + token } }),
+      (token) => axios.get(`${API_URL}/sessions/room/${sessionid}`, { headers: { Authorization: "Bearer " + token } }),
       (response) => {
         token = response.data.token;
         localUid = response.data.uid;

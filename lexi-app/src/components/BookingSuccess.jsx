@@ -1,19 +1,18 @@
 import {
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    Image,
-    Heading,
-    Text,
-    Button
-  } from '@chakra-ui/react'
-  import { useNavigate } from 'react-router-dom'
-
-  export default function BookingSuccess({isOpen, onClose}) {
-    const navigate = useNavigate();
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Image,
+  Heading,
+  Text,
+  Button
+} from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom'
+export default function BookingSuccess({ isOpen, onClose }) {
+  const navigate = useNavigate();
 
     return (
         <>

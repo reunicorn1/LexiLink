@@ -7,7 +7,7 @@ import { useAuth } from '../AuthContext';
 import SignUpAlert from './SignUpAlert';
 import { useNavigate } from 'react-router-dom';
 import { useWithRefresh } from '../utils/useWithRefresh';
-
+import { API_URL } from '../utils/config';
 
 export default function BrowsingSection({ filter, search, setSearch }) {
   const { authToken, refresh } = useAuth();
@@ -50,7 +50,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
         let searchResult = [];
         let mentors;
         do {
-          const result = await axios.get("http://127.0.0.1:5000/mentor/all/", { params: { page: number } });
+          const result = await axios.get(`${API_URL}/mentor/all/`, { params: { page: number } });
           mentors = result.data.mentors;
           searchResult = [...searchResult, ...mentors.filter(item => `${item.first_name} ${item.last_name}`.includes(search))];
           number++;
@@ -70,13 +70,13 @@ export default function BrowsingSection({ filter, search, setSearch }) {
       if (love === mentor.id) {
         setLove(0)
         await executor(
-          (token) => axios.delete("http://127.0.0.1:5000/student/mentors/favorites/", { headers: { Authorization: "Bearer " + token }, data: { mentor: mentor.username } }),
+          (token) => axios.delete(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token }, data: { mentor: mentor.username } }),
           (_) => console.log(`you removed the mentor: ${mentor.first_name} to your favorites`));
 
       } else {
         setLove(mentor.id);
         await executor(
-          (token) => axios.post("http://127.0.0.1:5000/student/mentors/favorites/", { mentor: mentor.username }, { headers: { Authorization: "Bearer " + token } }),
+          (token) => axios.post(`${API_URL}/student/mentors/favorites/`, { mentor: mentor.username }, { headers: { Authorization: "Bearer " + token } }),
           (_) => console.log(`you added the mentor: ${mentor.first_name} to your favorites`));
       }
     }
@@ -107,7 +107,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   useEffect(() => {
     const allMentors = (async () => {
       try {
-        const result = await axios.get("http://127.0.0.1:5000/mentor/all/", { params: { page: page } });
+        const result = await axios.get(`${API_URL}/mentor/all/`, { params: { page: page } });
         setMentors([...mentors, ...result.data.mentors]);
         if (page === 1) {
           setIsClicked(result.data.mentors[0])
@@ -132,7 +132,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
 
   const allFavorites = async () => {
     await executor(
-      (token) => axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: { Authorization: "Bearer " + token } }),
+      (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
       (data) => setFavorites(data.data.mentors))
   };
 

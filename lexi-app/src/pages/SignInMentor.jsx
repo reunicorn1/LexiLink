@@ -4,6 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import { useState } from "react";
 import { useAuth } from '../AuthContext';
+import { API_URL } from '../utils/config';
 
 export default function SignInMentor () {
     const { authToken, login } = useAuth();
@@ -37,7 +38,7 @@ export default function SignInMentor () {
         if (Object.values(input).every(value => value)) {
             (async ()=> {
                 try {
-                    const result = await axios.post("http://127.0.0.1:5000/auth/login", input);
+                    const result = await axios.post(`${API_URL}/auth/login`, input);
                     console.log(result.data);
                     login(result.data.access_token, result.data.refresh_token);
                     setTimeout(() => {

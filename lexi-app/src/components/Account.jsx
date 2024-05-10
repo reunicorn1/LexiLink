@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useWithRefresh } from '../utils/useWithRefresh';
+import { API_URL } from '../utils/config';
 
 
 
@@ -45,7 +46,7 @@ export default function Account() {
     // actually was deleted from the database
     const deleteAccount = (async () => {
             await executor(
-              (token) => axios.request({url: "http://127.0.0.1:5000/student/profile",  headers: {Authorization: "Bearer " + token}, method: 'DELETE'} ),
+              (token) => axios.request({url: `${API_URL}/student/profile`,  headers: {Authorization: "Bearer " + token}, method: 'DELETE'} ),
               (data) => {
                 console.log(data);
                 console.log("I deleted the user");

@@ -18,6 +18,7 @@ import SignUpMentorOne from "../components/SignUpMentorOne";
 import SignUpMentorTwo from "../components/SignUpMentorTwo";
 import SignUpMentorThree from "../components/SignUpMentorThree";
 import SignUpMentorFour from "../components/SignUpMentorFour";
+import { API_URL } from '../utils/config';
 
 //const salt = bcrypt.genSaltSync(10);
 
@@ -41,7 +42,7 @@ export default function SignUpMentor () {
 
           (async () => {
             try {
-              const result = await axios.post("http://127.0.0.1:5000/auth/verify_email", { email: input.email, user_type: "mentor" });
+              const result = await axios.post(`${API_URL}/auth/verify_email`, { email: input.email, user_type: "mentor" });
             } catch (error) {
               if (error.response && error.response.status === 400) {
                 errors.email = error.response.data.error;

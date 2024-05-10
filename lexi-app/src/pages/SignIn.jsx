@@ -4,6 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import { useState } from "react";
 import { useAuth } from '../AuthContext';
+import { API_URL } from '../utils/config';
 
 export default function SignIn () {
     const { authToken, login, logout } = useAuth();
@@ -41,7 +42,7 @@ export default function SignIn () {
         if (Object.values(input).every(value => value)) {
             (async ()=> {
                 try {
-                    await axios.post("http://127.0.0.1:5000/auth/login", input)
+                    await axios.post(`${API_URL}/auth/login`, input)
                     .then(data => {
                             console.log(data.data);
                         login(data.data.access_token, data.data.refresh_token);

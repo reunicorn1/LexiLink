@@ -20,7 +20,7 @@ import UpcomingClass from "../components/UpcomingClass";
 import Favorites from "../components/Favorites";
 import axios from "axios";
 import { useWithRefresh } from '../utils/useWithRefresh';
-
+import { API_URL } from '../utils/config';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ minutes: 0, lessons: 0 });
@@ -50,7 +50,7 @@ export default function Dashboard() {
   useEffect(() => {
     const session_with_refresh = async () => {
       await executor(
-        (token) => axios.get("http://127.0.0.1:5000/sessions/", { headers: { Authorization: "Bearer " + token } }),
+        (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
         (result) => followup(result)
       )
     };

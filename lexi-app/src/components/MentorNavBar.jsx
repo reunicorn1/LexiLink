@@ -5,6 +5,7 @@ import axios from "axios";
 import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
 import MenuButtonN from './MenuButton';
+import { API_URL } from '../utils/config';
 
 export default function MentorNavBar() {
     const location = useLocation().pathname;
@@ -22,14 +23,14 @@ export default function MentorNavBar() {
         if (authToken) {
             const getProfile = async () => {
                 try {
-                    const result = await axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + authToken } });
+                    const result = await axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + authToken } });
                     followup(result);
                 } catch (error) {
                     if (error.response && error.response.status === 410) {
                         refresh()
                         .then(
                             data => {
-                                axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + data } })
+                                axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + data } })
                                 .then(data => followup(data))
                                 .then(_ => console.log('--------refresh session successfully from NavBar----->'))
                                 .catch(err => console.log({err}))
