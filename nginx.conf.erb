@@ -22,3 +22,33 @@ server {
     }
 }
 
+<%# # Template file: nginx.conf.erb %>
+
+<%# server { %>
+<%# 	listen 80; %>
+<%# 	server_name lexilink.us.to; %>
+<%# 	root /home/ubuntu/LexiLink/lexi-app; %>
+<%# 	listen [::]:80 default_server; %>
+<%# 	index index.html; %>
+
+<%# 	location / { %>
+<%# 		try_files $uri $uri/ =404; %>
+<%# 		proxy_pass http://0.0.0.0:3001; %>
+<%# 		proxy_set_header Host $host; %>
+<%# 		proxy_set_header X-Real-IP $remote_addr; %>
+<%# 	} %>
+
+<%# 	location /api { %>
+<%# 		proxy_pass http://0.0.0.0:5000; %>
+<%# 		proxy_set_header Host $host; %>
+<%# 		proxy_set_header X-Real-IP $remote_addr; %>
+<%# 	} %>
+<%# 	error_page 404 /404.html; %>
+<%# 	location = /404.html { %>
+<%# 		internal; %>
+<%# 	} %>
+<%# 	location /redirect_me { %>
+<%# 		return 301 https://www.youtube.com/watch?v=dQw4w9WgXcQ; %>
+<%# 	} %>
+<%# } %>
+
