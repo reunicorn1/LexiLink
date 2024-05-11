@@ -16,17 +16,35 @@ const RoomComponent = ({ sessionid }) => {
   let token = null;
   let localUid = null;
   let channel = null;
+
   const getToken = async () => {
-    await executor(
-      (token) => axios.get(`${API_URL}/sessions/room/${sessionid}`, { headers: { Authorization: "Bearer " + token } }),
-      (response) => {
+      const response = await axios.get(`${API_URL}/sessions/room/${sessionid}`, {headers: {Authorization: "Bearer " + authToken }});
+      if (response.status !== 200) {
+        throw new Error('Failed to get token');
+      }
+      else {
         token = response.data.token;
         localUid = response.data.uid;
         channel = response.data.channel;
+        return token, localUid, channel;
       }
-    );
-    return token, localUid, channel;
   };
+
+
+  // const getToken = async () => {
+  //   await executor(
+  //     (token) => axios.get(`${API_URL}/sessions/room/${sessionid}`, { headers: { Authorization: "Bearer " + token } }),
+  //     (response) => {
+	// 	  console.log('response', response);
+  //       token = response.data.token;
+  //       localUid = response.data.uid;
+  //       channel = response.data.channel;
+  //     }
+  //   );
+  //   return token, localUid, channel;
+  // };
+
+
   let config = {
     appid: import.meta.env.VITE_AGORA_APPID,
     token: token,
@@ -148,9 +166,13 @@ const RoomComponent = ({ sessionid }) => {
   const handleJoinButtonClick = async () => {
     console.log('handleJoinButtonClick called');
     token, localUid, channel = await getToken();
+	  console.log('token handleJoinButtonClick', token);
+	  console.log('localUid', localUid);
+	  console.log('channel', channel);
     config.token = token;
     config.uid = localUid;
     config.channel = channel;
+	console.log('Config HandleJoinButtonClick', config);
     localUser = document.getElementById('username').value;
     if (!username) return;
     document.getElementById('join-wrapper').style.display = 'none';
