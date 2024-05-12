@@ -86,7 +86,7 @@ export default function MentorNavBar() {
             const getProfile = async () => {
                 await executor(
                     (token) => axios.get(`${API_URL}/mentor/profile`, { headers: { Authorization: "Bearer " + token } }),
-                    (result) => (setUser(result.data.mentor))
+                    (result) => (setUser(result.data.profile))
                 )
             };
 

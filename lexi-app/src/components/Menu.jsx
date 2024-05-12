@@ -43,7 +43,7 @@ export default function MenuDisplay({ children }) {
 
     const handleLogOut = async () => {
             await executor(
-            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}}, { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token } }),
             (_) => followup()
         )
     }

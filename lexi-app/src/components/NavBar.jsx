@@ -11,14 +11,12 @@ import { API_URL } from '../utils/config';
 export default function NavBar() {
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const { authToken, refresh, setUser } = useAuth();
-    const [profilePic, setProfilePic] = useState("");
+    const { authToken, refresh, setUser, user } = useAuth();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
 
     const followup = (result) => {
-        setUser(result.data);
-        setProfilePic(result.data.profile_picture);
+        setUser(result.data.profile);
     }
     // This is marked as unhandled promise
     useEffect(() => {
@@ -48,8 +46,8 @@ export default function NavBar() {
             </>}
             {authToken ? <Box ml={4} className="image-container">
                 <MenuDisplay>
-                    {profilePic ?
-                        <Avatar size="sm" bg='red.500' src={profilePic}></Avatar>
+                    {user.profile_picture ?
+                        <Avatar size="sm" bg='red.500' src={user.profile_picture}></Avatar>
                         : <>
                             <Image w="50px" src="/img/profile.gif" className="gif-image" ></Image>
                             <Image w="50px" src="/img/profile-still.png" className="still-image" ></Image>
