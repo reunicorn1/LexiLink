@@ -1,6 +1,7 @@
 import {
     Table,
     Flex,
+    Button,
     Tbody,
     Thead,
     Tr,

@@ -344,9 +344,9 @@ class Room(Resource):
             return respond.bad_request({"error": "Session has passed"})
         if session.status != 'Approved':
             return respond.bad_request({"error": "Session is not approved"})
-        session.mentor_token = None
-        session.student_token = None
-        session.save()
+        # session.mentor_token = None
+        # session.student_token = None
+        # session.save()
         channelName = session_id[:8] + student.id[:8] + mentor.id[:8]
         token = (session.mentor_token, session.student_token)[user]
         if token is not None:
