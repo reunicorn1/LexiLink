@@ -31,7 +31,7 @@ function BellButton ( {children, pending, setUpdate, update}){
 
     const handleClick = async(value, id) => {
         await executor(
-            (token) => axios.put(`http://127.0.0.1:5000/sessions/${id}`, {status: value}, { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.put(`${API_URL}/sessions/${id}`, {status: value}, { headers: { Authorization: "Bearer " + token } }),
             (result) => setUpdate(!update)
         );
     }
@@ -85,7 +85,7 @@ export default function MentorNavBar() {
         if (authToken) {
             const getProfile = async () => {
                 await executor(
-                    (token) => axios.get("http://127.0.0.1:5000/mentor/profile", { headers: { Authorization: "Bearer " + token } }),
+                    (token) => axios.get(`${API_URL}/mentor/profile`, { headers: { Authorization: "Bearer " + token } }),
                     (result) => (setUser(result.data.mentor))
                 )
             };
@@ -93,7 +93,7 @@ export default function MentorNavBar() {
             const session_with_refresh = async () => {
                 await executor(
                   // This endpoint has pagination implemented, so only the first 10 results are retrieved currently
-                  (token) => axios.get("http://127.0.0.1:5000/sessions/", { headers: { Authorization: "Bearer " + token } }),
+                  (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
                   (result) => (followup(result))
                 )
               };
@@ -111,7 +111,7 @@ export default function MentorNavBar() {
         // Including three things: [1] Full name, [2] profile picture, [3] email
           return (async () => {
               try {
-                  const result = await axios.get(`http://127.0.0.1:5000/student/${studentId}`);
+                  const result = await axios.get(`${API_URL}/student/${studentId}`);
                   return [`${result.data.first_name} ${result.data.last_name}`, result.data.profile_picture, result.data.email];
               } catch (error) {
                   console.log(`An error occured during retrival of ${studentId} info `, error);
