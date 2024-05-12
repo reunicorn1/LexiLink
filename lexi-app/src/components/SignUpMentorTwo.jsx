@@ -1,6 +1,6 @@
 import { Box, Heading, Text, Input, FormControl, Divider, FormLabel, Flex, useBreakpointValue, Button, FormErrorMessage } from "@chakra-ui/react"
 import axios from "axios";
-
+import { API_URL } from '../utils/config';
 
 export default function SignUpMentorTwo ({ input, formError, setFormError, onChange, handleStepper, SteppingOver }) {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
@@ -8,7 +8,7 @@ export default function SignUpMentorTwo ({ input, formError, setFormError, onCha
     const handleNext = (async () => {
         const errors = { ...formError };
         try {
-            const checkuser = await axios.post("http://127.0.0.1:5000/auth/verify_username", {username: input.username, user_type: "mentor"})
+            const checkuser = await axios.post(`${API_URL}/auth/verify_username`, {username: input.username, user_type: "mentor"})
             handleStepper();
         } catch(error) {
             if (error.response && error.response.status === 403) {

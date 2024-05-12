@@ -11,6 +11,8 @@ import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import BookingSuccess from "../components/BookingSuccess";
 import { useWithRefresh } from '../utils/useWithRefresh';
+import { API_URL } from '../utils/config';
+
 
 export default function Schedule() {
     const navigate = useNavigate();
@@ -91,7 +93,7 @@ export default function Schedule() {
         const state = { mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), status: "Approved", amount: mentor.price_per_hour, method: "auto" };
         (async () => {
             await executor(
-                (token) => axios.request({ url: "http://127.0.0.1:5000/sessions/", headers: { Authorization: "Bearer " + token }, method: "POST", data: state }),
+                (token) => axios.request({ url: `${API_URL}/sessions/`, headers: { Authorization: "Bearer " + token }, method: "POST", data: state }),
                 (_) => {
                     console.log("wohooo!!!!");
                     onOpen();

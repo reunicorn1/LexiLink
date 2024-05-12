@@ -3,7 +3,7 @@ import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import { useWithRefresh } from '../utils/useWithRefresh';
-
+import { API_URL } from '../utils/config';
 
 export default function ProfileInfo() {
     const { authToken, refresh, setUser } = useAuth();
@@ -55,7 +55,7 @@ export default function ProfileInfo() {
     }
     const getProfile = (async () => {
         await executor(
-            (token) => axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + token } }),
             (data) => followup(data)
         );
         refresh();
@@ -93,7 +93,7 @@ export default function ProfileInfo() {
         }
         (async () => {
             await executor(
-                (token) => axios.put("http://127.0.0.1:5000/student/profile", input, { headers: { Authorization: "Bearer " + token } }),
+                (token) => axios.put(`${API_URL}/student/profile`, input, { headers: { Authorization: "Bearer " + token } }),
                 (_) => {
                     getProfile()
                     handleToast();

@@ -22,6 +22,7 @@ import utc from 'dayjs/plugin/utc';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useNavigate } from 'react-router-dom';
 import { useWithRefresh } from '../utils/useWithRefresh';
+import { API_URL } from '../utils/config';
 dayjs.extend(utc);
 dayjs.extend(isSameOrAfter);
 
@@ -51,7 +52,7 @@ export default function UpcomingClass() {
     useEffect(() => {
         const gettingSessions = async () => {
             await executor(
-                (token) => axios.get("http://127.0.0.1:5000/sessions/", { headers: { Authorization: "Bearer " + token } }),
+                (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
                 (result) => followup(result)
             );
         }
@@ -115,7 +116,7 @@ export default function UpcomingClass() {
     const retrieveMentor = (mentorId) => {
         return (async () => {
             try {
-                const result = await axios.get(`http://127.0.0.1:5000/mentor/${mentorId}`);
+                const result = await axios.get(`${API_URL}/mentor/${mentorId}`);
                 return [`${result.data.first_name} ${result.data.last_name}`, result.data.profile_picture, result.data.type];
             } catch (error) {
                 console.log(`An error occured during retrival of ${mentorId} info `, error);

@@ -1,7 +1,7 @@
 # LexiLink
 English Learning Platform: Elevate your English through personalized learning through 1-to-1 mentorship, group sessions, while interacting with like minded people.
 
-# How it works
+## How it works
 
 ## Become a LexiLink Student
 
@@ -21,3 +21,30 @@ Are you passionate about helping others learn English and eager to share your kn
 - **Impactful**: Inspire and empower students to achieve their language learning goals through personalized guidance and support.
 - **Flexible**: Set your own schedule and availability, allowing you to mentor students at times that work best for you.
 - **Rewarding**: Experience the satisfaction of seeing your students grow and succeed, knowing that you played a crucial role in their language learning journey.
+
+
+## Install
+
+First clone the repo:
+
+```
+git clone https://github.com/reunicorn1/LexiLink.git
+```
+Install the pip requirements:
+
+```
+pip install -r requirements.txt
+'''
+
+Install the npm requirements:
+
+```
+cd lexi-app
+npm install
+```
+
+Create the database:
+
+```
+make 
+

@@ -11,6 +11,7 @@ import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../AuthContext';
 import { useWithRefresh } from '../utils/useWithRefresh';
+import { API_URL } from '../utils/config';
 
 export default function MenuDisplay({ children }) {
     const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function MenuDisplay({ children }) {
 
     const handleLogOut = async () => {
             await executor(
-            (token) => axios.delete("http://127.0.0.1:5000/auth/logout", { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.delete(`${API_URL}/auth/logout`, { headers: { Authorization: "Bearer " + token } }),
             (_) => followup()
         )
         }

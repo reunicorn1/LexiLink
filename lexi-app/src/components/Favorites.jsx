@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useWithRefresh } from '../utils/useWithRefresh';
+import { API_URL } from '../utils/config';
 
 export default function Favorites() {
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
@@ -12,7 +13,7 @@ export default function Favorites() {
 
   const getMentors = async () => {
       await executor(
-      (token) => axios.get("http://127.0.0.1:5000/student/mentors/favorites/", { headers: { Authorization: "Bearer " + token } }),
+      (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
       (data) => {
         setMentors(data.data.mentors);
       }
@@ -21,7 +22,7 @@ export default function Favorites() {
 
   const handleDelete = (async (mentor) => {
       await executor(
-       (token) => axios.request({ url: "http://127.0.0.1:5000/student/mentors/favorites/", headers: { Authorization: "Bearer " + token }, method: 'DELETE', data: { mentor: mentor } }),
+       (token) => axios.request({ url: `${API_URL}/student/mentors/favorites/`, headers: { Authorization: "Bearer " + token }, method: 'DELETE', data: { mentor: mentor } }),
        (_) => {
             getMentors();
     }

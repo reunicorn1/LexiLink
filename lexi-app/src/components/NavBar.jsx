@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
 import MenuButtonN from './MenuButton';
 import { useWithRefresh } from '../utils/useWithRefresh';
+import { API_URL } from '../utils/config';
 
 export default function NavBar() {
     const location = useLocation().pathname;
@@ -24,7 +25,7 @@ export default function NavBar() {
         if (authToken) {
             const getProfile = async () => {
                 await executor(
-                    (token) => axios.get("http://127.0.0.1:5000/student/profile", { headers: { Authorization: "Bearer " + token } }),
+                    (token) => axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + token } }),
                     (data) => {
                         followup(data);
                     })

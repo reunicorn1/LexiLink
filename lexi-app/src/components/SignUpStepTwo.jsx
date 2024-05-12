@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { InfoOutlineIcon } from "@chakra-ui/icons";
 import Success from "./Success";
-
+import { API_URL } from '../utils/config';
   const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) => {
 
     
@@ -31,13 +31,13 @@ import Success from "./Success";
         
         (async () => {
             try{
-                const checkuser = await axios.post("http://127.0.0.1:5000/auth/verify_username", {username: input.username, user_type: "student"})
+                const checkuser = await axios.post(`${API_URL}/auth/verify_username`, {username: input.username, user_type: "student"})
                 setFormError({...errors})
                 if (Object.values(input).every(value => value)) {
                     // send the data to the end point 
                     (async () => {
                         try {
-                            const result = await axios.post("http://127.0.0.1:5000/auth/signup", input);
+                            const result = await axios.post(`${API_URL}/auth/signup`, input);
                             handleOtherElementClick();
                             // If email is not used, emailValid should remain true
                         } catch (error) {

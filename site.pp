@@ -9,7 +9,7 @@ $nginx_config_dir = '/etc/nginx/sites-available'
 $nginx_site_name = 'lexilink'
 
 # Install required packages
-package { ['nginx', 'mysql-client', 'python3', 'python3-pip']:
+package { ['nginx', 'mysql-client', 'python3', 'python3-pip', 'libmysqlclient-dev','libssl-dev', 'python3-dev']:
   ensure => installed,
 }
 
@@ -38,25 +38,25 @@ file { '/etc/nginx/sites-enabled/default':
 
 # Set up database
 exec { 'setup_database':
-  command => "cat ${project_root}/sql_utils/lexilink_dev_db.sql | mysql",
+  command => "/bin/cat ${project_root}/sql_utils/lexilink_dev_db.sql | mysql",
   require => Package['mysql-client'],
 }
 
 # Create mentors
 exec { 'create_mentors':
-  command => "python3 ${project_root}/create_n_mentors.py",
+  command => "/usr/bin/python3 ${project_root}/create_n_mentors.py",
   require => Exec['setup_database'],
 }
 
 # Create students
 exec { 'create_students':
-  command => "python3 ${project_root}/create_n_students.py",
+  command => "/usr/bin/python3 ${project_root}/create_n_students.py",
   require => Exec['setup_database'],
 }
 
 # Manage frontend
 exec { 'build_frontend':
-  command => "cd ${frontend_dir} && ${venv_dir}/bin/vite build",
+  command => "/bin/bash -c 'cd ${frontend_dir} && ${venv_dir}/bin/npm install'",
   require => Exec['install_backend_dependencies'],
 }
 
