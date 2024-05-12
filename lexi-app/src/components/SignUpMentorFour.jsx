@@ -6,6 +6,7 @@ import { FaCalendarTimes, FaClock } from "react-icons/fa";
 import { PiVideoFill } from "react-icons/pi";
 import Success from "./Success";
 import axios from "axios";
+import { API_URL } from '../utils/config';
 
 
 export default function SignUpMentorFour ({input, setInput, onChange, handleStepper, SteppingOver}) {
@@ -65,7 +66,7 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
     const handleSubmit = (async () => {
         const newTime = cleanup(["startTime", "endTime"]);
         try {
-            await axios.post("http://127.0.0.1:5000/auth/signup", {...input, availability: {days: daysSelected, startTime: newTime[0], endTime: newTime[1]}});
+            await axios.post(`${API_URL}/auth/signup`, {...input, availability: {days: daysSelected, startTime: newTime[0], endTime: newTime[1]}});
             console.log("hurray!!!!!")
             onOpen();
         } catch (error) {

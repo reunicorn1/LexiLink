@@ -39,8 +39,8 @@ export default function Favorites() {
         <Box display="block">
           <Heading m="10px" mt={0} fontSize={"xl"}>Favorites</Heading>
           <Box display={{ base: "block", sm: "flex", xl: "block" }} gap={3} height={{ xl: "43vh" }} overflowY="auto">
-            {mentors.map((mentor) => (
-              <Box key={mentor.id} display="flex" bg="brand.700" color="white" rounded="2xl" m="10px" p={2} boxShadow="lg">
+            {mentors.map((mentor, index) => (
+              <Box key={index} display="flex" bg="brand.700" color="white" rounded="2xl" m="10px" p={2} boxShadow="lg">
                 <Flex alignItems="center" justifyContent="space-between" flex="1">
                   <Flex alignItems="center">
                     <Avatar size="sm" src={mentor.profile_picture} />

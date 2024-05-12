@@ -47,8 +47,7 @@ export default function SignInMentor () {
                     }, 1000);
                     handleToast()
                 } catch (error){ 
-                    console.log("hello??!!!!!!");
-                    setFormError("Email or Password provided are incorrect") 
+                    setFormError(error.response.data.error) 
                 }
                 })();
             } else {

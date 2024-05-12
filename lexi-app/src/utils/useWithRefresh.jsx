@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -16,7 +17,8 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
     const [isSuccess, setSuccess] = useState(false)
     const [isRefreshing, setRefresh] = useState(false)
     const [data, setData] = useState();
-    const { refresh, authToken } = useAuth();
+    const { refresh, refreshToken, authToken, logout } = useAuth();
+    const navigate = useNavigate();
 
     const executor = (ajax, cb) => {
         setLoading(true)
@@ -51,6 +53,13 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
             
     }
 
+    const handleLogOut = async () => {
+        executor(
+        (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}}, { headers: { Authorization: "Bearer " + token } }),
+        (_) => followup()
+        )
+    }
+
     useEffect(() => {
         let ignore = false;
 
@@ -78,6 +87,11 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
                                     .catch(err => console.log({ err }))
                             })
                             .catch(err => console.log({ err }))
+                    }
+                    else if (err.response.status == 411) {
+                        logout();
+                        handleLogOut();
+                        navigate('/');
                     }
                     else {
                         console.log({ err })

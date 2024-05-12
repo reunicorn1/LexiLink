@@ -26,6 +26,7 @@ import { useUpdate } from '../pages/MentorDashboard';
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useWithRefresh } from '../utils/useWithRefresh';
 import axios from 'axios';
+import { API_URL } from '../utils/config';
 
 const statusColors = {
     "Pending": undefined,
@@ -78,7 +79,7 @@ export default function UpdateModal({isOpen, onClose, session}) {
 
     const handleSave = async() => {
         await executor(
-            (token) => axios.put(`http://127.0.0.1:5000/sessions/${session.id}`, {status: status}, { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.put(`${API_URL}/sessions/${session.id}`, {status: status}, { headers: { Authorization: "Bearer " + token } }),
             (result) => followup()
         );
     }
