@@ -16,10 +16,12 @@ import {
 import dayjs from "dayjs";
 import { useState } from 'react';
 import UpdateModal from './UpdateModal';
+import { useNavigate } from 'react-router-dom';
 
 export default function MentorPlanner({sessions}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [clickedRow , setClickedRow] = useState(null);
+    const navigate = useNavigate();
 
     const printTime = (time) => {
         // This function is made to correct the time zone difference
