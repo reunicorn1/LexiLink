@@ -30,17 +30,21 @@ languages = ["English", "Mandarin Chinese", "Hindi",
         )
 class UserModel(BaseModel, UserMixin):
     '''User class.
+        Inherited by `MentorModel` and `StudentModel` classes.
 
     Atrrs:
-        email(str):
-        password(str):
-        first_name(str):
-        last_name(str):
-        country(str):
-        nationality(str):
-        first_language(str):
-        other_languages(str):
-        profile_picture(str):
+        __tablename__ (str): table name
+        email (str): email
+        password (str): password
+        username (str): username
+        first_name (str): first name
+        last_name (str): last name
+        country (str): country
+        nationality (str): nationality
+        first_language (str): first language
+        other_languages (list): other languages
+        profile_picture (str): profile picture
+ 
     '''
     __tablename__ = 'User_Model'
 

@@ -1,11 +1,9 @@
 #!/usr/bin/python3
 '''Module defines `PaymentModel` class'''
 
-from models.BaseModel import BaseModel, Base, store, db
-from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, DateTime
+from models.BaseModel import BaseModel, Base, store
 import datetime
-from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 
 
 choices = ('Pending', 'Approved', 'Declined', 'Completed')
@@ -30,12 +28,13 @@ class PaymentModel(BaseModel, Base):
     '''PaymentModel class.
 
     Atrrs:
-        mentor_id: str
-        student_id: str
-        date: datetime
-        amount: float
-        method: str
-        status: str
+        __tablename__(str) : table name
+        mentor_id(str) : mentor id (FK)
+        student_id(str) : student id (FK)
+        date(datetime object) : date of payment (default=datetime.datetime.utcnow())
+        amount(float) : total amount paid for the session (default=0)
+        method(str) : payment method (default='Wallet')
+        status(str): payment status (default='Pending')
     '''
     __tablename__ = 'Payment_Model'
 

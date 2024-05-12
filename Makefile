@@ -1,3 +1,7 @@
+# Purpose: Makefile for lexi-app
+# Methods: start, stop, setup_database, create_data
+# Author: Mohamed Elfadil
+
 .PHONY: start stop
 
 start:

@@ -1,4 +1,4 @@
--- prepares a MySQL server for the project
+-- prepares a MySQL DATABASE for the project
 
 CREATE DATABASE IF NOT EXISTS lexilink_dev_db;
 CREATE USER IF NOT EXISTS 'lexilink_dev'@'localhost' IDENTIFIED BY 'lexilink_dev_pwd';

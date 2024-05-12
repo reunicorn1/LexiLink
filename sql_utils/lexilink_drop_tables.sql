@@ -1,3 +1,5 @@
+-- Use this script to drop all tables in the database if needed
+
 USE lexilink_dev_db;
 
 -- Drop all tables if they exist

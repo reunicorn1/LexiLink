@@ -43,12 +43,16 @@ class SessionModel(BaseModel, Base):
     '''SessionModel class.
 
     Atrrs:
-        mentor_id: str
-        student_id: str
-        date: datetime
-        time: time
-        duration: interval
-        status: str
+        __tablename__ (str): table name
+        mentor_id (str): mentor id (FK)
+        student_id (str): student id (FK)
+        date (datetime object): date of session (default=datetime.datetime.utcnow())
+        time (time object): time of session (default=datetime.time(0, 0))
+        duration (time object): duration of session (default=datetime.time(0, 0))
+        status (str): session status (default='Pending')
+        payment (relationship): relationship with `PaymentModel`
+        mentor_token (str): mentor token
+        student_token (str): student token
     '''
     __tablename__ = 'Session_Model'
 

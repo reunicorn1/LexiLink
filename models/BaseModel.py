@@ -16,7 +16,13 @@ Base = declarative_base()
 
 
 class BaseModel:
-    '''BaseModel class'''
+    '''BaseModel class
+        Attributes:
+            id (str): unique id
+            created_at (datetime object): creation date
+            updated_at (datetime object): last update date
+        
+    '''
     id = Column(String(60), primary_key=True, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),  nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

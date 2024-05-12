@@ -2,18 +2,26 @@
 """
 This module defines the JWT manager for the Flask app.
 """
-from flask_jwt_extended import JWTManager
-from flask import jsonify, make_response
-from models import storage
 from datetime import timedelta
+
+from flask import jsonify, make_response
+from flask_jwt_extended import JWTManager
+
+from models import storage
 
 
 class JWTManagerWrapper:
+    """
+    This class wraps the JWT manager for the Flask app.
+    """
     def __init__(self, app=None):
         if app:
             self.init_app(app)
 
     def init_app(self, app):
+        """
+        This method initializes the JWT manager for the Flask app.
+        """
         self.jwt = JWTManager(app)
 
 

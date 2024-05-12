@@ -58,12 +58,19 @@ class MentorModel(UserModel, Base):
     '''MentorModel class.
 
     Atrrs:
-        expertise(str):
-        bio(str):
-        type(str):
-        price_per_hour(float):
-        availability(str):
-        demo_video(str):
+        __tablename__(str): table name
+        expertise(str): expertise of the mentor
+        bio(str): personal bio of the mentor
+        type(str): type of mentor (Community, Professional)
+        price_per_hour(float): price per hour of the mentor's session
+        availability(str): availability of the mentor,
+                            days of the week, start and end time
+        demo_video(str): embeded video link of the mentor
+        role(str): role of the user (mentor)
+        students(list): list of students associated with the mentor
+        sessions(list): list of sessions associated with the mentor
+        
+    
 
     '''
     __tablename__ = 'Mentor_Model'

@@ -37,6 +37,18 @@ class DBStorage:
         new(self, obj)
         save(self)
         delete(self, obj=None)
+        rollback(self)
+        close(self)
+        drop(self, cls=None)
+        drop_all(self)
+        get(self, cls, id)
+        count(self, cls=None)
+        get_uri(self)
+        find_by(self, cls, **kwargs)
+        create(self, cls, **kwargs)
+        query(self, cls, page=1, per_page=10, **kwargs)
+        query_all(self, cls, **kwargs)
+        
     """
     __engine = None
     __session = None

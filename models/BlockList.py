@@ -12,8 +12,8 @@ class BlockListModel(BaseModel, Base):
     '''StudentModel class.
 
     Atrrs:
-        proficiency(str):
-        completed_lessons(int):
-        favorite_mentors(str):
+        __tablename__ (str): table name
+        jwt (str): jwt_token value
+        type (str): type of token (access_token, refresh_token)
     '''
     __tablename__ = 'BlockList_Model'

@@ -8,7 +8,13 @@ from models.BaseModel import Base, store
 
 
 class StudentFavoriteMentors(Base):
-    '''StudentFavoriteMentors class Association Table.'''
+    '''StudentFavoriteMentors class Association Table.
+        Relates students to their favorite mentors.
+        Atrrs:
+        __tablename__(str): table name
+        student_id(str): student id (FK)
+        mentor_id(str): mentor id (FK)
+    '''
     __tablename__ = 'Student_Favorite_Mentors'
 
     student_id = Column(String(60), ForeignKey('Student_Model.id'),
@@ -18,7 +24,13 @@ class StudentFavoriteMentors(Base):
 
 
 class StudentSession(Base):
-    '''StudentMentorSession class Association Table.'''
+    '''StudentMentorSession class Association Table.
+        Relates students to their sessions.
+        Atrrs:
+        __tablename__(str): table name
+        student_id(str): student id (FK)
+        session_id(str): session id (FK)
+    '''
     __tablename__ = 'Student_Session'
     student_id = Column(String(60), ForeignKey('Student_Model.id'),
                         primary_key=True)
@@ -49,8 +61,13 @@ class StudentModel(UserModel, Base):
     '''StudentModel class.
 
     Atrrs:
-        proficiency(str):
-        completed_lessons(int):
-        favorite_mentors(str):
+        __tablename__(str): table name
+        proficiency(str): student proficiency
+        completed_lessons(int): number of completed lessons (default=0)
+        role(str): user role (default='student')
+        favorite_mentors(relationship): relationship with `MentorModel`. 
+                    Student's list of favorite mentors
+        sessions(relationship): relationship with `SessionModel`
+                    Student's list of sessions
     '''
     __tablename__ = 'Student_Model'

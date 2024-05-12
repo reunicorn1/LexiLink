@@ -2,6 +2,17 @@
 """
 The authentication module for the Flask app.
 Manages user authentication and JWT token creation.
+
+        Classes:
+            Login(Resource): Defines the login route for the Flask app.
+            Signup(Resource): Defines the signup route for the Flask app.
+            Logout(Resource): Defines the logout route for the Flask app.
+            Refresh(Resource): Defines the refresh route for the Flask app.
+            VerifyUsername(Resource): Defines the verify username 
+                                        route for the Flask app.
+            VerifyEmail(Resource): Defines the verify email 
+                                        route for the Flask app.
+        
 """
 from flask import (
         request,
@@ -15,6 +26,8 @@ from flask_jwt_extended import (
         jwt_required,
         get_jwt,
         current_user,
+        # verify refresh token
+        get_jwt_identity,
 )
 from flask_migrate import check
 from flask_restx import Resource, Namespace, fields
@@ -23,7 +36,7 @@ from api.v1.views.parsers import auth_parser
 from api.v1.views.responses import Responses
 from api.v1.extensions import load_user
 
-
+# Create a namespace object
 auth = Namespace('auth', description='Authentication')
 # Create a responses object
 respond = Responses()
@@ -81,21 +94,27 @@ verify_username_model = auth.model('VerifyEmail', {
     'user_type': fields.String()
     })
 
+logout_model = auth.model('Logout', {
+    'refresh_token': fields.String(),
+    })
+
 
 
 def get_user_model(user_type):
-    """ Get user type """
+    """ Get user model based on user type """
     return ("MentorModel", "StudentModel")[user_type == 'student']
 
 def invalid_user(user_type):
-    """ Check user type """
+    """ Check user type validity """
     return user_type not in ['student', 'mentor']
 
 @auth.route('/login', strict_slashes=False)
 class Login(Resource):
     """
     This class defines the login route for the Flask app.
-    method: POST - Perform user authentication and obtain JWT token
+    method: POST - Perform user authentication and obtain JWT token,
+                    return unauthorized if invalid email or password.
+                    otherwise return the JWT token and login the user.
 
     """
     @auth.expect(login_model)
@@ -133,6 +152,8 @@ class Login(Resource):
 class Signup(Resource):
     """
     This class defines the signup route for the Flask app.
+    method: POST - Register a new user, return forbidden if user already exists.
+                otherwise create the user and return success.
     """
     @auth.expect(user_model)
     def post(self):
@@ -155,24 +176,44 @@ class Signup(Resource):
 
 @auth.route('/logout', strict_slashes=False)
 class Logout(Resource):
+    """
+    This class defines the logout route for the Flask app.
+    method: DELETE - Logs out a user, return unauthorized if user not logged in.
+                    otherwise log out the user and return success.
+                    
+    """
     @jwt_required(verify_type=False)
-    @auth.expect(auth_parser)
+    @auth.expect(auth_parser, logout_model)
     def delete(self):
         """ Logs out a user """
         claims = get_jwt()
         if invalid_user(claims['user_type']):
             return respond.invalid_data('Invalid user type')
         if current_user:
+            refresh_token = request.get_json().get('refresh_token')
+            if not refresh_token:
+                return respond.unauthorized('User not logged in')
             logout_user()
-            storage.create("BlockListModel",
-                           jwt=claims['jti'],
-                           type=claims['type'])
-            return respond.ok({'status': 'success', 'message': 'User logged out'})
+            try:
+                storage.create("BlockListModel",
+                                jwt=claims['jti'],
+                                type=claims['type'])
+                storage.create("BlockListModel",
+                                jwt=refresh_token,
+                                type="refresh")
+                return respond.ok({'status': 'success', 'message': 'User logged out'})
+            except Exception as e:
+                return respond.internal_server_error(str(e))
         return respond.unauthorized('User not logged in')
 
 
 @auth.route('/refresh', strict_slashes=False)
 class Refresh(Resource):
+    """
+    This class defines the refresh route for the Flask app.
+    method: GET - Refreshes a user's token, return unauthorized if invalid user type.
+                    otherwise refresh the user's token and return the new token.
+    """
     @jwt_required(refresh=True)
     @auth.expect(auth_parser)
     def get(self):
@@ -183,15 +224,20 @@ class Refresh(Resource):
             return respond.invalid_data('Invalid user type')
 
         access_token = create_access_token(identity=current_user.username,
-                                           additional_claims={
-                                               "user_type": user_type
-                                                   })
+                                            additional_claims={
+                                            "user_type": user_type
+                                            })
         print(f'User {current_user.username} refreshed token')
         return respond.ok({"access_token": access_token})
 
 
 @auth.route('/verify_email', strict_slashes=False)
-class Verify(Resource):
+class VerifyEmail(Resource):
+    """
+    This class defines the verify email route for the Flask app.
+    method: POST - Verify if email exists, return forbidden if email already exists.
+                    otherwise return success.
+    """
     @auth.expect(verify_email_model)
     def post(self):
         """ Verify if email exists """
@@ -206,6 +252,11 @@ class Verify(Resource):
 
 @auth.route('/verify_username', strict_slashes=False)
 class VerifyUsername(Resource):
+    """
+    This class defines the verify username route for the Flask app.
+    method: POST - Verify if username exists, return forbidden if username already exists.
+                    otherwise return success.
+    """
     @auth.expect(verify_username_model)
     def post(self):
         """ Verify if username exists """

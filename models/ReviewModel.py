@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-'''Module defines `ReviewModel` class'''
+'''Module defines `ReviewModel` class
+    currently not in use
+'''
 
 from models.BaseModel import BaseModel, Base, store, db
 from sqlalchemy.orm import relationship
@@ -19,10 +21,11 @@ class ReviewModel(BaseModel, Base):
     '''ReviewModel class.
 
     Atrrs:
-        mentor_id: str
-        student_id: str
-        review_score: float
-        description: str
+        __tablename__ (str): table name
+        mentor_id (str): mentor id (FK)
+        student_id (str): student id (FK)
+        review_score (float): review score (default=0)
+        description (str): review description (default='')
     '''
     __tablename__ = 'Review_Model'
 

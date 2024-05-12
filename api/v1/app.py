@@ -3,22 +3,6 @@
 This module creates the Flask app and initializes the extensions
 and database.
 
-
-Args:
-    app (Flask app): The Flask app instance. Managed by the create_app
-                    function and api using flask_restx.
-    db (SQLAlchemy): The SQLAlchemy instance. Managed by the create_app
-                    function.
-    migration (Migrate): The Migrate instance. Managed by the create_app
-                    function.
-    cors (CORS): The CORS instance. Managed by the create_app function.
-    jwt (JWTManager): The JWTManager instance. Managed by the create_app
-                    function.
-    metadata (MetaData): The MetaData instance. Managed by the create_app
-
-
-Returns:
-    app: The Flask app instance with the extensions and database initialized.
 """
 from flask import Flask, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
@@ -27,23 +11,14 @@ from flask_cors import CORS
 from sqlalchemy import create_engine, MetaData
 from flask_restx import Api
 from flask_migrate import Migrate
-from models import storage, db
-from api.v1.config import DevelopmentConfig
+from models import storage
 from api.v1.extensions import login_manager
 from api.v1.views.auth import auth
 from api.v1.views.student import std
 from api.v1.views.mentors import mentor
 from api.v1.views.sessions import sessions
 from api.v1.jwt_manager import JWTManagerWrapper
-
-
-db = SQLAlchemy()
-migration = Migrate()
-cors = CORS()
-metadata = MetaData()
-
-# api = Api(version='1.0', prefix='/api', title='Lexilink Restful API', doc='/docs')
-api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
+from api.v1.config import DevelopmentConfig
 
 MY_PREFIX = '/api'
 
@@ -61,7 +36,7 @@ class ReverseProxied(object):
     def __call__(self, environ, start_response):
         path_info = environ['PATH_INFO']
 
-       # Check if the request path already starts with /api
+        # Check if the request path already starts with /api
         environ['SCRIPT_NAME'] = MY_PREFIX
         path_info = path_info[len(MY_PREFIX):]
 
@@ -73,16 +48,50 @@ class ReverseProxied(object):
 
 
 
-def create_app():
+def create_app(CONFIG=DevelopmentConfig):
     """
     This function creates the Flask app and initializes the extensions
     and database.
+    create_app: This function creates the Flask app and initializes the
+                extensions and database.
+                It returns the app instance.
 
+Properties:
+    app (Flask app): The Flask app instance. Managed by the create_app
+                    function and api using flask_restx.
+    db (SQLAlchemy): The SQLAlchemy instance. Managed by the create_app
+                    function.
+    migration (Migrate): The Migrate instance. Managed by the create_app
+                    function.
+    cors (CORS): The CORS instance. Managed by the create_app function.
+    jwt (JWTManager): The JWTManager instance. Managed by the create_app
+                    function.
+    metadata (MetaData): The MetaData instance. Managed by the create_app
+
+Methods:
+
+        close_db: This function closes the database connection.
+                    Serves as a teardown function.
+        not_found: This function handles the 404 error.
+
+
+
+Returns:
+    app: The Flask app instance with the extensions and database initialized.
     """
+
+    db = SQLAlchemy()
+    migration = Migrate()
+    cors = CORS()
+    metadata = MetaData()
+
+    # api = Api(version='1.0', prefix='/api', title='Lexilink Restful API', doc='/docs')
+    api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
+
 
 
     app = Flask(__name__, template_folder='templates')
-    app.config.from_object(DevelopmentConfig)
+    app.config.from_object(CONFIG)
     load_dotenv()
     db.init_app(app)
     migration.init_app(app, db)

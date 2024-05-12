@@ -89,5 +89,3 @@ class Responses:
         This function returns a 500 Internal Server Error response.
         """
         return make_response(jsonify({'error': error}), 500)
-
-

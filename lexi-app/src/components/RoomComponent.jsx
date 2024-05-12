@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { IoMdMic } from "react-icons/io";
-import { IoMdMicOff } from "react-icons/io";
-import { BsCameraVideoFill } from "react-icons/bs";
-import { BsCameraVideoOffFill } from "react-icons/bs";
 import AgoraRTC from "agora-rtc-sdk-ng";
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
