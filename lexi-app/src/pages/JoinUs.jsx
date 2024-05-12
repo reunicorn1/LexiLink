@@ -1,7 +1,8 @@
 import { Box, Heading, Text, Image, useBreakpointValue, Tag, Center, Button, Card, CardHeader, CardBody, CardFooter, SimpleGrid, Grid } from "@chakra-ui/react"
-
+import { useNavigate } from "react-router-dom";
 
 export default function JoinUs () {
+    const navigate = useNavigate();
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });
     const img = <Image m="30px"src="/img/mentor.png" maxW={{base: "80%", lg: "40%"}} height="auto"></Image>
 
@@ -13,7 +14,7 @@ export default function JoinUs () {
                             <Tag size={'md'} mb={4} variant="outline" color="white" textDecoration="none" borderWidth={2}><Text as="b">Tutor anytime, anywhere</Text></Tag>
                             <Heading fontSize="4xl" mb={4}>Become a LexiLink Mentor</Heading>
                             <Text fontSize="xl">Are you passionate about helping others learn English and eager to share your knowledge and expertise? Join our community of mentors at LexiLink and make a difference in the lives of language learners around the world.</Text>
-                            <Button size="lg" mt="30px">Get Started Now</Button>
+                            <Button size="lg" mt="30px" onClick={() => navigate("/mentor/sign-up")}>Get Started Now</Button>
                         </Box>
                     </Box>
             </Box>

@@ -15,7 +15,7 @@ import { API_URL } from '../utils/config';
 
 export default function MenuDisplay({ children }) {
     const navigate = useNavigate();
-    const { authToken, refresh, logout } = useAuth();
+    const { authToken, refreshToken, refresh, logout } = useAuth();
     const toast = useToast();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
@@ -43,10 +43,10 @@ export default function MenuDisplay({ children }) {
 
     const handleLogOut = async () => {
             await executor(
-            (token) => axios.delete(`${API_URL}/auth/logout`, { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}}, { headers: { Authorization: "Bearer " + token } }),
             (_) => followup()
         )
-        }
+    }
 
 
     return <Menu>

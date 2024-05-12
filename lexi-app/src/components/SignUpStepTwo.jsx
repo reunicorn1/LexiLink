@@ -48,7 +48,7 @@ import { API_URL } from '../utils/config';
                       })();
                 };
             } catch (error){
-                if (error.response && error.response.status === 400) {
+                if (error.response && error.response.status === 403) {
                     errors.username = error.response.data.error;
                     setFormError({...errors})
                     
@@ -151,7 +151,7 @@ import { API_URL } from '../utils/config';
                     </Flex>
                 </GridItem>
               </Box>
-              <Success isOpen={isOpen} />
+              <Success isOpen={isOpen} link={"/sign-in"}/>
     </>
 };
 export default SignUpStepTwo;

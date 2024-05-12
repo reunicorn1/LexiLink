@@ -28,8 +28,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = storage.get_uri()
     SQLALCHEMY_ECHO = True
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=1)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=2)
 
 
 class ProductionConfig(Config):

@@ -7,7 +7,7 @@ import { useAuth } from '../AuthContext';
 import { API_URL } from '../utils/config';
 
 export default function SignIn () {
-    const { authToken, login, logout } = useAuth();
+    const { login, setRole } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "student"});
     const [formError, setFormError] = useState("");
@@ -42,26 +42,22 @@ export default function SignIn () {
         if (Object.values(input).every(value => value)) {
             (async ()=> {
                 try {
-                    await axios.post(`${API_URL}/auth/login`, input)
-                    .then(data => {
-                            console.log(data.data);
-                        login(data.data.access_token, data.data.refresh_token);
-                        setTimeout(() => {
-                            navigate("/");
-                        }
-                        , 1000);
-                    }
-                    )
-                    .then(_ =>  handleToast()
-                    )
-                    .catch(error => console.log(error));
-
-                } catch (error){ setFormError("Email or Password provided are incorrect") }
-            })();
-        } else {
-            setFormError("Both fields are required")
-        }
-    }
+                    const result = await axios.post(`${API_URL}/auth/login`, input);
+                    console.log(result.data);
+                    login(result.data.access_token, result.data.refresh_token);
+                    setRole("student")
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 1000);
+                    handleToast()
+                } catch (error){ 
+                    setFormError(error.response.data.error) 
+                }
+                })();
+            } else {
+                setFormError("Both fields are required")
+            }
+     }
 
     return <>
      <Box display="flex" bg="white" h="600px" m={{ base: "60px", xl: "100px" }} mt="10px" rounded="3xl" boxShadow='md'>

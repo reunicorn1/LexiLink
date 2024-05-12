@@ -90,7 +90,7 @@ export default function Schedule() {
         newtime[0] -= differenceInHours;
         const time = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + newtime.join(':'));
         const duration = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + '00:30'); // this is for the duration of the session which is by default 30 mins for now
-        const state = { mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), status: "Approved", amount: mentor.price_per_hour, method: "auto" };
+        const state = { mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), amount: mentor.price_per_hour, method: "auto" };
         (async () => {
             await executor(
                 (token) => axios.request({ url: `${API_URL}/sessions/`, headers: { Authorization: "Bearer " + token }, method: "POST", data: state }),
@@ -189,3 +189,17 @@ export default function Schedule() {
         </Box>
     </Box>
 }
+
+
+
+        // availability.days = daysSelected;
+        // setInput({...input, availability: availability})
+
+
+        // const localtimezoneoffset = dayjs().utcOffset();
+        // const differenceInHours = Math.floor(localtimezoneoffset / 60);
+        // const newtime = value.split(':').map(Number);
+        // newtime[0] -= differenceInHours;
+
+        // availability[name] = newtime.join(':');
+        // setInput({...input, availability: availability});

@@ -11,7 +11,7 @@ export default function SignUpMentorTwo ({ input, formError, setFormError, onCha
             const checkuser = await axios.post(`${API_URL}/auth/verify_username`, {username: input.username, user_type: "mentor"})
             handleStepper();
         } catch(error) {
-            if (error.response && error.response.status === 400) {
+            if (error.response && error.response.status === 403) {
                 errors.username = error.response.data.error;
                 setFormError({...errors}) 
             } else {

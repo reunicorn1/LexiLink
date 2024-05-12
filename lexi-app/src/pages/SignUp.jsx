@@ -30,7 +30,7 @@ export default function SignUp () {
             try {
               const result = await axios.post(`${API_URL}/auth/verify_email`, { email: input.email, user_type: "student" });
             } catch (error) {
-              if (error.response && error.response.status === 400) {
+              if (error.response && error.response.status === 403) {
                 errors.email = error.response.data.error;
                 emailValid = false
               } else {

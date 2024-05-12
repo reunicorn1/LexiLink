@@ -7,7 +7,7 @@ import { useAuth } from '../AuthContext';
 import { API_URL } from '../utils/config';
 
 export default function SignInMentor () {
-    const { authToken, login } = useAuth();
+    const { authToken, login, setRole } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "mentor"});
     const [formError, setFormError] = useState("");
@@ -41,17 +41,19 @@ export default function SignInMentor () {
                     const result = await axios.post(`${API_URL}/auth/login`, input);
                     console.log(result.data);
                     login(result.data.access_token, result.data.refresh_token);
+                    setRole("mentor")
                     setTimeout(() => {
                         navigate("/mentor/dashboard");
                     }, 1000);
-                    handleToast();
-
-                } catch (error){ setFormError("Email or Password provided are incorrect") }
-            })();
-        } else {
-            setFormError("Both fields are required")
-        }
-    }
+                    handleToast()
+                } catch (error){ 
+                    setFormError(error.response.data.error) 
+                }
+                })();
+            } else {
+                setFormError("Both fields are required")
+            }
+     }
 
     return <>
         <Box display="flex"  justifyContent="center">

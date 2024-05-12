@@ -10,13 +10,17 @@ import Video from "../components/Video"
 
 
 export default function Home () {
-    const { authToken } = useAuth();
+    const { authToken, role } = useAuth();
 
     const navigate = useNavigate();
 
     useEffect(() => {
         if (authToken){
-            navigate("/dashboard");
+            if (role === "student") {
+                navigate("/dashboard");
+            } else {
+                navigate("/mentor/dashboard");
+            }
         }
     }, [])
 

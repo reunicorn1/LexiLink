@@ -23,8 +23,8 @@ import { API_URL } from '../utils/config';
 //const salt = bcrypt.genSaltSync(10);
 
 export default function SignUpMentor () {
-
-    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", education:"", expertise:"", type: "Community", availability: [], user_type:"mentor" })
+    
+    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", education:"", expertise:"", type: "Community", availability: {days: [], startTime: "", endTime: ""}, user_type:"mentor" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: ""});
     let emailValid = true;
@@ -44,7 +44,7 @@ export default function SignUpMentor () {
             try {
               const result = await axios.post(`${API_URL}/auth/verify_email`, { email: input.email, user_type: "mentor" });
             } catch (error) {
-              if (error.response && error.response.status === 400) {
+              if (error.response && error.response.status === 403) {
                 errors.email = error.response.data.error;
                 emailValid = false
               } else {
