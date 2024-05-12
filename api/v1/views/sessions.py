@@ -151,7 +151,7 @@ class Sessions(Resource):
             'date': data['date'],
             'time': data['time'],
             'duration': data['duration'],
-            'status': 'Approved'
+            'status': 'Pending',  # 'Approved', 'Declined', 'Pending'
         }
         # Create payment and session objects
         payment = storage.create("PaymentModel", **payment_data)

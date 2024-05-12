@@ -17,6 +17,7 @@ from flask_jwt_extended import (
         get_jwt,
         current_user
 )
+from flask_login import logout_user
 from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.views.parsers import auth_parser
@@ -51,6 +52,11 @@ student_model = std.model('Student', {
     'profile_picture': fields.Raw(description='Profile Picture'),
     'proficiency': fields.String(),
     })
+
+delete_model = std.model('DeleteAccount', {
+    'refresh_token': fields.String(),
+    })
+
 
 
 @std.route('/profile', strict_slashes=False)
@@ -99,7 +105,7 @@ class Profile(Resource):
         return respond.not_found('User not found')
 
     @jwt_required()
-    @std.expect(auth_parser)
+    @std.expect(auth_parser, delete_model)
     def delete(self):
         """ Deletes a student
         Returns:
@@ -111,11 +117,25 @@ class Profile(Resource):
         if claims['user_type'] != 'student':
             return respond.unauthorized("Unauthorized")
         student = storage.find_by("StudentModel",
-                                  username=current_user.username)
+                                    username=current_user.username)
         if student is None:
             return respond.not_found("Not found")
-        student.delete()
-        return respond.ok({"message": "Student deleted successfully"})
+        if current_user:
+            refresh_token = request.get_json().get('refresh_token')
+            if not refresh_token:
+                return respond.unauthorized('User not logged in')
+        logout_user()
+        try:
+            storage.create("BlockListModel",
+                            jwt=claims['jti'],
+                            type=claims['type'])
+            storage.create("BlockListModel",
+                            jwt=refresh_token,
+                            type="refresh")
+            student.delete()
+            return respond.ok({'status': 'success', 'message': 'Student deleted successfully'})
+        except Exception as e:
+            return respond.internal_server_error(str(e))
 
 
 

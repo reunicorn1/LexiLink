@@ -35,7 +35,6 @@ export default function Account() {
                  {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token }},
     ),
               (data) => {
-                console.log(data);
                 console.log("I deleted the user");
                 onClose();
                 logout();
