@@ -79,7 +79,10 @@ Methods:
 Returns:
     app: The Flask app instance with the extensions and database initialized.
     """
-
+    if CONFIG == DevelopmentConfig:
+        print("Development Configuration")
+    else:
+        print("Production Configuration")
     db = SQLAlchemy()
     migration = Migrate()
     cors = CORS()

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
+import { API_URL } from './config';
 
 /**
  * hook that makes ajax request and if token expires retry again,
@@ -19,7 +20,14 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
     const [data, setData] = useState();
     const { refresh, refreshToken, authToken, logout } = useAuth();
     const navigate = useNavigate();
-
+    
+    
+    const handleLogOut = async () => {
+        executor(
+            (token) => axios.delete(`${API_URL}/auth/logout`, { data: { refresh_token: refreshToken } }, { headers: { Authorization: "Bearer " + token } }),
+            (_) => followup()
+        )
+    }
     const executor = (ajax, cb) => {
         setLoading(true)
         ajax(authToken)
@@ -41,24 +49,33 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
                                     setLoading(false)
                                     setData(data)
                                 })
-                                .catch(err => console.log({ err }))
+                                .catch(err => {
+                                    if (err.response.status == 411) {
+                                        logout();
+                                        handleLogOut();
+                                        navigate('/');
+                                    }
+                                    else {
+                                        console.log({ err })
+                                    }
+                                })
                         })
                         .catch(err => console.log({ err }))
+                }
+                else if (err.response.status == 411) {
+                    logout();
+                    handleLogOut();
+                    navigate('/');
                 }
                 else {
                     console.log({ err })
                 }
 
             })
-            
+
     }
 
-    const handleLogOut = async () => {
-        executor(
-        (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}}, { headers: { Authorization: "Bearer " + token } }),
-        (_) => followup()
-        )
-    }
+    
 
     useEffect(() => {
         let ignore = false;

@@ -82,7 +82,7 @@ export default function MentorDashboard () {
         return (async () => {
             try {
                 const result = await axios.get(`${API_URL}/student/${studentId}`);
-                return [`${result.data.first_name} ${result.data.last_name}`, result.data.profile_picture, result.data.email];
+                return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.email];
             } catch (error) {
                 console.log(`An error occured during retrival of ${studentId} info `, error);
             }

@@ -24,29 +24,16 @@ import { API_URL } from '../utils/config';
 export default function Account() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
-    const { authToken, logout } = useAuth();
+    const { authToken, refreshToken, logout } = useAuth();
     const navigate = useNavigate();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
-    // const handleLogOut = () => {
-    //     (async () => {
-    //         try {
-    //             const logOut = await axios.delete("http://127.0.0.1:5000/auth/logout", { headers: {Authorization: "Bearer " + authToken} })
-    //             console.log("I logged out the user")
-    //             logout();
-    //             navigate('/')
-    //         } catch(error) {
-    //             console.log("Error while logging out of your account, try again")
-    //         }
-    //     });
-    // }
-
-    // I think there's an issue with deleting the user, bc while debuggin attempting to execute the function 
-    // deleteAccount multiple times doesn't seem to cause any errors which doesn't make sense if the user
-    // actually was deleted from the database
     const deleteAccount = (async () => {
             await executor(
-              (token) => axios.request({url: `${API_URL}/student/profile`,  headers: {Authorization: "Bearer " + token}, method: 'DELETE'} ),
+              (token) => axios.delete(
+                 `${API_URL}/student/profile`,
+                 {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token }},
+    ),
               (data) => {
                 console.log(data);
                 console.log("I deleted the user");

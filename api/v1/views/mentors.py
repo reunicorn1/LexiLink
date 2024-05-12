@@ -13,7 +13,7 @@
 from flask import jsonify, make_response, request
 from flask_jwt_extended import current_user, get_jwt, jwt_required
 from flask_restx import Namespace, Resource, fields
-
+from flask_login import logout_user
 from api.v1.views.parsers import auth_parser, query_parser
 from api.v1.views.responses import Responses
 from models import storage
@@ -124,8 +124,23 @@ class Mentor(Resource):
         user = current_user
         if user is None:
             return respond.not_found("Not found")
-        user.delete()
-        return respond.ok({"message": "Mentor deleted successfully"})
+        if current_user:
+            refresh_token = request.get_json().get('refresh_token')
+            if not refresh_token:
+                return respond.unauthorized('User not logged in')
+        logout_user()
+        try:
+            storage.create("BlockListModel",
+                            jwt=claims['jti'],
+                            type=claims['type'])
+            storage.create("BlockListModel",
+                            jwt=refresh_token,
+                            type="refresh")
+            user.delete()
+            return respond.ok({'status': 'success', 'message': 'Mentor deleted successfully'})
+        except Exception as e:
+            return respond.internal_server_error(str(e))
+
 
 
 @mentor.route('/all/', strict_slashes=False)

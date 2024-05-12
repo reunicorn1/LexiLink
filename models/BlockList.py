@@ -5,8 +5,8 @@ from sqlalchemy import Column, String
 
 
 @store(
-       jwt=(Column(String(255), nullable=False), ''),
-       type=(Column(String(255), nullable=False), ''),
+       jwt=(Column(String(1000), nullable=False), ''),
+       type=(Column(String(1000), nullable=False), ''),
        )
 class BlockListModel(BaseModel, Base):
     '''StudentModel class.
@@ -14,6 +14,6 @@ class BlockListModel(BaseModel, Base):
     Atrrs:
         __tablename__ (str): table name
         jwt (str): jwt_token value
-        type (str): type of token (access_token, refresh_token)
+        type (str): type of token (access, refresh)
     '''
     __tablename__ = 'BlockList_Model'

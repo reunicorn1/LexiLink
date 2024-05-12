@@ -31,7 +31,7 @@ export default function SignInMentor () {
             status: 'success',
             duration: 3000,
             isClosable: true,
-          })();
+          });
     }
 
     const handleClick = () => {

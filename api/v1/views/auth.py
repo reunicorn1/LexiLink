@@ -16,8 +16,6 @@ Manages user authentication and JWT token creation.
 """
 from flask import (
         request,
-        jsonify,
-        make_response,
 )
 from flask_login import login_user, logout_user
 from flask_jwt_extended import (
@@ -26,10 +24,7 @@ from flask_jwt_extended import (
         jwt_required,
         get_jwt,
         current_user,
-        # verify refresh token
-        get_jwt_identity,
 )
-from flask_migrate import check
 from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.views.parsers import auth_parser
@@ -131,11 +126,13 @@ class Login(Resource):
                                                additional_claims={
                                                    "user_type":
                                                    user_type})
+            print("Length of access token: ", len(access_token))
             refresh_token = create_refresh_token(
                                                  identity=user.username,
                                                  additional_claims={
                                                      "user_type":
                                                      user_type})
+            print("Length of refresh token: ", len(refresh_token))
             if data.get('remember'):
                 login_user(user, remember=True)
             else:

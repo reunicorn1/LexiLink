@@ -117,7 +117,7 @@ export default function UpcomingClass() {
         return (async () => {
             try {
                 const result = await axios.get(`${API_URL}/mentor/${mentorId}`);
-                return [`${result.data.first_name} ${result.data.last_name}`, result.data.profile_picture, result.data.type];
+                return [`${result.data.mentor.first_name} ${result.data.mentor.last_name}`, result.data.mentor.profile_picture, result.data.mentor.type];
             } catch (error) {
                 console.log(`An error occured during retrival of ${mentorId} info `, error);
             }

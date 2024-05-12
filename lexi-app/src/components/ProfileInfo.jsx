@@ -50,8 +50,8 @@ export default function ProfileInfo() {
     };
 
     const followup = (result) => {
-        setInput(result.data);
-        setUser(result.data);
+        setInput(result.data.profile);
+        setUser(result.data.profile);
     }
     const getProfile = (async () => {
         await executor(
