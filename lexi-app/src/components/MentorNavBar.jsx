@@ -15,8 +15,8 @@ import { useWithRefresh } from '../utils/useWithRefresh';
 
 function BellButton ( {children, pending, setUpdate, update}){
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
-
-    const settingTime = (date, time) => {
+    const {reload, setReload} = useAuth();
+        const settingTime = (date, time) => {
         dayjs.extend(utc);
         const localtimezoneoffset = dayjs().utcOffset();
         // convert time to datetime and add local timezone offset
@@ -32,7 +32,12 @@ function BellButton ( {children, pending, setUpdate, update}){
     const handleClick = async(value, id) => {
         await executor(
             (token) => axios.put(`${API_URL}/sessions/${id}`, {status: value}, { headers: { Authorization: "Bearer " + token } }),
-            (result) => setUpdate(!update)
+            (result) => { 
+                setUpdate(!update);
+                setReload(!reload);
+
+            }
+
         );
     }
 

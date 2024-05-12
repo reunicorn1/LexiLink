@@ -31,7 +31,7 @@ export const useUpdate = () => useContext(UpdateContext);
 
 export default function MentorDashboard () {
     const isLargeScreen = useBreakpointValue({ base: false, xl: true });
-    const { user, authToken, refresh } = useAuth();
+    const { user, authToken, refresh, reload } = useAuth();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     const [stats, setStats] = useState({ profit: 0, minutes: 0, lessons: 0 });
     const [sessions, setSessions] = useState([]);
@@ -73,7 +73,7 @@ export default function MentorDashboard () {
           )
         };
         session_with_refresh();
-      }, [update])
+      }, [update, reload])
 
 
     const retrieveStudent = (studentId) => {
