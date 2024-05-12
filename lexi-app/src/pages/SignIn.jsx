@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useAuth } from '../AuthContext';
 
 export default function SignIn () {
-    const { authToken, login, logout } = useAuth();
+    const { login, setRole } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "student"});
     const [formError, setFormError] = useState("");
@@ -45,6 +45,7 @@ export default function SignIn () {
                     .then(data => {
                             console.log(data.data);
                         login(data.data.access_token, data.data.refresh_token);
+                        setRole("student")
                         setTimeout(() => {
                             navigate("/");
                         }

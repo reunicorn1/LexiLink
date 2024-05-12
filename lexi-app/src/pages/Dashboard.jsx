@@ -83,16 +83,14 @@ export default function Dashboard() {
             </StatGroup>
           </Box>
         </Flex>
-        <Box display="flex" alignItems="center" bg="brand.800" m="20px" p="20px" rounded={'xl'} boxShadow={'xl'}>
-          <Image src="/img/flower.png" maxW="70px" mr={4}></Image>
-          <Link to="/browse"><Box color="white">
-            <Heading fontSize={'xl'}>Explore Your Mentors</Heading>
-            <Text fontSize={'sm'}>Discover a Welcoming Tutor to Enhance Your English Journey</Text>
-          </Box></Link>
-        </Box>
-
+          <Box display="flex" alignItems="center" bg="brand.800" m="20px" p="20px" rounded={'xl'} boxShadow={'xl'}>
+            <Image src="/img/flower.png" maxW="70px" mr={4}></Image>
+            <Link to="/browse"><Box color="white">
+              <Heading fontSize={'xl'}>Explore Your Mentors</Heading>
+              <Text fontSize={'sm'}>Discover a Welcoming Tutor to Enhance Your English Journey</Text>
+            </Box></Link>
+          </Box>
       </Flex>
-
       <Box>
         {isLargeScreen && <Box m="20px" position="relative">
           <Image h="200px" filter="brightness(60%)" boxShadow="lg" rounded="xl" w="100%" objectFit="cover" src="/img/cover-3.gif"></Image>

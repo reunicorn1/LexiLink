@@ -187,3 +187,17 @@ export default function Schedule() {
         </Box>
     </Box>
 }
+
+
+
+        // availability.days = daysSelected;
+        // setInput({...input, availability: availability})
+
+
+        // const localtimezoneoffset = dayjs().utcOffset();
+        // const differenceInHours = Math.floor(localtimezoneoffset / 60);
+        // const newtime = value.split(':').map(Number);
+        // newtime[0] -= differenceInHours;
+
+        // availability[name] = newtime.join(':');
+        // setInput({...input, availability: availability});

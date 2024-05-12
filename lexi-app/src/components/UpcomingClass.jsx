@@ -32,7 +32,6 @@ dayjs.extend(isSameOrAfter);
         <Badge colorScheme='red'>Declined</Badge>
         <Badge colorScheme='purple'>Approved</Badge>
 
-        in the upcoming sessions table we only show the latest three sessions status 
 */}
 
 export default function UpcomingClass() {
@@ -78,7 +77,7 @@ export default function UpcomingClass() {
         return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
     }
 
-    const sessionNow = (day, time, status, id) => {
+    const sessionNow = (day, time, status) => {
         if (status === "Approved") {
             const currentTime = dayjs();
             const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + time);

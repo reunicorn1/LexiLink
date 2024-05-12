@@ -48,7 +48,7 @@ import Success from "./Success";
                       })();
                 };
             } catch (error){
-                if (error.response && error.response.status === 400) {
+                if (error.response && error.response.status === 403) {
                     errors.username = error.response.data.error;
                     setFormError({...errors})
                     
@@ -151,7 +151,7 @@ import Success from "./Success";
                     </Flex>
                 </GridItem>
               </Box>
-              <Success isOpen={isOpen} />
+              <Success isOpen={isOpen} link={"/sign-in"}/>
     </>
 };
 export default SignUpStepTwo;

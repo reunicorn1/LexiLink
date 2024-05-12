@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('authToken'));
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'));
   const [user, setUser] = useState({});
-  const [status, setStatus] = useState();
+  const [role, setRole] = useState(() => localStorage.getItem('role'));
 
 
   // After trial and error I found that bc of the nature of js aync functions, the only thing that can control updating the access token is useEffect
@@ -17,14 +17,11 @@ export const AuthProvider = ({ children }) => {
     if (authToken) {
       localStorage.setItem('authToken', authToken);
       localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('role', role);
     } else {
       localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken', refreshToken)
-
-    }
-    return () => {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken', refreshToken)
+      localStorage.removeItem('refreshToken', refreshToken);
+      localStorage.removeItem('role', role);
     }
   }, [authToken]);
 
@@ -41,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     // It doesn't make sense to me why these two down there don't work while the setting functions work normally when you login
     localStorage.setItem('authToken', authToken);
     localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('role', role);
   };
 
   const logout = () => {
@@ -48,6 +46,7 @@ export const AuthProvider = ({ children }) => {
     setRefreshToken(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role', role);
   };
 
   const refresh = () => {
@@ -64,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ authToken, getAccess, user, setUser, login, logout, refresh }}>
+    <AuthContext.Provider value={{ authToken, getAccess, user, setUser, role, setRole, login, logout, refresh }}>
       {children}
     </AuthContext.Provider>
   );
