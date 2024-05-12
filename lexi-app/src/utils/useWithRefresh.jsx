@@ -48,6 +48,7 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
                 }
 
             })
+            
     }
 
     useEffect(() => {
