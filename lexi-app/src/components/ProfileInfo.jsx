@@ -1,61 +1,69 @@
-import { Box, Heading, Divider, Input, FormLabel, Avatar, Spacer, RadioGroup, Radio, Stack, Flex, Button, Select, useToast } from '@chakra-ui/react'
+import { Box, Heading, Divider, Input, FormLabel, Textarea, Avatar, Spacer, RadioGroup, Radio, Stack, Flex, Button, Select, useToast, Tag, CloseButton, useBreakpointValue, InputRightElement, Spinner, InputGroup } from '@chakra-ui/react'
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
+import { uploadFile } from '@uploadcare/upload-client'
+
+// fileData must be Blob or File or Buffer
+
 
 export default function ProfileInfo() {
-    const { authToken, refresh, setUser } = useAuth();
-    const fileInputRef = useRef(null);
+    const isSmallScreen = useBreakpointValue({ base: true, md: false });
+    const { refresh, setUser, role } = useAuth();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
-    // const user = {
-    //     "completed_lessons": 0,
-    //     "country": "Puerto Rico",
-    //     "created_at": "2024-04-25T11:21:35",
-    //     "email": "taraalvarado@example.com",
-    //     "first_language": "fil",
-    //     "first_name": "Sheila",
-    //     "id": "74c3c8cc-25bd-4c46-9476-ac20bb880ca8",
-    //     "last_name": "Gray",
-    //     "nationality": "Guinea-Bissau",
-    //     "other_languages": "he",
-    //     "proficiency": "3",
-    //     "profile_picture": "https://placekitten.com/965/701",
-    //     "role": "student",
-    //     "updated_at": "2024-04-28T17:56:09",
-    //     "username": "catherineowens"
-    //   };
-
-    // Notes: I have an issue with the profie picture updating. Rather I have two solutions,
-    // We either allow our server to accept files where we upload them there and recieve a url back to retireve information
-    // And keep everything stored locally, or use an api to save files in an external server and recieve a link
-    // to access the image.
-
-
     const [input, setInput] = useState({});
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [loading, setloading] = useState(false);
     const [countries, setCountries] = useState([]);
     const toast = useToast();
+    const uploadcare_api = import.meta.env.VITE_PUBLIC_KEY_UPLOADCARE
+    const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
 
-    const handleFileChange = (event) => {
+
+    const handleFileChange = async (event) => {
         const file = event.target.files[0];
-        setInput({
-            ...input,
-            profile_picture: file // Store the file object directly (not recommended)
-        })
+        setSelectedFile(file);
+        // fileData must be Blob or File or Buffer
     }
+
+    useEffect(()=>{
+        const uploading = async () => {
+            if (selectedFile) {
+                setloading(true);
+                const result = await uploadFile(
+                    selectedFile,
+                    {
+                    publicKey: uploadcare_api,
+                    store: 'auto',
+                    metadata: {
+                        subsystem: 'js-client',
+                        pet: 'cat'
+                    }
+                    }
+                )
+                setloading(false);
+                console.log(result)
+                setInput({...input, profile_picture: result.cdnUrl});
+            }
+        }
+        uploading();
+    }, [selectedFile])
 
     const handleChange = (value) => {
         setInput({ ...input, proficiency: value });
     };
 
+
     const followup = (result) => {
         setInput(result.data.profile);
         setUser(result.data.profile);
     }
+
     const getProfile = (async () => {
         await executor(
-            (token) => axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + token } }),
+            (token) => axios.get(`${API_URL}/${role}/profile`, { headers: { Authorization: "Bearer " + token } }),
             (data) => followup(data)
         );
         refresh();
@@ -75,6 +83,11 @@ export default function ProfileInfo() {
         getProfile();
     }, []);
 
+    const handleRadio = (value) => {
+        setInput({ ...input, type: value});
+        // setFormError({ ...formError, proficency: ""})
+    };
+
     const handleToast = async () => {
         // add a promise rejection handler
         await toast({
@@ -93,7 +106,7 @@ export default function ProfileInfo() {
         }
         (async () => {
             await executor(
-                (token) => axios.put(`${API_URL}/student/profile`, input, { headers: { Authorization: "Bearer " + token } }),
+                (token) => axios.put(`${API_URL}/${role}/profile`, input, { headers: { Authorization: "Bearer " + token } }),
                 (_) => {
                     getProfile()
                     handleToast();
@@ -102,6 +115,28 @@ export default function ProfileInfo() {
             );
         })();
     }
+
+
+    const handleLangChange = (lang) => {
+        console.log(lang);
+        let others;
+    
+        if (input.other_languages.includes(lang)) {
+            others = input.other_languages.filter(item => item !== lang);
+        } else {
+            others = [...input.other_languages, lang]; 
+        }
+        console.log(input);
+        setInput({...input, other_languages: others});
+    };
+
+    const handleDelete = (lang) => {
+        let others;
+
+        others = input.other_languages.filter(item => item !== lang);
+        setInput({...input, other_languages: others});
+    }
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.currentTarget;
@@ -117,14 +152,23 @@ export default function ProfileInfo() {
                 <Box w="70%">
                     <FormLabel>Profile picture</FormLabel>
                     {/* <Input variant='filled' name="profile_picture" value={input.profile_picture} onChange={handleInputChange}></Input> */}
-                    <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg"></Input>
+                    <InputGroup>
+                        <Input type="file" variant='filled' name="profile_picture" accept="image/png, image/jpeg" onChange={handleFileChange} />
+                        {loading && <InputRightElement><Spinner /></InputRightElement>}
+                    </InputGroup>
                     <FormLabel mt={3}>First name</FormLabel>
                     <Input variant='filled' name="first_name" value={input.first_name} onChange={handleInputChange}></Input>
                     <FormLabel mt={3}>Last name</FormLabel>
                     <Input variant='filled' name="last_name" value={input.last_name} onChange={handleInputChange}></Input>
+                    {role === "mentor" && <>
+                        <FormLabel mt={4}>Bio</FormLabel>
+                        <Textarea variant='filled' placeholder="Tell us about yourself" name="expertise" value={input.bio} onChange={handleInputChange}/>
+                    </>}
                 </Box>
                 <Spacer></Spacer>
-                <Avatar size="2xl" bg="brand.700" src={input.profile_picture}></Avatar>
+                {!isSmallScreen && 
+                    <Avatar size="2xl" bg="brand.700" src={input.profile_picture}></Avatar>
+                }
             </Box>
             <Divider orientation='horizontal' mt={7} mb={5} />
             <Box w="70%">
@@ -145,24 +189,56 @@ export default function ProfileInfo() {
                     ))}
                 </Select>
 
-                <FormLabel mt={3}>First language</FormLabel>
-                <Input variant='filled' name="first_language" value={input.first_language} onChange={handleInputChange}></Input>
+                <FormLabel mt={3}>First Language</FormLabel>
+                <Select variant='filled' placeholder='Select your first language' name="first_language" value={input.first_language} onChange={handleInputChange}>
+                    {languages.map((item, index) => (
+                        <option key={index} value={item}>{item}</option>
+                    ))}
+                </Select>
 
-                <FormLabel mt={3}>Other languages</FormLabel>
-                <Input variant='filled' name="other_languages" value={input.other_languages} onChange={handleInputChange}></Input>
+                <FormLabel mt={3}>Other Languages</FormLabel>
+                <Box display="flex" justifyContent="center" textAlign="center" bg="#EDF2F6" w="100%" rounded="md" minH="40px" p="10px">
+                    <Flex w="100%" gap={1} alignItems="center" flexWrap="wrap">
+                        {input?.other_languages?.map((lang, index) => (
+                        <Tag colorScheme='blackAlpha' key={index} size="sm">{lang}&nbsp;&nbsp;<CloseButton fontSize="7px" size="xs" onClick={()=>handleDelete(lang)}/></Tag>
+                    ))}
+                    </Flex>
+                </Box>
+                <Select mt={3} multiple size="7" value={input.other_languages} onChange={(event)=>handleLangChange(event.target.value)}>
+                    {languages.map((item, index) => (
+                        <option key={index} value={item}>{item}</option>
+                    ))}
+                </Select>
+
             </Box>
             <Divider orientation='horizontal' mt={7} mb={5} />
-            <RadioGroup variant='filled' mb="30px" name="proficiency" value={input.proficiency} onChange={handleChange}>
-                <FormLabel mt={3}>Proficiency</FormLabel>
-                <Stack>
-                    <Radio mr={1} value='0'>0 - No proficiency</Radio>
-                    <Radio mr={1} value='1'>1 - Low proficiency</Radio>
-                    <Radio mr={1} value='2'>2 - Intermediate proficiency</Radio>
-                    <Radio mr={1} value='3'>3 - Upper Intermediate proficiency</Radio>
-                    <Radio mr={1} value='4'>4 - High proficiency</Radio>
-                </Stack>
-            </RadioGroup>
-            <Flex justify="flex-end">
+            <Box w="70%">
+                {role === "student" ? 
+                <RadioGroup variant='filled' mb="30px" name="proficiency" value={input.proficiency} onChange={handleChange}>
+                    <FormLabel mt={3}>Proficiency</FormLabel>
+                    <Stack>
+                        <Radio mr={1} value='0'>0 - No proficiency</Radio>
+                        <Radio mr={1} value='1'>1 - Low proficiency</Radio>
+                        <Radio mr={1} value='2'>2 - Intermediate proficiency</Radio>
+                        <Radio mr={1} value='3'>3 - Upper Intermediate proficiency</Radio>
+                        <Radio mr={1} value='4'>4 - High proficiency</Radio>
+                    </Stack>
+                </RadioGroup>
+                : <>
+                <RadioGroup mb="30px" variant='filled' name="type" value={input.type} onChange={handleRadio}>
+                    <FormLabel mt={3}>Type of Mentor</FormLabel>
+                    <Stack spacing={5} direction={{base: 'column', md:'row'}}>
+                        <Radio mr={1} colorScheme='teal' value='Community'>Community Mentor</Radio>
+                        <Radio mr={1} colorScheme='teal' value='Professional'>Professional Mentor</Radio>
+                    </Stack>
+                </RadioGroup>
+                
+                <FormLabel mt={4}>Expertise</FormLabel>
+                <Textarea variant="filled" placeholder="Let students know what a class with you will be like!" name="expertise" value={input.expertise} onChange={handleChange}/>
+                </>
+                }
+            </Box>
+            <Flex justify="flex-end" mt={7}>
                 <Button className="right-aligned" colorScheme="teal" onClick={handleClick}>Save</Button>
             </Flex>
         </Box>

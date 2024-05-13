@@ -33,6 +33,7 @@ function App() {
         <Route path="/mentor/sign-in" element={<SignInMentor />}></Route>
         <Route path="/mentor/sign-up" element={<SignUpMentor />}></Route>
         <Route path="/mentor/dashboard" element={<MentorDashboard />}></Route>
+        <Route path="/mentor/profile" element={<Profile />}></Route>
         <Route path="/sign-in" element={<SignIn />}></Route>
         <Route path="/sign-up" element={<SignUp />}></Route>
         <Route path="/browse" element={<Browser />}></Route>
