@@ -16,7 +16,7 @@ export default function Calander({selectDate, setSelecteDate, days}) {
         const subject = day.format('dddd') // this will convert the number to a string
         const currentDay = dayjs()
         // check for the year here as well
-        if (days.includes(subject) && (((day.date() > currentDay.date() && day.month() === currentDay.month()) || day.month() > currentDay.month()) &&  day.year() === currentDay.year())) {
+        if (days?.includes(subject) && (((day.date() > currentDay.date() && day.month() === currentDay.month()) || day.month() > currentDay.month()) &&  day.year() === currentDay.year())) {
             return true;
         }
         return false; 

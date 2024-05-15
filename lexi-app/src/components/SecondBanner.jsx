@@ -2,11 +2,12 @@ import { Heading, Center, Card, CardHeader, CardBody, SimpleGrid, Text, Box, Ima
 
 export default function SecondBanner () {
     return (
-    <Box as="div" m="80px">
-        <Center>
-            <Heading fontSize="5xl">How It Works</Heading>
-        </Center>
-                <SimpleGrid gap={6} templateColumns={{md:'repeat(2, 1fr)',  xl:'repeat(4, minmax(200px, 1fr))'}} m="60px" >
+        <Box display="flex" justifyContent="center">
+            <Box as="div" m="80px">
+                <Center>
+                    <Heading fontSize="5xl">How It Works</Heading>
+                </Center>
+                <SimpleGrid gap={6} templateColumns={{md:'repeat(2, 1fr)',  xl:'repeat(4, minmax(200px, 1fr))'}} mt="60px" maxW="1250px" >
                     <Card>
                         <CardHeader>
                             <Heading size='md'> Register</Heading>
@@ -47,6 +48,7 @@ export default function SecondBanner () {
                         </CardBody>
                     </Card>
                 </SimpleGrid>
+            </Box>
         </Box>
     );
 }

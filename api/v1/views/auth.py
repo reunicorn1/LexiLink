@@ -8,11 +8,11 @@ Manages user authentication and JWT token creation.
             Signup(Resource): Defines the signup route for the Flask app.
             Logout(Resource): Defines the logout route for the Flask app.
             Refresh(Resource): Defines the refresh route for the Flask app.
-            VerifyUsername(Resource): Defines the verify username 
+            VerifyUsername(Resource): Defines the verify username
                                         route for the Flask app.
-            VerifyEmail(Resource): Defines the verify email 
+            VerifyEmail(Resource): Defines the verify email
                                         route for the Flask app.
-        
+
 """
 from flask import (
         request,
@@ -177,7 +177,7 @@ class Logout(Resource):
     This class defines the logout route for the Flask app.
     method: DELETE - Logs out a user, return unauthorized if user not logged in.
                     otherwise log out the user and return success.
-                    
+
     """
     @jwt_required(verify_type=False)
     @auth.expect(auth_parser, logout_model)

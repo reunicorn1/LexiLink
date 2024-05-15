@@ -22,6 +22,7 @@
     "@fontsource/raleway": "^5.0.18",
     "@fontsource/work-sans": "^5.0.18",
     "@react-oauth/google": "^0.12.1",
+    "@uploadcare/upload-client": "^6.14.1",
     "agora-rtc-sdk": "^3.6.11",
     "agora-rtc-sdk-ng": "^4.20.2",
     "agora-rtm-react": "^1.1.2",

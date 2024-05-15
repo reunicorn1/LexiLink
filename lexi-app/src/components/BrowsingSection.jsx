@@ -10,7 +10,7 @@ import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
 
 export default function BrowsingSection({ filter, search, setSearch }) {
-  const { authToken, refresh } = useAuth();
+  const { authToken, logout } = useAuth();
   const isLargeScreen = useBreakpointValue({ base: false, md: true });
   const [isClicked, setIsClicked] = useState(null);
   const [page, setPage] = useState(1);
@@ -21,7 +21,6 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const navigate = useNavigate();
   const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
-
 
 
   const handleClick = (mentor) => {
@@ -131,10 +130,11 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   }, [search])
 
   const allFavorites = async () => {
-    if (!authToken) return;
-    await executor(
-      (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
-      (data) => setFavorites(data.data.mentors))
+    if (authToken) {
+      await executor(
+        (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
+        (data) => setFavorites(data.data.mentors))
+    }
   };
 
   useEffect(() => {
@@ -213,29 +213,10 @@ export default function BrowsingSection({ filter, search, setSearch }) {
                   {/* <iframe width="100%" height="315"
                         src={isClicked?.demo_video}>
                         </iframe> */}
-                  <iframe width="100%" height="315"
-                    src={isClicked?.demo_video} frameBorder="0"
-                    allow="autoplay; encrypted-media" allowFullScreen>
-                  </iframe>
-                  <Accordion mt={4} allowToggle>
-                    <AccordionItem>
-                      <h2>
-                        <AccordionButton>
-                          <Box as='span' flex='1' textAlign='left'>
-                            Read More
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h2>
-                      <AccordionPanel pb={4}>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-                        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                        commodo consequat.
-                      </AccordionPanel>
-                    </AccordionItem>
-                  </Accordion>
-                  <Box display="flex" alignItems="center" m="20px">
+                    <iframe width="100%" height="315" src={isClicked?.demo_video}
+                    title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; 
+                    picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>                  
+                  <Box display="flex" alignItems="center" w="100%" mt={6}>
                     <Button colorScheme="teal" w="80%" onClick={() => handleBook(isClicked)}>Book Now</Button>
                     <Spacer></Spacer>
                     <Icon boxSize="30px" as={!love ? IoMdHeartEmpty : IoMdHeart} onClick={() => handleLike(isClicked)} style={{ cursor: "pointer" }} />

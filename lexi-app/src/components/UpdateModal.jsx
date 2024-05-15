@@ -42,13 +42,16 @@ function UpdateOptions ({status, setStatus, session}) {
     
     // Add this to MenuButton is it's not there: isDisabled={status === "Completed"}
     return <Menu>
-    <MenuButton  as={Button} colorScheme={statusColors[status]}size="sm" rightIcon={<ChevronDownIcon />}>
+    <MenuButton  isDisabled={status === "Completed" || status === "Cancelled"} as={Button} colorScheme={statusColors[status]}size="sm" rightIcon={<ChevronDownIcon />}>
         {status}
     </MenuButton>
     <MenuList>
       <MenuItem onClick={()=>setStatus("Cancelled")}>Cancelled</MenuItem>
       <MenuItem onClick={()=>setStatus("Completed")}>Completed</MenuItem>
-      <MenuItem onClick={()=>setStatus("Pending")}>Pending</MenuItem>
+      {/* <MenuItem onClick={()=>setStatus("Pending")}>Pending</MenuItem> */}
+      {(status === "Declined" || status === "Pending") && <MenuItem onClick={()=>setStatus("Approved")}>Approved</MenuItem>}
+      {status === "Pending" && <MenuItem onClick={()=>setStatus("Declined")}>Declined</MenuItem>}
+
     </MenuList>
   </Menu>
 }

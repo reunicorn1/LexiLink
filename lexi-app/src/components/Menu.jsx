@@ -15,7 +15,7 @@ import { API_URL } from '../utils/config';
 
 export default function MenuDisplay({ children }) {
     const navigate = useNavigate();
-    const { authToken, refreshToken, refresh, logout } = useAuth();
+    const { authToken, refreshToken, refresh, logout, role } = useAuth();
     const toast = useToast();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
@@ -55,7 +55,7 @@ export default function MenuDisplay({ children }) {
         </MenuButton>
         <Portal>
             <MenuList>
-                <Link to="/profile"><MenuItem>Profile</MenuItem></Link>
+                <Link to={role === "student" ? "/profile" : "/mentor/profile"}><MenuItem>Profile</MenuItem></Link>
                 <MenuItem>Invite a friend</MenuItem>
                 <MenuDivider />
                 <MenuItem color="red" onClick={handleLogOut}>Log Out</MenuItem>

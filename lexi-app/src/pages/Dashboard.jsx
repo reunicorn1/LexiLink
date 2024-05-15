@@ -25,13 +25,13 @@ import { API_URL } from '../utils/config';
 export default function Dashboard() {
   const [stats, setStats] = useState({ minutes: 0, lessons: 0 });
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
-  const { user, authToken, refresh } = useAuth();
+  const { user, authToken, refresh, role } = useAuth();
   const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authToken) {
+    if (!authToken || role !== "student") {
       navigate("/");
     }
   }, [])
@@ -101,10 +101,6 @@ export default function Dashboard() {
         </Box>}
         <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px"> {/* This is the box under the banner image */}
           <Box>
-            <Flex alignItems={"center"} mb={4}>
-              <Heading fontSize={"xl"}>Your Lessons</Heading>
-              <Spacer></Spacer>
-            </Flex>
             <UpcomingClass></UpcomingClass>
           </Box>
           <Favorites></Favorites>

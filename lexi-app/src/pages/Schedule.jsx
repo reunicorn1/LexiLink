@@ -26,9 +26,8 @@ export default function Schedule() {
     const [appear, setAppear] = useState(false)
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     let location = useLocation();
-    let mentor = location.state && location.state.mentor ? location.state.mentor : null;
-    console.log(mentor.availability);
-
+    const mentor = location.state && location.state.mentor ? location.state.mentor : null;
+    const update_id = location.state && location.state.update ? location.state.update : null;
 
     useEffect(() => {
         setSelectTime(null);
@@ -49,37 +48,39 @@ export default function Schedule() {
         // But this might be handled when the mentor select his available times in the first place
         // if he isn't given the option of ending shift unless in a sharp hour
 
-        const start = mentor.availability.startTime;
-        const end = mentor.availability.endTime;
+        const start = mentor?.availability?.startTime;
+        const end = mentor?.availability?.endTime;
         const arrayofTimes = [];
         const localtimezoneoffset = dayjs().utcOffset();
         const differenceInHours = Math.floor(localtimezoneoffset / 60);
 
-
-        let [startHours, startMinutes] = start.split(':').map(Number);
-        startHours += differenceInHours;
-        let [endHours, endMinutes] = end.split(':').map(Number);
-        endHours += differenceInHours;
-
-        if (!time) {
-            endHours = 12;
-        } else {
-            startHours = 12
-        }
-
-        for (let h = startHours, m = startMinutes; h < endHours;) {
-            arrayofTimes.push(`${h}:${m.toString().padStart(2, '0')}`)
-            m += 30
-            if (m >= 60) {
-                h += 1;
-                m -= 60;
+        if (start && end) {
+            let [startHours, startMinutes] = start.split(':').map(Number);
+            startHours += differenceInHours;
+            let [endHours, endMinutes] = end.split(':').map(Number);
+            endHours += differenceInHours;
+    
+            if (!time) {
+                endHours = 12;
+            } else {
+                startHours = 12
             }
-            // I'm only adding 30 minutes as a duration for every session
-            // Add more to m initially to declare the duration of the session
+    
+            for (let h = startHours, m = startMinutes; h < endHours;) {
+                arrayofTimes.push(`${h}:${m.toString().padStart(2, '0')}`)
+                m += 30
+                if (m >= 60) {
+                    h += 1;
+                    m -= 60;
+                }
+                // I'm only adding 30 minutes as a duration for every session
+                // Add more to m initially to declare the duration of the session
+            }
+            // Depending on sessions already booked you can filter the values of the list in this area
+    
+            return arrayofTimes
         }
-        // Depending on sessions already booked you can filter the values of the list in this area
-
-        return arrayofTimes
+  
     }
 
     const handleContinue = () => {
@@ -91,15 +92,26 @@ export default function Schedule() {
         const time = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + newtime.join(':'));
         const duration = dayjs.utc(selectDate.format('YYYY-MM-DD') + ' ' + '00:30'); // this is for the duration of the session which is by default 30 mins for now
         const state = { mentor: mentor.username, date: selectDate.format('YYYY-MM-DD'), time: time.format().slice(0, -1), duration: duration.format().slice(0, -1), amount: mentor.price_per_hour, method: "auto" };
-        (async () => {
-            await executor(
-                (token) => axios.request({ url: `${API_URL}/sessions/`, headers: { Authorization: "Bearer " + token }, method: "POST", data: state }),
-                (_) => {
-                    console.log("wohooo!!!!");
-                    onOpen();
-                }
+        
+        if (!update_id) {
+            (async () => {
+                await executor(
+                    (token) => axios.request({ url: `${API_URL}/sessions/`, headers: { Authorization: "Bearer " + token }, method: "POST", data: state }),
+                    (_) => {
+                        onOpen();
+                    }
+                    )
+            })();
+        } else {
+            (async () => {
+                await executor(
+                    (token) => axios.request({ url: `${API_URL}/sessions/${update_id}`, headers: { Authorization: "Bearer " + token }, method: "PUT", data: {...state, status: "Pending", session_id: update_id} }),
+                    (_) => {
+                        onOpen();
+                    },
                 )
-        })();
+            })();
+        }
     }
 
     return <Box display="flex" justifyContent="center">
@@ -109,7 +121,7 @@ export default function Schedule() {
                 {/* The calander section */}
                 <Box>
                     <Heading fontSize="xl" mb={2}>Schedule your lessons</Heading>
-                    <Calander selectDate={selectDate} setSelecteDate={setSelecteDate} days={mentor.availability.days} />
+                    <Calander selectDate={selectDate} setSelecteDate={setSelecteDate} days={mentor?.availability.days} />
                     <Box display="flex" alignItems="center" bg="brand.700" maxW="350px" p="20px" mt="65px" rounded={'xl'} boxShadow={'xl'}>
                         <Image src="/img/flower.png" maxW="80px" mr={4}></Image>
                         <Box color="white">
@@ -130,7 +142,7 @@ export default function Schedule() {
                                 <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={MdSunny} />&nbsp;&nbsp;Morning</Heading>
                                 {/* map a list of times to be singly included in their own button */}
                                 <Box display="flex" flexWrap="wrap">
-                                    {generateTime(0).map((time, index) => (
+                                    {generateTime(0)?.map((time, index) => (
                                         <Button key={index} m="10px" width="80px" isActive={selectTime === time} onClick={() => setSelectTime(time)}>{time}</Button>
                                     ))}
                                 </Box>
@@ -139,7 +151,7 @@ export default function Schedule() {
                                 <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={IoMoon} />&nbsp;&nbsp;Evening</Heading>
                                 {/* map a list of times to be singly included in their own button */}
                                 <Box display="flex" flexWrap="wrap">
-                                    {generateTime(1).map((time, index) => (
+                                    {generateTime(1)?.map((time, index) => (
                                         <Button key={index} m="10px" width="80px" isActive={selectTime === time} onClick={() => setSelectTime(time)}>{time}</Button>
                                     ))}
                                 </Box>

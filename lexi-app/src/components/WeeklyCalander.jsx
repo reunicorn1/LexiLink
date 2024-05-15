@@ -1,4 +1,4 @@
-import { Grid, Box, Text, Heading, Divider, Spacer, Center } from "@chakra-ui/react";
+import { Grid, Box, Text, Heading, Divider, Spacer, Center, Badge } from "@chakra-ui/react";
 import { useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon} from '@chakra-ui/icons'
 import dayjs from "dayjs";
@@ -33,7 +33,13 @@ export default function WeeklyCalander({sessions}) {
 
     const getSessions = (date=dayClicked) => {
         const todaysSessions = sessions.filter(session => dayjs(session.date + 'Z').isSame(date, "day"));
-        return todaysSessions.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));;
+        return todaysSessions.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
+    }
+
+    const doIhaveSessions = (day) => {
+        return sessions.some((session) => {
+            return dayjs(session.date + 'Z').isSame(day, "day")
+        });
     }
 
     const handleClick = (date) => {
@@ -70,16 +76,30 @@ export default function WeeklyCalander({sessions}) {
                 </Box>
         </Box>
         <Box>
-            <Grid w="100%" templateColumns="repeat(7, 1fr)" gap={12} justifyContent="center" textAlign="center" mb={4}>
-                    {generateDate().map(({date, today}, index) => (
+            <Grid w="100%" templateColumns="repeat(7, 1fr)" gap={12} justifyContent="center" textAlign="center" mb={1}>
+                    {generateDate(today).map(({date, today}, index) => (
                         <Heading key={`##${index}`} fontSize="sm" h="30px" w="30px">{date.format('dd')}</Heading>
                     ))}
             </Grid>
             <Grid w="100%" templateColumns="repeat(7, 1fr)" gap={12} textAlign="center" justifyContent="center" overflow="auto">
-                    {generateDate(today).map(({date, today}, index) => (
-                        <Box key={index} {...prop} bg={today ? "brand.600" : dayClicked.isSame(date)  ? "black" : undefined} color={(today || dayClicked.isSame(date)) && "white"} as={today && "b"} onClick={()=>handleClick(date)}>
+                    {generateDate(today).map(({ date, today }, index) => (
+                    <Box key={index} position="relative">
+                        <Box {...prop} bg={today ? "brand.600" : dayClicked.isSame(date) ? "black" : undefined} color={(today || dayClicked.isSame(date)) && "white"} as={today && "b"} onClick={() => handleClick(date)}>
                             <Text>{date.date()}</Text>
                         </Box>
+                        {(!today && doIhaveSessions(date))&& <Badge
+                            position="absolute"
+                            top="80%" 
+                            left="50%"
+                            transform="translate(-50%, -50%)"
+                            bgColor="red.500"
+                            color="white"
+                            fontSize="1px"
+                            h="8px"
+                            w="8px"
+                            borderRadius="full"
+                        ></Badge>}
+                    </Box>
                     ))}
             </Grid>
         </Box>

@@ -75,6 +75,5 @@ export default function Account() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-
     </Box>
 }

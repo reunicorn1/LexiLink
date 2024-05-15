@@ -65,6 +65,7 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
 
     const handleSubmit = (async () => {
         const newTime = cleanup(["startTime", "endTime"]);
+        
         try {
             await axios.post(`${API_URL}/auth/signup`, {...input, availability: {days: daysSelected, startTime: newTime[0], endTime: newTime[1]}});
             console.log("hurray!!!!!")

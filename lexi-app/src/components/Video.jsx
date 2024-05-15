@@ -1,13 +1,14 @@
-import { Box, Heading, Text, Image } from "@chakra-ui/react"
+import { Box, Heading, Text, Image, Spacer } from "@chakra-ui/react"
 
 export default function Video() {
-    return (<Box display="flex" justifyContent="center" bg="brand.700" color="white">
-        <Box display={{base: "block", md: "flex"}} p="60px" pb="5px" pt="10px" maxW="1250px" alignItems="center">
-            <Image src="/img/video.png" maxW={{base: "80%", lg: "40%"}} height="auto"></Image>
-            <Box maxW="500px">
-                <Heading mb={2}>Video Conferencing</Heading>
+    return (<Box display="flex" justifyContent="center" bg="brand.800" color="white">
+        <Box display={{base: "block", md: "flex"}} p="60px" pb="30px" pt="30px" maxW="1250px" alignItems="center">
+            <Image src="/img/video.png" maxW={{base: "80%", md: "40%"}} height="auto"></Image>
+            <Spacer />
+            <Box maxW="500px" m="50px">
+                <Heading mb={2}>Enhanced Learning Connectivity</Heading>
                 <Text>
-                Experience seamless communication with our integrated video conferencing feature. Connect with your mentor in real-time, no matter where you are in the world. Our advanced technology ensures crystal-clear video and audio quality, allowing you to engage in productive and immersive learning sessions.
+                    Experience unparalleled connectivity with our integrated video conferencing feature, designed to revolutionize your learning journey. Our cutting-edge technology guarantees crystal-clear video and audio quality, ensuring every learning session is immersive and productive.
                 </Text>
             </Box>
         </Box>

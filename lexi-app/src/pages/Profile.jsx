@@ -1,15 +1,19 @@
-import { Tabs, TabList, TabPanels, Tab, TabPanel, Box, Heading, Avatar, Flex, Image, Text } from '@chakra-ui/react'
+import { Tabs, TabList, TabPanels, Tab, TabPanel, Box, Heading, Avatar, Flex, Text, useBreakpointValue } from '@chakra-ui/react'
 import { Icon } from '@chakra-ui/react'
-import { MdOutlineMail, MdOutlineSettings } from "react-icons/md";
+import { MdOutlineMail, MdOutlineSettings, MdOutlineCalendarToday, MdPayment } from "react-icons/md"; 
 import { FaRegUser } from "react-icons/fa";
 import ProfileInfo from '../components/ProfileInfo';
 import Account from '../components/Account';
 import Email from '../components/Email';
 import { useAuth } from '../AuthContext';
+import Availability from '../components/Availability';
+import Payment from '../components/Payment';
 
 
 export default function Profile() {
-    const { user } = useAuth();
+    const { user, role } = useAuth();
+    const isSmallScreen = useBreakpointValue({ base: true, md: false });
+    const Smallestcreen = useBreakpointValue({ base: true, sm: false });
 
     return <Box display="flex" justifyContent="center" m="30px">
         <Box bg="white" rounded="xl" maxW="1000" width="100%">
@@ -21,16 +25,26 @@ export default function Profile() {
                 </Box>
             </Flex>
             <Tabs orientation="vertical" colorScheme='teal'>
-                <TabList alignItems="start" minW="200px">
-                    <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={FaRegUser} />&nbsp;&nbsp;Profile</Tab>
-                    <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineSettings} />&nbsp;&nbsp;Account</Tab>
-                    <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineMail} />&nbsp;&nbsp;Email</Tab>
+                <TabList alignItems="start" minW={{base: "30px", sm: "50px", md:"200px"}}>
+                    {Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={FaRegUser} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={FaRegUser} />&nbsp;&nbsp;Profile</Tab>}
+                    {role === "mentor" && <>{Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineCalendarToday} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineCalendarToday} />&nbsp;&nbsp;Availability</Tab>}</>}
+                    {role === "mentor" && <>{Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdPayment} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdPayment} />&nbsp;&nbsp;Payment</Tab>}</>}
+                    {Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineSettings} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineSettings} />&nbsp;&nbsp;Account</Tab>}
+                    {Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineMail} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineMail} />&nbsp;&nbsp;Email</Tab>}
                 </TabList>
 
                 <TabPanels>
                     <TabPanel>
                         <ProfileInfo/>
                     </TabPanel>
+                    {role === "mentor" && <TabPanel>
+                        <Availability/>
+                    </TabPanel>
+                    }
+                    {role === "mentor" && <TabPanel>
+                        <Payment/>
+                    </TabPanel>
+                    }
                     <TabPanel>
                         <Account />
                     </TabPanel>
