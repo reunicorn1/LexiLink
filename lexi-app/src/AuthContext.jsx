@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const result = await axios.get(`${API_URL}/auth/refresh`, { headers: {Authorization: "Bearer " + refreshToken} } );
         setAuthToken(result.data.access_token);
+        localStorage.setItem('authToken', result.data.access_token);
         console.log("refresh token");
         return (result.data.access_token);
       } catch(error) {

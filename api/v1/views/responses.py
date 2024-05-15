@@ -34,7 +34,13 @@ class Responses:
         """
         This function returns a 200 OK response.
         """
-        return make_response(jsonify(data), 200)
+        response = make_response(jsonify(data), 200)
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+
 
     def created(self, data):
         """

@@ -50,7 +50,7 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
                                     setData(data)
                                 })
                                 .catch(err => {
-                                    if (err.response.status == 411) {
+                                    if (err.response.status == 411 || err.response.status == 410) {
                                         logout();
                                         handleLogOut();
                                         navigate('/');
