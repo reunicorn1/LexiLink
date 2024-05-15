@@ -169,8 +169,9 @@ const RoomComponent = ({ sessionid }) => {
     config.uid = localUid;
     config.channel = channel;
 	console.log('Config HandleJoinButtonClick', config);
-    localUser = document.getElementById('username').value;
-    if (!username) return;
+    // get user's name 
+    // localUser = ;
+    // if (!username) return;
     document.getElementById('join-wrapper').style.display = 'none';
     document.getElementById('foot').style.display = 'flex';
     await joinStreams();
@@ -329,7 +330,6 @@ const RoomComponent = ({ sessionid }) => {
   return (
     <div className='room'>
       <div id="join-wrapper">
-        <input type="text" id="username" />
         <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
       </div>
       <div id="user-streams">

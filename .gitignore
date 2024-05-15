@@ -6,3 +6,4 @@ mentor.json
 student.json
 .vscode
 *nginx*
+*.bak

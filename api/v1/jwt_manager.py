@@ -33,7 +33,6 @@ class JWTManagerWrapper:
             token is invalid, this function should return None.
             """
             identity = jwt_data["sub"]
-            print(jwt_data)
             if identity:
                 if jwt_data['user_type'] == 'student':
                     return storage.find_by("StudentModel", username=identity)
@@ -55,7 +54,7 @@ class JWTManagerWrapper:
             This function is called when an expired token is received. It should
             return a response to be sent to the client.
             """
-            print(jwt_data)
+            print("expired_token_callback")
             return make_response(jsonify({
                 'message': 'The token has expired',
                 'error': 'token_expired'

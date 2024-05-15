@@ -14,6 +14,11 @@ def random_proficiency():
 def random_language():
     return random.choice(["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
 
+def random_languages():
+    languages = set()
+    for i in range(random.randint(2, 5)):
+        languages.add(random_language())
+    return list(languages)
 def random_student():
     """
  {
@@ -38,7 +43,7 @@ def random_student():
         "country": fake.country(),
         "nationality": fake.country(),
         "first_language": random_language(),
-        "other_languages": random_language(),
+        "other_languages": random_languages(),
         "profile_picture": fake.image_url(),
         "proficiency": random_proficiency(),
         "user_type": "student"
@@ -53,7 +58,8 @@ def register_student_with_mentor(student_email,
     http://127.0.0.1:5000/student/mentors/favorites/
     """
     # login as student
-    url="https://lexilink.pals.com.np/api"
+    # url="https://lexilink.pals.com.np/api"
+    url="http://127.0.0.1:5000/api"
     response = requests.post(f"{url}/auth/login/",
                              json={"email": student_email,
                                    "password": student_password,
@@ -78,7 +84,8 @@ def create_n_students(n):
     content-type: application/json
     """
     # get mentors
-    url="https://lexilink.pals.com.np/api"
+    # url="https://lexilink.pals.com.np/api"
+    url="http://127.0.0.1:5000/api"
     mentors_response = requests.get(f"{url}/mentor/all?page=1")
     if mentors_response.status_code == 200:
         mentors = mentors_response.json()["mentors"]
@@ -89,6 +96,9 @@ def create_n_students(n):
         student = random_student()
         response = requests.post(f"{url}/auth/signup/",
                                  json=student)
+        if response.status_code != 201:
+            print(f"Error: {response.json()}")
+            continue
         register_student_with_mentor(student["email"], student["password"],
                                      random.choice(mentors)["username"])
         if response.status_code == 200:

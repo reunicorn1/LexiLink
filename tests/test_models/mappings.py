@@ -1,0 +1,73 @@
+from datetime import datetime
+from sqlalchemy.orm.dynamic import AppenderQuery
+mappings = {
+    "student_model": 
+                {"id": str,
+                 "created_at": datetime,
+                 "updated_at": datetime,
+                 "first_name": str,
+                 "last_name": str,
+                 "email": str,
+                 "username": str,
+                 "password": str,
+                    "profile_picture": str,
+                    "first_language": str,
+                    "other_languages": list,
+                    "proficiency": str,
+                    "completed_lessons": int,
+                    "role": str,
+                    "favorite_mentors": AppenderQuery,
+                    "sessions": AppenderQuery,
+                    "payments": AppenderQuery
+                    },
+                
+"mentor_model": {"id": str,
+                "created_at": datetime,
+                "updated_at": datetime,
+                "first_name": str,
+                "last_name": str,
+                "email": str,
+                "username": str,
+                "password": str,
+                "profile_picture": str,
+                "first_language": str,
+                "other_languages": list,
+                "expertise": str,
+                "bio": str,
+                "type": str,
+                "price_per_hour": float,
+                "availability": dict,
+                "demo_video": str,
+                "role": str,
+                "students": AppenderQuery,
+                "sessions": AppenderQuery,
+                "payments": AppenderQuery
+                },
+
+"session_model": {"id": str,
+                    "created_at": datetime,
+                    "updated_at": datetime,
+                    "mentor_id": str,
+                    "student_id": str,
+                    "payment_id": str,
+                    "date": datetime,
+                    "time": datetime,
+                    "duration": datetime,
+                    "status": str,
+                    "payment": dict,
+                    "mentor_token": str,
+                    "student_token": str
+                    },
+
+"payment_model": {"id": str,
+                    "created_at": datetime,
+                    "updated_at": datetime,
+                    "mentor_id": str,
+                    "student_id": str,
+                    "date": datetime,
+                    "amount": float,
+                    "method": str,
+                    "status": str,
+                    "session": dict
+                    }
+}

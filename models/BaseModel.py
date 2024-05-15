@@ -6,12 +6,17 @@ from datetime import datetime, time, timezone
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from os import getenv
+from os.path import join, dirname
 from dotenv import load_dotenv
 
-
-load_dotenv()
+if getenv("test") != "test":
+    load_dotenv()
+else:
+    dotenv_path = join(dirname(__file__), '.env.test')
+    load_dotenv(dotenv_path)
 env = getenv("LEXILINK_TYPE_STORAGE")
 db = (False, True)['db' == env]
+
 Base = declarative_base()
 
 
@@ -21,11 +26,13 @@ class BaseModel:
             id (str): unique id
             created_at (datetime object): creation date
             updated_at (datetime object): last update date
-        
     '''
     id = Column(String(60), primary_key=True, nullable=False)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),  nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                        nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc),
+                        nullable=False)
 
     def __init__(self, *_, **kwargs):
         '''Instantiate an instance'''
@@ -56,17 +63,16 @@ class BaseModel:
             dictionary representaion of class attributes,
                 with `__class__` attr to manifest class instance
         '''
-        banned = ['password', 'mentors', 'sessions', 'session', 'students'
+        banned = ['password', 'mentors', 'sessions', 'session', 'students', 'payment', 'mentor',
+                    'student', 'favorite_mentors',
                   'favorite_mentors', 'payment']
         _dict = {k: v.isoformat() if any([isinstance(v, datetime),
                                           isinstance(v, time)]) else
                  v for k, v in self.__dict__.items()
                  if k != '_sa_instance_state'}
-        # _dict['__class__'] = self.__class__.__name__
         for k in banned:
             if k in _dict:
                 del _dict[k]
-        
         return _dict
 
     def delete(self):
@@ -104,7 +110,6 @@ def store(*args, **kw):
     Returns:
         decorated class.
     '''
-
     def decorate(cls):
         for k, v in kw.items():
             if not db and k in args:

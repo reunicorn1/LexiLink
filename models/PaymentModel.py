@@ -2,6 +2,7 @@
 '''Module defines `PaymentModel` class'''
 
 from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 from models.BaseModel import BaseModel, Base, store
 import datetime
 
@@ -12,9 +13,9 @@ choices = ('Pending', 'Approved', 'Declined', 'Completed')
 @store(
         # 'reviews',
         mentor_id=(Column(String(60), ForeignKey('Mentor_Model.id'),
-                   nullable=False), ''),
+                   nullable=True), ''),
         student_id=(Column(String(60), ForeignKey('Student_Model.id'),
-                    nullable=False), ''),
+                    nullable=True), ''),
         date=(Column(DateTime, nullable=False,
                      default=datetime.datetime.utcnow()),
               datetime.datetime.utcnow()),
@@ -23,6 +24,7 @@ choices = ('Pending', 'Approved', 'Declined', 'Completed')
                 'Wallet'),
         status=(Column(Enum(*choices), nullable=False, default='Pending'),
                 'Pending'),
+        session = relationship('SessionModel', back_populates='payment', uselist=False),
         )
 class PaymentModel(BaseModel, Base):
     '''PaymentModel class.

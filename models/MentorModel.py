@@ -14,14 +14,6 @@ class StudentMentors(Base):
                         primary_key=True)
     mentor_id = Column(String(60), ForeignKey('Mentor_Model.id'),
                        primary_key=True)
-class MentorSession(Base):
-    '''StudentMentorSession class Association Table.'''
-    __tablename__ = 'Mentor_Session'
-    enntor_id = Column(String(60), ForeignKey('Mentor_Model.id'),
-                        primary_key=True)
-    session_id = Column(String(60), ForeignKey('Session_Model.id'),
-                        primary_key=True)
-
 
 
 choices = ('Community', 'Professional')
@@ -49,11 +41,12 @@ choices = ('Community', 'Professional')
                   backref='mentors',
                   lazy='dynamic'), []),
         sessions=(relationship('SessionModel',
-                                      secondary='Mentor_Session',
-                                      cascade='all, delete-orphan',
-                                      single_parent=True,
+                                      backref='mentor',
                                       lazy='dynamic'), []),
+        payments=(relationship('PaymentModel', backref='mentor',
+                               lazy='dynamic'), []),
                   )
+
 class MentorModel(UserModel, Base):
     '''MentorModel class.
 
@@ -69,8 +62,8 @@ class MentorModel(UserModel, Base):
         role(str): role of the user (mentor)
         students(list): list of students associated with the mentor
         sessions(list): list of sessions associated with the mentor
-        
-    
+
+
 
     '''
     __tablename__ = 'Mentor_Model'

@@ -131,6 +131,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   }, [search])
 
   const allFavorites = async () => {
+    if (!authToken) return;
     await executor(
       (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
       (data) => setFavorites(data.data.mentors))
