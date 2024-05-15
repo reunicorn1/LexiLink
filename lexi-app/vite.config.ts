@@ -8,6 +8,16 @@ export default defineConfig({
     host: '0.0.0.0'
   },
   build: {
-    chunkSizeWarningLimit: 5000
+    chunkSizeWarningLimit: 5000,
+    outDir: 'dist',
+    assetsDir: 'assets',
+    manifest: true, 
+    rollupOptions: {
+      output: {
+        // Use content hashing for filenames
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash][extname]'
+      }
+  },
   },
 })
