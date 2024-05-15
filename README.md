@@ -88,7 +88,8 @@ Are you passionate about teaching English and making a positive impact on others
 - App: Vite
 - Components: React, Chakra UI
 - Video Conferencing: Agora, WebRTC
-- Languages: TypeScript, JavaScript
+- Languages: TypeScript, JavaScript, HTML, CSSZZ
+
 
 
 ## Installation
