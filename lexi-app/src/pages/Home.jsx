@@ -32,6 +32,7 @@ export default function Home () {
             <Banner />
             <NewsBanner />
             <SecondBanner />
+            {/* <Video /> */}
             <FinalBanner />
             <Footer></Footer>
         </div>
