@@ -19,9 +19,12 @@ choices = ('Pending', 'Approved', 'Declined', 'Completed', 'Cancelled')
         # 'reviews',
         'payment',
         mentor_id=(Column(String(60), ForeignKey('Mentor_Model.id'),
-                   nullable=False), ''),
+                   nullable=True), ''),
         student_id=(Column(String(60), ForeignKey('Student_Model.id'),
-                    nullable=False), ''),
+                    nullable=True), ''),
+        payment_id=(Column(String(60), ForeignKey('Payment_Model.id'),
+                           unique=True,
+                    nullable=True), ''),
         date=(Column(DateTime, nullable=False,
                      default=datetime.datetime.utcnow()),
               datetime.datetime.utcnow()),
@@ -32,13 +35,11 @@ choices = ('Pending', 'Approved', 'Declined', 'Completed', 'Cancelled')
                    datetime.time(0, 0)),
         status=(Column(Enum(*choices), nullable=False, default='Pending'),
                 'Pending'),
-        payment=relationship('PaymentModel', backref='session',
-                             cascade='all, delete-orphan', uselist=False,
-                             lazy='dynamic'),
+        payment = relationship('PaymentModel', back_populates='session', uselist=False),
+
         mentor_token=(Column(String(255), nullable=True), ''),
         student_token=(Column(String(255), nullable=True), ''),
         )
-
 class SessionModel(BaseModel, Base):
     '''SessionModel class.
 

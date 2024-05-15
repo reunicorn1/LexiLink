@@ -6,7 +6,6 @@ and database.
 """
 from flask import Flask, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
 from flask_cors import CORS
 from sqlalchemy import create_engine, MetaData
 from flask_restx import Api
@@ -21,6 +20,7 @@ from api.v1.jwt_manager import JWTManagerWrapper
 from api.v1.config import DevelopmentConfig
 
 MY_PREFIX = '/api'
+
 
 class ReverseProxied(object):
     '''Wrap the application in this middleware and configure the
@@ -45,7 +45,6 @@ class ReverseProxied(object):
         if scheme:
             environ['wsgi.url_scheme'] = scheme
         return self.app(environ, start_response)
-
 
 
 def create_app(CONFIG=DevelopmentConfig):
@@ -74,8 +73,6 @@ Methods:
                     Serves as a teardown function.
         not_found: This function handles the 404 error.
 
-
-
 Returns:
     app: The Flask app instance with the extensions and database initialized.
     """
@@ -88,14 +85,10 @@ Returns:
     cors = CORS()
     metadata = MetaData()
 
-    # api = Api(version='1.0', prefix='/api', title='Lexilink Restful API', doc='/docs')
     api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
-
-
 
     app = Flask(__name__, template_folder='templates')
     app.config.from_object(CONFIG)
-    load_dotenv()
     db.init_app(app)
     migration.init_app(app, db)
     cors.init_app(app, resources={r"/*": {"origins": "*"}})
@@ -104,7 +97,6 @@ Returns:
     jwt_wrapper = JWTManagerWrapper()
     jwt_wrapper.init_app(app)
 
-
     metadata.reflect(bind=create_engine(app.config['SQLALCHEMY_DATABASE_URI']))
     api.init_app(app)
     api.add_namespace(auth)
@@ -112,7 +104,6 @@ Returns:
     api.add_namespace(mentor)
     api.add_namespace(sessions)
     app.wsgi_app = ReverseProxied(app.wsgi_app)
-
 
     @app.teardown_appcontext
     def close_db(error):
@@ -130,6 +121,5 @@ Returns:
             description: a resource was not found
         """
         return make_response(jsonify({'error': "Not found"}), 404)
-
 
     return app

@@ -17,7 +17,6 @@ from datetime import datetime, timedelta
 from os import getenv
 
 from agora_token_builder import RtcTokenBuilder
-from dotenv import load_dotenv
 from flask import jsonify, make_response, request
 from flask_jwt_extended import current_user, get_jwt, jwt_required
 from flask_restx import Namespace, Resource, fields
@@ -30,7 +29,6 @@ sessions = Namespace('sessions', description='Session related operations')
 
 respond = Responses()
 
-load_dotenv()
 
 
 filter_model = sessions.model('Filter_Session', {
@@ -156,6 +154,7 @@ class Sessions(Resource):
         # Create payment and session objects
         payment = storage.create("PaymentModel", **payment_data)
         payment.save()
+        session_data['payment_id'] = payment.id
         session = storage.create("SessionModel", **session_data)
         # add payment to session
         session.payment = payment

@@ -35,7 +35,7 @@ def random_language():
 
 def random_languages():
     languages = set()
-    for i in range(random.randint(1, 5)):
+    for i in range(random.randint(2, 5)):
         languages.add(random_language())
     return list(languages)
 
@@ -88,7 +88,8 @@ def create_n_mentors(n):
     http://127.0.0.1:5000/mentor/signup/
     content-type: application/json
     """
-    url="https://lexilink.pals.com.np/api"
+    # url="https://lexilink.pals.com.np/api"
+    url="http://127.0.0.1:5000/api"
     for _ in range(n):
         mentor = random_mentor()
         response = requests.post(f"{url}/auth/signup/",

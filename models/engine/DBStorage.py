@@ -14,12 +14,12 @@ from models.BlockList import BlockListModel
 
 env = ['LEXILINK_MYSQL_USER', 'LEXILINK_MYSQL_PWD',
        'LEXILINK_MYSQL_HOST', 'LEXILINK_MYSQL_DB',
-       'LEXILINK_TYPE_STORAGE', 'LEXILINK_ENV',
+       'LEXILINK_TYPE_STORAGE', 'LEXILINK_MYSQL_ENV',
        'LEXILINK_MYSQL_DIALECT', 'LEXILINK_MYSQL_DRIVER']
 
 classes = {'StudentModel': StudentModel, 'MentorModel': MentorModel,
            'PaymentModel': PaymentModel, 'SessionModel': SessionModel,
-           'ReviewModel': ReviewModel, 'BlockListModel': BlockListModel}
+           'BlockListModel': BlockListModel}
 
 
 class DBStorage:
@@ -48,7 +48,6 @@ class DBStorage:
         create(self, cls, **kwargs)
         query(self, cls, page=1, per_page=10, **kwargs)
         query_all(self, cls, **kwargs)
-        
     """
     __engine = None
     __session = None
@@ -131,7 +130,6 @@ class DBStorage:
         """drop all tables
         """
         Base.metadata.drop_all(self.__engine)
-
 
     def get(self, cls, id):
         """get an object by class and id
@@ -228,9 +226,8 @@ class DBStorage:
 
         query = self.__session.query(cls).filter_by(**kwargs)
         if min_price is not None and max_price is not None:
-            query = query.filter(and_(cls.price_per_hour >= min_price, cls.price_per_hour <= max_price))
-
+            query = query.filter(and_(cls.price_per_hour >= min_price,
+                                      cls.price_per_hour <= max_price))
         query_result = query.all()
-
 
         return query_result

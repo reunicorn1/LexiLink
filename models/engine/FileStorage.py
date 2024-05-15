@@ -15,7 +15,6 @@ classes = {
         'MentorModel': MentorModel,
         'PaymentModel': PaymentModel,
         'SessionModel': SessionModel,
-        'ReviewModel': ReviewModel,
       }
 
 
