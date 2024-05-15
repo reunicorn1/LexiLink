@@ -30,6 +30,7 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
     }
     const executor = (ajax, cb) => {
         setLoading(true)
+        console.log(authToken)
         ajax(authToken)
             .then(data => {
                 cb(data)
@@ -39,9 +40,11 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
             })
             .catch(err => {
                 if (err.response.status == 410) {
+                    console.log('refreshing token')
                     setRefresh(true)
                     refresh()
                         .then(data => {
+                            console.log(data)
                             ajax(data)
                                 .then(data => {
                                     cb(data)
@@ -50,7 +53,7 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
                                     setData(data)
                                 })
                                 .catch(err => {
-                                    if (err.response.status == 411 || err.response.status == 410) {
+                                    if (err.response.status == 411) {
                                         logout();
                                         handleLogOut();
                                         navigate('/');
@@ -101,7 +104,11 @@ export function useWithRefresh({ ajax = async () => { }, callback = async () => 
                                         setLoading(false)
                                         setData(data)
                                     })
-                                    .catch(err => console.log({ err }))
+                                    .catch(err => {
+                                        console.log("This is error")
+                                        console.log({ err })
+                                    }
+                                        )
                             })
                             .catch(err => console.log({ err }))
                     }

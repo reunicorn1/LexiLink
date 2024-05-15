@@ -46,7 +46,12 @@ class Responses:
         """
         This function returns a 201 Created response.
         """
-        return make_response(jsonify(data), 201)
+        response = make_response(jsonify(data), 201)
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     def no_content(self):
         """
