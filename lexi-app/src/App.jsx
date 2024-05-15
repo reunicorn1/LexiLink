@@ -21,7 +21,6 @@ import MentorDashboard from "./pages/MentorDashboard";
 function App() {
   const location = useLocation().pathname;
   return <>
-    
     <AuthProvider>
       {!location.includes('sign') && 
        (!location.includes('mentor') ? <NavBar /> : <MentorNavBar />)

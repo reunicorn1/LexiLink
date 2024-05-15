@@ -88,9 +88,9 @@ export default function ProfileInfo() {
         // setFormError({ ...formError, proficency: ""})
     };
 
-    const handleToast = async () => {
-        // add a promise rejection handler
-        await toast({
+    const handleToast = () => {
+
+        toast({
             title: "Your profile has been updated successfully!",
             status: 'success',
             duration: 3000,
@@ -199,12 +199,12 @@ export default function ProfileInfo() {
                 <FormLabel mt={3}>Other Languages</FormLabel>
                 <Box display="flex" justifyContent="center" textAlign="center" bg="#EDF2F6" w="100%" rounded="md" minH="40px" p="10px">
                     <Flex w="100%" gap={1} alignItems="center" flexWrap="wrap">
-                        {input?.other_languages?.map((lang, index) => (
+                        {input && Array.isArray(input.other_languages) && input?.other_languages?.map((lang, index) => (
                         <Tag colorScheme='blackAlpha' key={index} size="sm">{lang}&nbsp;&nbsp;<CloseButton fontSize="7px" size="xs" onClick={()=>handleDelete(lang)}/></Tag>
                     ))}
                     </Flex>
                 </Box>
-                <Select mt={3} multiple size="7" value={input.other_languages} onChange={(event)=>handleLangChange(event.target.value)}>
+                <Select mt={3} multiple size="7" value={input?.other_languages} onChange={(event)=>handleLangChange(event.target.value)}>
                     {languages.map((item, index) => (
                         <option key={index} value={item}>{item}</option>
                     ))}

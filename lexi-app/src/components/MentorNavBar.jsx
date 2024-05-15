@@ -45,7 +45,7 @@ function BellButton ( {children, pending, setUpdate, update}){
                 <MenuButton>
                     {children}
                 </MenuButton>
-                <MenuList>
+                <MenuList  maxH="350px" overflowY="auto">
                     {!pending.length ? 
                     <MenuItem>No Notifications to be displayed</MenuItem> :
                     <>

@@ -1,10 +1,34 @@
 import { Box, Heading, Text, Image, useBreakpointValue, Tag, Center, Button, Card, CardHeader, CardBody, CardFooter, SimpleGrid, Grid } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from '../AuthContext';
+import axios from "axios";
 
 export default function JoinUs () {
     const navigate = useNavigate();
+    const { logout, role, refreshToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });
     const img = <Image m="30px"src="/img/mentor.png" maxW={{base: "80%", lg: "40%"}} height="auto"></Image>
+
+
+    const afterlogout = () => {
+        logout();
+        navigate('/')
+      }
+    
+      const handleLogOut = async () => {
+            await executor(
+            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token } }),
+            (_) => afterlogout(),
+        )
+      }
+    
+      useEffect(() => {
+        if (role === "student") {
+          handleLogOut();
+        }
+      }, [])
+      
 
     return <Box>
             <Box display="flex"  justifyContent="center" bg="brand.100" color="white">

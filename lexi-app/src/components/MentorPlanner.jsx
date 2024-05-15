@@ -35,9 +35,14 @@ export default function MentorPlanner({sessions}) {
     }
 
     const sessionNow = (day, time, status) => {
+        const localtimezoneoffset = dayjs().utcOffset();
+        // convert time to datetime and add local timezone offset
+        const differenceInHours = Math.floor(localtimezoneoffset / 60);
+        const localTime = { hours: parseInt(time.split(':')[0]) + differenceInHours, minutes: parseInt(time.split(':')[1]) }
+        const newtime = `${localTime.hours}:${localTime.minutes}`
         if (status === "Approved") {
             const currentTime = dayjs();
-            const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + time);
+            const sessionTime = dayjs(dayjs(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);            
             if (currentTime.isSame(sessionTime, "date")) {
                 if (currentTime.isSameOrAfter(sessionTime)) {
                     return (2)
@@ -49,8 +54,13 @@ export default function MentorPlanner({sessions}) {
     }
 
     const TimeDifference = (day, time) => {
+        const localtimezoneoffset = dayjs().utcOffset();
+        const difference = Math.floor(localtimezoneoffset / 60);
+        const localTime = { hours: parseInt(time.split(':')[0]) + difference, minutes: parseInt(time.split(':')[1]) }
+        const newtime = `${localTime.hours}:${localTime.minutes}`
+
         const currentTime = dayjs();
-        const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + time);
+        const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);
         const differenceInHours = sessionTime.diff(currentTime, 'hour');
         if (differenceInHours === 0) {
             return `${sessionTime.diff(currentTime, 'minute')} mins`
@@ -72,7 +82,7 @@ export default function MentorPlanner({sessions}) {
 
 
     return <>
-        <TableContainer mt="20px">
+        <TableContainer mt="20px" maxH="30vh" overflowY="auto">
             <Table size='md'>
                 <Thead>
                     <Tr>
@@ -82,7 +92,7 @@ export default function MentorPlanner({sessions}) {
                         <Th>Status</Th>
                     </Tr>
                 </Thead>
-                <Tbody>
+                <Tbody  >
                     {sessions.map((item, index) => (
                     <Tr key={index} onClick={()=>handleClick(item)} style={{ cursor: "pointer" }}>
                         <Td>

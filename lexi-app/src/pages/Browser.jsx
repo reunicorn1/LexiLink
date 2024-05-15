@@ -12,7 +12,9 @@ import {
   } from '@chakra-ui/react'
 import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from "axios";
+import { useAuth } from '../AuthContext';
 import BrowsingSection from '../components/BrowsingSection';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,8 +29,28 @@ export default function Browser () {
     const [search, setSearch] = useState("");
     const [isClicked, setIsClicked] = useState(false);
     const [read, setRead] = useState(false);
+    const { logout, role, refreshToken } = useAuth();
+
     const navigate = useNavigate();
 
+    const afterlogout = () => {
+        logout();
+        navigate('/')
+      }
+    
+      const handleLogOut = async () => {
+            await executor(
+            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token } }),
+            (_) => afterlogout(),
+        )
+      }
+    
+      useEffect(() => {
+        if (role === "mentor") {
+          handleLogOut();
+        }
+      }, [])
+      
     const handleChange = (newValue) => {
         setSlider(newValue);
     };

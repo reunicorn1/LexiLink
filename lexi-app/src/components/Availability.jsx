@@ -1,4 +1,4 @@
-import { Box, Heading, Divider, FormLabel, Flex, Button, Select, useToast } from "@chakra-ui/react"
+import { Box, Heading, Divider, FormLabel, Flex, Button, Select, useToast, Text, Input } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
 import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
@@ -69,9 +69,9 @@ export default function Availability(){
     }
 
 
-    const handleToast = async () => {
+    const handleToast = () => {
         // add a promise rejection handler
-        await toast({
+        toast({
             title: "Your profile has been updated successfully!",
             status: 'success',
             duration: 3000,
@@ -128,6 +128,11 @@ export default function Availability(){
         setInput({...result.data.profile, availability: availability});
     }
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.currentTarget;
+        setInput({ ...input, [name]: value });
+    }
+
     const getProfile = (async () => {
         await executor(
             (token) => axios.get(`${API_URL}/${role}/profile`, { headers: { Authorization: "Bearer " + token } }),
@@ -149,7 +154,7 @@ export default function Availability(){
                 <Button colorScheme='teal' variant='outline' size="sm" key={index} isActive={daysSelected.includes(day)} onClick={() => addtoarray(day)}>{day}</Button>
             ))}
         </Flex>
-        <Box display={{md: "flex"}} gap={10} w="80%" >
+        <Box display={{md: "flex"}} gap={10} w="80%" mb={10}>
             <Box w="100%">
                 <FormLabel>Starting time</FormLabel>
                 <Select variant="filled" placeholder='Pick your start time' name="startTime" value={input?.availability?.startTime} onChange={handleChange}> 
@@ -171,6 +176,15 @@ export default function Availability(){
                     ))}
                 </Select>
             </Box>
+        </Box>
+        <Box mt={10}  w="80%">
+            <Heading fontSize="xl" mb={4}>Prepare a video introduction</Heading>
+            <Divider orientation='horizontal' mb={4}/>
+            <Text mb={4}>
+                At LexiLink, a video introduction is required to showcase your unique teaching style and personality to prospective students. This personalized video is your opportunity to make a lasting impression and demonstrate your passion for teaching.
+            </Text>
+            <FormLabel>Provide a link to your uploaded video</FormLabel>
+            <Input variant='filled' name="demo_video" value={input.demo_video} onChange={handleInputChange}></Input>
         </Box>
         <Flex justify="flex-end" mt={7}>
                 <Button className="right-aligned" colorScheme="teal" onClick={handleClick}>Save</Button>

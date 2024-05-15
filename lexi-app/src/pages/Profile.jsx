@@ -1,12 +1,13 @@
 import { Tabs, TabList, TabPanels, Tab, TabPanel, Box, Heading, Avatar, Flex, Text, useBreakpointValue } from '@chakra-ui/react'
 import { Icon } from '@chakra-ui/react'
-import { MdOutlineMail, MdOutlineSettings, MdOutlineCalendarToday } from "react-icons/md";
+import { MdOutlineMail, MdOutlineSettings, MdOutlineCalendarToday, MdPayment } from "react-icons/md"; 
 import { FaRegUser } from "react-icons/fa";
 import ProfileInfo from '../components/ProfileInfo';
 import Account from '../components/Account';
 import Email from '../components/Email';
 import { useAuth } from '../AuthContext';
 import Availability from '../components/Availability';
+import Payment from '../components/Payment';
 
 
 export default function Profile() {
@@ -27,6 +28,7 @@ export default function Profile() {
                 <TabList alignItems="start" minW={{base: "30px", sm: "50px", md:"200px"}}>
                     {Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={FaRegUser} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={FaRegUser} />&nbsp;&nbsp;Profile</Tab>}
                     {role === "mentor" && <>{Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineCalendarToday} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineCalendarToday} />&nbsp;&nbsp;Availability</Tab>}</>}
+                    {role === "mentor" && <>{Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdPayment} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdPayment} />&nbsp;&nbsp;Payment</Tab>}</>}
                     {Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineSettings} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineSettings} />&nbsp;&nbsp;Account</Tab>}
                     {Smallestcreen ? <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineMail} /></Tab> : <Tab>&nbsp;&nbsp;&nbsp;&nbsp;<Icon as={MdOutlineMail} />&nbsp;&nbsp;Email</Tab>}
                 </TabList>
@@ -35,9 +37,14 @@ export default function Profile() {
                     <TabPanel>
                         <ProfileInfo/>
                     </TabPanel>
-                    <TabPanel>
+                    {role === "mentor" && <TabPanel>
                         <Availability/>
                     </TabPanel>
+                    }
+                    {role === "mentor" && <TabPanel>
+                        <Payment/>
+                    </TabPanel>
+                    }
                     <TabPanel>
                         <Account />
                     </TabPanel>

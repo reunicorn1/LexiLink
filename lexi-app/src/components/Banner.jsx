@@ -3,7 +3,8 @@ import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { Link } from 'react-router-dom'
 
 export default function Banner () {
-    return ( 
+    return (
+        <Box>
             <Grid  templateColumns="1fr 1fr" gap={6} m="60px" color="black" justifyContent="center">
                 <GridItem colSpan={{base: 2, lg: 1}} pt="90px" gap={2}>
                     <Heading mb={4} as='h3' size='3xl'>
@@ -22,5 +23,6 @@ export default function Banner () {
                     <Image src="/img/banner.png" alt="Banner-Cover" boxSize="auto" width="auto" height="auto"/>
                 </GridItem>
             </Grid> 
+        </Box>
     );
 }

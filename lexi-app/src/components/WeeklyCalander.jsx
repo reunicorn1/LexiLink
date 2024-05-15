@@ -33,7 +33,7 @@ export default function WeeklyCalander({sessions}) {
 
     const getSessions = (date=dayClicked) => {
         const todaysSessions = sessions.filter(session => dayjs(session.date + 'Z').isSame(date, "day"));
-        return todaysSessions.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));;
+        return todaysSessions.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
     }
 
     const doIhaveSessions = (day) => {
@@ -94,9 +94,9 @@ export default function WeeklyCalander({sessions}) {
                             transform="translate(-50%, -50%)"
                             bgColor="red.500"
                             color="white"
-                            fontSize="5px"
-                            h="3px"
-                            w="3px"
+                            fontSize="1px"
+                            h="8px"
+                            w="8px"
                             borderRadius="full"
                         ></Badge>}
                     </Box>
