@@ -55,10 +55,15 @@ class JWTManagerWrapper:
             return a response to be sent to the client.
             """
             print("expired_token_callback")
-            return make_response(jsonify({
+            response = make_response(jsonify({
                 'message': 'The token has expired',
                 'error': 'token_expired'
                 }), 410)
+            response.headers['Content-Type'] = 'application/json'
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            return response
 
         @self.jwt.invalid_token_loader
         def invalid_token_callback(error):
@@ -66,10 +71,15 @@ class JWTManagerWrapper:
             This function is called when an invalid token is received. It should
             return a response to be sent to the client.
             """
-            return make_response(jsonify({
+            response =  make_response(jsonify({
                 'message': 'Signature verification failed',
                 'error': 'invalid_token'
                 }), 411)
+            response.headers['Content-Type'] = 'application/json'
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            return response
 
         @self.jwt.unauthorized_loader
         def unauthorized_loader(error):

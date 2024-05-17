@@ -23,6 +23,16 @@ export default defineConfig({
     host: 'localhost'
   },
   build: {
-    chunkSizeWarningLimit: 5000
+    chunkSizeWarningLimit: 5000,
+    outDir: 'dist',
+    assetsDir: 'assets',
+    manifest: true, 
+    rollupOptions: {
+      output: {
+        // Use content hashing for filenames
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash][extname]'
+      }
+  },
   }
 });

@@ -34,13 +34,24 @@ class Responses:
         """
         This function returns a 200 OK response.
         """
-        return make_response(jsonify(data), 200)
+        response = make_response(jsonify(data), 200)
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return response
+
 
     def created(self, data):
         """
         This function returns a 201 Created response.
         """
-        return make_response(jsonify(data), 201)
+        response = make_response(jsonify(data), 201)
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     def no_content(self):
         """
