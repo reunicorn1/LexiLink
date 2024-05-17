@@ -4,9 +4,11 @@ import axios from "axios";
 import { InfoOutlineIcon } from "@chakra-ui/icons";
 import Success from "./Success";
 import { API_URL } from '../utils/config';
-  const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) => {
 
-    
+
+const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) => {
+
+    const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
     const { isOpen, onOpen, onClose } = useDisclosure();
     // I wanted to delete this one, bc it felt very similar to onChange, but the name is just inaccessible in radio
@@ -37,6 +39,7 @@ import { API_URL } from '../utils/config';
                     // send the data to the end point 
                     (async () => {
                         try {
+                            //console.log(input);
                             const result = await axios.post(`${API_URL}/auth/signup`, input);
                             handleOtherElementClick();
                             // If email is not used, emailValid should remain true
@@ -104,10 +107,12 @@ import { API_URL } from '../utils/config';
                 </GridItem >
                 {!isSmallScreen && <Divider ml="20px" orientation='vertical' h="500px"></Divider>}
                 <GridItem colSpan={{base: 3, lg: 1}}>
-                    <FormControl>
-                        <FormLabel mt={{md:"70px", xl:"100px"}} >First Language</FormLabel>
-                        <Input isInvalid={Boolean(formError.first_language)} mb={3}placeholder="Enter your first language" name="first_language" value={input.first_language} onChange={onChange}></Input>
-                    </FormControl>
+                    <FormLabel mt={3}>First Language</FormLabel>
+                    <Select isInvalid={Boolean(formError.first_language)}  mb={7} placeholder="Enter your first language" name="first_language" value={input.first_language} onChange={onChange}>
+                        {languages.map((item, index) => (
+                            <option key={index} value={item}>{item}</option>
+                        ))}
+                    </Select>
                     <FormLabel>Nationality</FormLabel>
                     <Select isInvalid={Boolean(formError.nationality)} mb={7} placeholder='Select your nationality' name="nationality" value={input.nationality} onChange={onChange}>
                          {countries?.map((item, index) => (                      

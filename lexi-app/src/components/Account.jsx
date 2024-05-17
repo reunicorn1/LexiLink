@@ -24,14 +24,14 @@ import { API_URL } from '../utils/config';
 export default function Account() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
-    const { authToken, refreshToken, logout } = useAuth();
+    const { authToken, refreshToken, logout, role } = useAuth();
     const navigate = useNavigate();
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
     const deleteAccount = (async () => {
             await executor(
               (token) => axios.delete(
-                 `${API_URL}/student/profile`,
+                 `${API_URL}/${role}/profile`,
                  {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token }},
     ),
               (data) => {

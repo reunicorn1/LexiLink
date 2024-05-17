@@ -105,7 +105,7 @@ export default function Schedule() {
         } else {
             (async () => {
                 await executor(
-                    (token) => axios.request({ url: `${API_URL}/sessions/${update_id}`, headers: { Authorization: "Bearer " + token }, method: "PUT", data: {...state, status: "Pending", session_id: update_id} }),
+                    (token) => axios.request({ url: `${API_URL}/sessions/${update_id}`, headers: { Authorization: "Bearer " + token }, method: "PUT", data: {date: state.date, time: state.time, status: "Pending"}}),
                     (_) => {
                         onOpen();
                     },

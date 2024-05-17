@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
 import Video from "../components/Video"
+import Reviews from "../components/Reviews"
 
 
 export default function Home () {
@@ -32,7 +33,8 @@ export default function Home () {
             <Banner />
             <NewsBanner />
             <SecondBanner />
-            {/* <Video /> */}
+            <Video />
+            <Reviews />
             <FinalBanner />
             <Footer></Footer>
         </div>

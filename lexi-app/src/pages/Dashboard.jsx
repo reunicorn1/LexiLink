@@ -11,7 +11,8 @@ import {
   StatGroup,
   Spacer,
   Avatar,
-  useBreakpointValue
+  useBreakpointValue,
+  Button
 } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
 import { useAuth } from '../AuthContext';
@@ -19,14 +20,16 @@ import { Link, useNavigate } from "react-router-dom";
 import UpcomingClass from "../components/UpcomingClass";
 import Favorites from "../components/Favorites";
 import axios from "axios";
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
 
 export default function Dashboard() {
+  const executor = useAxiosPrivate();
   const [stats, setStats] = useState({ minutes: 0, lessons: 0 });
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { user, authToken, refresh, role } = useAuth();
-  const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+  //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
   const navigate = useNavigate();
 
@@ -47,12 +50,26 @@ export default function Dashboard() {
     setStats(newStats);
   }
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   const session_with_refresh = async () => {
+  //     await executor(
+  //       (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
+  //       (result) => followup(result)
+  //     )
+  //   };
+  //   session_with_refresh();
+  // }, [])
+
+    useEffect(() => {
+
     const session_with_refresh = async () => {
-      await executor(
-        (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
-        (result) => followup(result)
-      )
+      try {
+        const response = await executor.get('/sessions');
+        followup(response);
+      } catch (err) {
+        console.log("refreshToken is probably expired");
+        console.log(err);
+      }
     };
     session_with_refresh();
   }, [])
@@ -101,6 +118,7 @@ export default function Dashboard() {
         </Box>}
         <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px"> {/* This is the box under the banner image */}
           <Box>
+            <Button colorScheme="blue" onClick={()=>refresh()}>refresh</Button>
             <UpcomingClass></UpcomingClass>
           </Box>
           <Favorites></Favorites>

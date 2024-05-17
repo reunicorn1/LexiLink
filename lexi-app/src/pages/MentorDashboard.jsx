@@ -49,7 +49,7 @@ export default function MentorDashboard () {
     const followup = async (result) => {
         const newStats = { profit: 0, minutes: 0, lessons: 0 }
         result.data.sessions.forEach(element => {
-          if (element.status === "Completed") {
+          if (element?.status === "Completed") {
             newStats.lessons++;
             newStats.minutes += Number(element.duration.substring(3, 5));
             newStats.profit += Number(user.price_per_hour);

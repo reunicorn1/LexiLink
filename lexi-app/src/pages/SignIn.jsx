@@ -1,6 +1,6 @@
 import { Box, Image, useBreakpointValue, Heading, Text, FormControl, FormLabel, Input, Button, Checkbox, Flex, Spacer, FormErrorMessage, useToast } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import { useState } from "react";
 import { useAuth } from '../AuthContext';
@@ -14,9 +14,43 @@ export default function SignIn () {
     const navigate = useNavigate();
     const toast = useToast();
 
-    const responseMessage = (response) => {
-        console.log(response);
-    };
+    // const responseMessage = (response) => {
+    //     console.log(response);
+    // };
+
+    const loging = useGoogleLogin({
+		onSuccess: async (response) => {
+			try {
+				const res = await axios.get(
+					"https://www.googleapis.com/oauth2/v3/userinfo",
+					{
+						headers: {
+							Authorization: `Bearer ${response.access_token}`,
+						},
+					}
+				);
+				handleGoogle(res);
+			} catch (err) {
+				console.log(err);
+			}
+		}
+	  });
+
+    const handleGoogle = (response) => {
+        (async ()=> {
+            try {
+                const result = await axios.post(`${API_URL}/auth/login`, {email: response.data.email, password: response.data.sub, user_type: "student"});
+                login(result.data.access_token, result.data.refresh_token);
+                setRole("student")
+                setTimeout(() => {
+                    navigate("/");
+                }, 1000);
+                handleToast()
+            } catch (error){ 
+                toastError();
+            }
+            })();
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.currentTarget;
@@ -24,18 +58,23 @@ export default function SignIn () {
         setFormError(false)
     }
 
-    const handleToast = async() => {
+    const handleToast = () => {
         // add a promise rejection handler
-        try {
-        await toast({
+        toast({
             title: "You've been logged in successfully.",
             status: 'success',
             duration: 3000,
             isClosable: true,
-          });
-          } catch (error) {
-            console.log(error);
-        }
+        });
+    }
+
+    const toastError = () => {
+        toast({
+            title: "This email isn't registered. Sign up",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+        });
     }
 
     const handleClick = () => {
@@ -60,47 +99,39 @@ export default function SignIn () {
      }
 
     return <>
-     <Box display="flex" bg="white" h="600px" m={{ base: "60px", xl: "100px" }} mt="10px" rounded="3xl" boxShadow='md'>
-     {!isSmallScreen && 
-            <Box pos="relative">
-                <Image src="/img/bad-school-1.png" alt="hands with text" boxSize='600px' objectFit="cover" roundedLeft="3xl"></Image>
-                <Box pos="absolute" width="120px" height="auto" top="10%" left={{ base: '28%', lg: '23%' }} transform="translate(-80%, -50%)">
-                <Link to="/"><Image src="/img/logo-2.png" /></Link>
+        <Box display="flex"  justifyContent="center">
+            <Box display="flex" bg="white" rounded="3xl" boxShadow="xl" maxW="1100px" m="30px" alignItems="center">
+                {!isSmallScreen && <Image src="/img/bad-school-1.png" h="100%" w="50%" roundedLeft="3xl" objectFit="cover"/>}
+                <Box w={{lg:"50%"}}>
+                    <Box m="50px" mb="0px">
+                        <Link to="/"><Image src="/img/logo.png" mt="40px" mb="20px" width="100px" height="auto"/></Link>
+                        <Text mb={2}>Welcome back! </Text>
+                        <Heading mb={2}>Log in to your Account</Heading>
+                        <Text>New User? &nbsp;
+                            <Link to="/sign-up"><span className="underline"><b>Sign Up.</b></span></Link>
+                        </Text>
+                    </Box> 
+                    <Box m="50px" mt="0px" >
+                    <Button mt="18px" mb={4} bg="#FFFFFF" border="1px" borderColor="#747775" fontFamily="Roboto" fontWeight={500} rounded="full" color="#1F1F1F" w="100%" onClick={() => loging()}>
+                            <Image boxSize="22px" mr="10px" src= "/img/google.png"/>
+                            Sign in with Google
+                    </Button>
+                        <FormControl mb={3} isInvalid={formError}>
+                            <FormLabel>Email Address</FormLabel>
+                            <Input placeholder='Enter your email address' w="100%" name="email" value={input.email} onChange={handleInputChange}/>
+                        </FormControl>
+                        <FormControl isInvalid={formError}>
+                            <FormLabel>Password</FormLabel>
+                            <Input type="password" placeholder='Enter your password' w="100%" name="password" value={input.password} onChange={handleInputChange}/>
+                            <FormErrorMessage>{formError}</FormErrorMessage>
+                        </FormControl> 
+                        <Button colorScheme="facebook" type="submit" h="40px" w="100%" mt={6} onClick={handleClick}>Sign In</Button>
+                        <Flex w="100%" mt={4} justifyContent="center">
+                            <Text mb="30px"><Link to="/">Forgot Password?</Link></Text>
+                        </Flex>
+                    </Box>
                 </Box>
             </Box>
-        }
-        <Box w={{ base: "100%", md: "70%", lg:"50%" }}>
-        {isSmallScreen && 
-            <Flex m="50px" mb="0px" justify="flex">
-                <Link to="/"><Image src="/img/logo.png" width="100px" height="auto"/></Link>
-            </Flex>
-        }
-            <Box m="50px" mt={{base:"40px", lg: "70px"}} mb="0px">
-            <Text mb={2}>Welcome back! </Text>
-                <Heading mb={2}>Log in to your Account</Heading>
-                <Text>New User? &nbsp;
-                    <Link to="/sign-up"><span>Sign Up.</span></Link>
-                </Text>
-                <Box w="85%" mt="20px">
-                    <GoogleLogin buttonText="Sign in with Google" onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} />
-                </Box>  
-            </Box>
-            <form onSubmit={(e) => e.preventDefault()}> {}
-                <FormControl mb={3} isInvalid={formError}>
-                    <FormLabel>Email Address</FormLabel>
-                    <Input placeholder='Enter your email address' w="85%" name="email" value={input.email} onChange={handleInputChange}/>
-                    </FormControl>
-                    <FormControl isInvalid={formError}>
-                        <FormLabel>Password</FormLabel>
-                        <Input type="password" placeholder='Enter your password' w="85%" name="password" value={input.password} onChange={handleInputChange}/>
-                        <FormErrorMessage>{formError}</FormErrorMessage>
-                    </FormControl> 
-                    <Button colorScheme="facebook" type="submit" h="40px" w="85%" mt={6} onClick={handleClick}>Sign In</Button>
-                    <Flex w="85%" mt={4} justifyContent="center">
-                        <Text><Link to="/">Forgot Password?</Link></Text>
-                    </Flex>
-                </form>
         </Box>
-     </Box>
     </>
 }

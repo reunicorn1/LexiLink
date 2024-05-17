@@ -11,6 +11,10 @@ form {
     margin-top: 20px;
 }
 
+.names {
+  color: #dd4e40;
+}
+
 .underline {
   text-decoration: underline;
 }
@@ -26,6 +30,7 @@ form {
   width: 50px;
   height: auto;
 }
+
 
 .image-container:hover img {
   animation: playGif forwards;

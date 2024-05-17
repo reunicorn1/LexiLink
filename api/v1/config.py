@@ -61,4 +61,4 @@ class TestingConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = storage.get_uri()
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=1)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=2)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=5)

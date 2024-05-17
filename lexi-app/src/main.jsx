@@ -9,13 +9,14 @@ import "@fontsource/work-sans";
 import "@fontsource/montserrat";
 import "@fontsource-variable/montserrat"
 
+const client_id= import.meta.env.VITE_CLIENT_ID
 
 
 const colors = {
   brand: {
     900: '#f2e8dd',
     800: '#083d77',
-    700: '#dd4e40',
+    700:'#dd4e40', 
     600: '#74b0ab',
     200: '#A9A9A9',
     100: '#191919'
@@ -31,7 +32,7 @@ const theme = extendTheme({ colors })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ChakraProvider theme={theme}>
-    <GoogleOAuthProvider clientId="76995164858-097b9m0l06ct4h8342cdb70srium1abr.apps.googleusercontent.com"> 
+    <GoogleOAuthProvider clientId={client_id}> 
       <React.StrictMode>
         <BrowserRouter>
           <App />
