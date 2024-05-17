@@ -61,16 +61,15 @@ export default function Dashboard() {
   // }, [])
 
     useEffect(() => {
-
-    const session_with_refresh = async () => {
-      try {
-        const response = await executor.get('/sessions');
-        followup(response);
-      } catch (err) {
-        console.log("refreshToken is probably expired");
-        console.log(err);
-      }
-    };
+      const session_with_refresh = async () => {
+        try {
+          const response = await executor.get('/sessions');
+          followup(response);
+        } catch (err) {
+          //console.log("refreshToken is probably expired");
+          console.log(err);
+        }
+      };
     session_with_refresh();
   }, [])
 

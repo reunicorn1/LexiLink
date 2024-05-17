@@ -69,15 +69,17 @@ export const AuthProvider = ({ children }) => {
     // it's still a 410 but someimes the server doesn't print it in logs but the error recieved while
     // printing is indeed 410 
     // Refresh doesn't work if disable cache toggle isn't on. even normal retrieval of data using access token doesn't work if it's not on
+    console.log("eerrrr refreshinggggg!!!")
     try{
       const response = await axios.get(`${API_URL}/auth/refresh`, {
         headers: {Authorization: "Bearer " + refreshToken}, 
         withcredentials: true
        });
+
        setAuthToken(prev => {
-         console.log(prev);
-         console.log(response.data.access_token);
-         return response.data.access_token
+        console.log(prev);
+        console.log(response.data.access_token);
+        return response.data.access_token
        });
        return response.data.access_token;
     } catch(err) {
@@ -85,7 +87,6 @@ export const AuthProvider = ({ children }) => {
       // so the response should be kicking the user out of the session
       console.log(err);
     }
-    
   }
 
   return (
