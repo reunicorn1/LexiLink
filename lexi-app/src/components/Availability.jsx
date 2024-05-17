@@ -62,7 +62,6 @@ export default function Availability(){
 
             newtime[1] = newtime[1].toString().padStart(2, '0')
 
-            console.log(newtime.join(':'))
             newtime = newtime.join(':')
 
         return newtime
@@ -112,7 +111,6 @@ export default function Availability(){
     };
 
     const followup = (result) => {
-        console.log(result.data.profile.availability);
         const availability = {...result.data.profile.availability};
 
         setUser(result.data.profile);

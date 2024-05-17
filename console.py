@@ -107,6 +107,7 @@ class LEXILINKCommand(cmd.Cmd):
         """
 
         line = line.split(" ")
+        print(line)
 
         if not line[0]:
             print("** class name missing **")

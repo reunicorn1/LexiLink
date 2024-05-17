@@ -33,7 +33,6 @@ export default function Schedule() {
         setSelectTime(null);
         if (selectDate !== now) {
             console.log(selectDate, dayjs())
-            console.log("heyy")
             setAppear(true);
         }
     }, [selectDate])

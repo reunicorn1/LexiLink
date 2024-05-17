@@ -47,7 +47,6 @@ const RoomComponent = ({ sessionid }) => {
     uid: localUid,
     channel: channel
   };
-	console.log('config', config);
   let localTracks = {
     audioTrack: null,
     videoTrack: null
@@ -74,10 +73,6 @@ const RoomComponent = ({ sessionid }) => {
     client.on('user-left', handleUserLeft);
     client.on('volume-indicator', handleVolumeIndicator);
     client.enableAudioVolumeIndicator();
-    console.log('joinStreams called');
-    console.log('config token', config.token);
-    console.log('config uid', config.uid);
-    console.log('config channel', config.channel);
     [config.uid, localTracks.audioTrack, localTracks.videoTrack] = await Promise.all([
       client.join(config.appid, config.channel, config.token || null, config.uid || null),
       AgoraRTC.createMicrophoneAudioTrack(
@@ -107,12 +102,10 @@ const RoomComponent = ({ sessionid }) => {
         // }
       )
     ]).catch(err => {
-      console.log('errortest');
       console.error(err);
     });
     localUid = config.uid;
 
-    console.log('localTracks', localTracks);
     try {
       if (localTracks.audioTrack) {
 
@@ -153,22 +146,16 @@ const RoomComponent = ({ sessionid }) => {
     else {
       console.error('Local video track not found.');
     }
-    console.log('publishing');
     await client.publish([localTracks.audioTrack, localTracks.videoTrack]);
   };
 
 
 
   const handleJoinButtonClick = async () => {
-    console.log('handleJoinButtonClick called');
     token, localUid, channel = await getToken();
-	  console.log('token handleJoinButtonClick', token);
-	  console.log('localUid', localUid);
-	  console.log('channel', channel);
     config.token = token;
     config.uid = localUid;
     config.channel = channel;
-	console.log('Config HandleJoinButtonClick', config);
     // get user's name 
     // localUser = ;
     // if (!username) return;
@@ -182,13 +169,10 @@ const RoomComponent = ({ sessionid }) => {
 
   const handleMicClick = () => {
     const handleMicButtonClick = async () => {
-      console.log('handleMicButtonClick called');
-      console.log('localTracks', localTracks);
       if (!localTracks.audioTrack) return;
       if (!localTrackState.audioTrackMuted) {
         await localTracks.audioTrack.setMuted(true);
         localTrackState.audioTrackMuted = true;
-        console.log('localUid', localUid)
         document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-off.svg';
         document.getElementById('mic-btn').style.backgroundColor = 'red';
       } else {
@@ -206,7 +190,6 @@ const RoomComponent = ({ sessionid }) => {
 
   const handleCameraButtonClick = async () => {
     // setcamera(!camera);
-    console.log('handleCameraButtonClick called');
     if (!localTrackState.videoTrackMuted) {
       await localTracks.videoTrack.setMuted(true);
       localTrackState.videoTrackMuted = true;
@@ -219,14 +202,12 @@ const RoomComponent = ({ sessionid }) => {
   };
 
   const handleLeaveButtonClick = async () => {
-    console.log('handleLeaveButtonClick called');
     document.getElementById('join-wrapper').style.display = 'none';
     document.getElementById('foot').style.display = 'block';
     document.getElementById('user-streams').style.display = 'none';
     document.getElementById('user-streams').innerHTML = '';
     // add class to user-streams
 
-    console.log('Disconnecting from channel');
     for (const trackName in localTracks) {
       let track = localTracks[trackName];
       if (track) {
@@ -237,7 +218,6 @@ const RoomComponent = ({ sessionid }) => {
       }
     }
     await client.leave();
-    console.log('Disconnected from channel');
     // remove class from user-streams
     document.getElementById('user-streams').classList.remove('small');
     document.getElementById('user-streams').classList.remove('video-player');
@@ -256,20 +236,13 @@ const RoomComponent = ({ sessionid }) => {
   };
 
   const handleUserJoined = async (user, mediaType) => {
-    console.log('handleUserJoined called');
-    console.log('user', user);
-    console.log('mediaType', mediaType);
-    console.log('remoteTracks', remoteTracks);
     remoteTracks[user.uid] = user;
-    console.log('number of users connected pre join: ', client.remoteUsers.length);
     if (client.remoteUsers.length > 1) {
       //  block user from joining
-      console.log('block user from joining');
       handleUserLeft(user);
       handleLeaveButtonClick();
       return;
     }
-    console.log('number of users connected: ', client.remoteUsers.length);
     await client.subscribe(user, mediaType);
 
     if (mediaType === 'video') {
@@ -278,15 +251,12 @@ const RoomComponent = ({ sessionid }) => {
         player.style.display = 'flex';
         player.insertAdjacentHTML('beforeend', playerHtml(user.uid));
         const userVideo = document.getElementById(`video-wrapper-${user.uid}`);
-        console.log('useid', user.uid)
         user.videoTrack.play(`stream-${user.uid}`);
         userVideo.classList.add('video-player');
-        console.log('applyuing class')
         if (localUid === config.uid) {
           const videoWrapper = document.getElementById(`video-wrapper-${localUid}`);
           if (videoWrapper) {
             videoWrapper.classList.add('small');
-            console.log('small class applied')
           } else {
             console.error(`Element with id video-wrapper-${config.uid} not found`);
           }

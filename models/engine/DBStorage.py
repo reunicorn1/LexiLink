@@ -80,7 +80,7 @@ class DBStorage:
         """
         res = {}
         objs = []
-        if type(cls) is str:
+        if isinstance(cls, str):
             cls = classes[cls]
         if cls:
             objs = self.__session.query(cls).all()
@@ -136,6 +136,8 @@ class DBStorage:
         """
         if cls is None or id is None:
             return None
+        if isinstance(cls, str):
+            cls = classes[cls]
         obj = self.__session.get(cls, id)
         if obj:
             return obj
@@ -159,7 +161,7 @@ class DBStorage:
         """
         if cls is None or not kwargs:
             return None
-        if type(cls) is str:
+        if isinstance(cls, str):
             cls = classes[cls]
         obj = self.__session.query(cls).filter_by(**kwargs).first()
         if obj:
@@ -172,7 +174,7 @@ class DBStorage:
         """
         if cls is None or not kwargs:
             return None
-        if type(cls) is str:
+        if isinstance(cls, str):
             cls = classes[cls]
 
         obj = cls(**kwargs)
@@ -188,7 +190,7 @@ class DBStorage:
         """
         if cls is None:
             return None
-        if type(cls) is str:
+        if isinstance(cls, str):
             cls = classes[cls]
         if not kwargs:
             query_result = (
@@ -213,7 +215,7 @@ class DBStorage:
         """
         if cls is None:
             return None
-        if type(cls) is str:
+        if isinstance(cls, str):
             cls = classes[cls]
         if not kwargs:
             query_result = (

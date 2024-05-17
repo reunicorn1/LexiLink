@@ -13,7 +13,7 @@ It includes the responses for the following:
 - 500 Internal Server Error
 """
 from flask import jsonify, make_response
-
+import logging
 
 class Responses:
     """
@@ -30,73 +30,84 @@ class Responses:
         internal_server_error(error): This function returns a 500 Internal Server Error response.
     """
 
+    @staticmethod
+    def response_headers(response):
+        """
+        This function sets the response headers.
+        """
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        logging.info("Response is: %s", response)
+        return response
+
     def ok(self, data):
         """
         This function returns a 200 OK response.
         """
         response = make_response(jsonify(data), 200)
-        response.headers['Content-Type'] = 'application/json'
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-        return response
-
+        return self.response_headers(response)
 
     def created(self, data):
         """
         This function returns a 201 Created response.
         """
         response = make_response(jsonify(data), 201)
-        response.headers['Content-Type'] = 'application/json'
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
-        return response
-
+        return self.response_headers(response)
+    
     def no_content(self):
         """
         This function returns a 204 No Content response.
         """
-        return make_response('', 204)
+        response = make_response('', 204)
+        return self.response_headers(response)
 
     def bad_request(self, error):
         """
         This function returns a 400 Bad Request response.
         """
-        return make_response(jsonify({'error': error}), 400)
+        response = make_response(jsonify({'error': error}), 400)
+        return self.response_headers(response)
 
     def unauthorized(self, error):
         """
         This function returns a 401 Unauthorized response.
         """
-        return make_response(jsonify({'error': error}), 401)
+        response = make_response(jsonify({'error': error}), 401)
+        return self.response_headers(response)
 
     def invalid_data(self, error):
         """
         This function returns a 402 Invalid Data response.
         """
-        return make_response(jsonify({'error': error}), 402)
+        response = make_response(jsonify({'error': error}), 402)
+        return self.response_headers(response)
 
     def forbidden(self, error):
         """
         This function returns a 403 Forbidden response.
         """
-        return make_response(jsonify({'error': error}), 403)
+        response = make_response(jsonify({'error': error}), 403)
+        return self.response_headers(response)
 
     def not_found(self, error):
         """
         This function returns a 404 Not Found response.
         """
-        return make_response(jsonify({'error': error}), 404)
+        response = make_response(jsonify({'error': error}), 404)
+        return self.response_headers(response)
 
     def conflict(self, error):
         """
         This function returns a 409 Conflict response.
         """
-        return make_response(jsonify({'error': error}), 409)
+        response = make_response(jsonify({'error': error}), 409)
+        return self.response_headers(response)
 
     def internal_server_error(self, error):
         """
         This function returns a 500 Internal Server Error response.
         """
-        return make_response(jsonify({'error': error}), 500)
+        response = make_response(jsonify({'error': error}), 500)
+        return self.response_headers(response)

@@ -3,6 +3,8 @@
 # Author: Mohamed Elfadil
 
 .PHONY: start stop
+backend:
+	tmux new-session -d -s lexi-app -n backend 'source venv/bin/activate && flask run'
 
 start:
 	tmux new-session -d -s lexi-app -n frontend 'cd lexi-app && npm run dev'

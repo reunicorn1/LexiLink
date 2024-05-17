@@ -29,7 +29,7 @@ from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.views.parsers import auth_parser
 from api.v1.views.responses import Responses
-from api.v1.extensions import load_user
+from api.v1.extensions import load_user, clean_data
 
 # Create a namespace object
 auth = Namespace('auth', description='Authentication')
@@ -101,7 +101,7 @@ def get_user_model(user_type):
 
 def invalid_user(user_type):
     """ Check user type validity """
-    return user_type not in ['student', 'mentor']
+    return not user_type or user_type not in ['student', 'mentor']
 
 @auth.route('/login', strict_slashes=False)
 class Login(Resource):
@@ -115,11 +115,12 @@ class Login(Resource):
     @auth.expect(login_model)
     def post(self):
         """ Perform user authentication and obtain JWT token """
-        data = request.get_json()
-        user_type = data.get('user_type')
-        if not data or invalid_user(user_type):
+        data = clean_data(request.get_json())
+        if not data:
             return respond.invalid_data('Invalid request data')
-
+        if invalid_user(data.get('user_type')):
+            return respond.invalid_data('Invalid user type')
+        user_type = data.pop('user_type')
         user = load_user(data.get('email'), user_type=user_type)
         if user and user.verify_password(data.get('password')):
             access_token = create_access_token(identity=user.username,
@@ -155,11 +156,10 @@ class Signup(Resource):
     @auth.expect(user_model)
     def post(self):
         """ Register a new user """
-        data = request.get_json()
-        user_type = data.get('user_type')
-        if not data or not user_type:
+        data = clean_data(request.get_json())
+        if not data:
             return respond.invalid_data('Invalid request data')
-
+        user_type = data.pop('user_type')
         if invalid_user(user_type):
             return respond.invalid_data('Invalid user type')
         model = get_user_model(user_type)
@@ -187,7 +187,7 @@ class Logout(Resource):
         if invalid_user(claims['user_type']):
             return respond.invalid_data('Invalid user type')
         if current_user:
-            refresh_token = request.get_json().get('refresh_token')
+            refresh_token = clean_data(request.get_json()).get('refresh_token')
             if not refresh_token:
                 return respond.unauthorized('User not logged in')
             logout_user()
@@ -238,7 +238,9 @@ class VerifyEmail(Resource):
     @auth.expect(verify_email_model)
     def post(self):
         """ Verify if email exists """
-        data = request.get_json()
+        data = clean_data(request.get_json())
+        if not data or invalid_user(data.get('user_type')):
+            return respond.invalid_data('Invalid request data')
         if not data.get('email') or not data.get('user_type'):
             return respond.invalid_data('Invalid request data')
         user = load_user(data.get('email'), data.get('user_type'))
@@ -257,8 +259,9 @@ class VerifyUsername(Resource):
     @auth.expect(verify_username_model)
     def post(self):
         """ Verify if username exists """
-        data = request.get_json()
-        if (not data.get('username')
+        data = clean_data(request.get_json())
+        if (not data
+                or not data.get('username')
                 or not data.get('user_type')
                 or invalid_user(data.get('user_type'))):
             return respond.invalid_data('Invalid request data')

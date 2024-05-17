@@ -12,7 +12,12 @@ def random_proficiency():
     return random.choice(["Beginner", "Intermediate", "Advanced"])
 
 def random_language():
-    return random.choice(["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
+    return random.choice(["English", "Mandarin Chinese", "Hindi",
+             "Spanish", "French", "Standard Arabic",
+             "Bengali", "Portuguese", "Russian", "Urdu",
+             "Indonesian", "Standard German", "Japanese",
+             "Nigerian Pidgin", "Egyptian Spoken Arabic",
+             "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"])
 
 def random_languages():
     languages = set()

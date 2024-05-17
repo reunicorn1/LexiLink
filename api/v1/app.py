@@ -10,6 +10,7 @@ from flask_cors import CORS
 from sqlalchemy import create_engine, MetaData
 from flask_restx import Api
 from flask_migrate import Migrate
+import logging
 from models import storage
 from api.v1.extensions import login_manager
 from api.v1.views.auth import auth
@@ -93,7 +94,16 @@ Returns:
     migration.init_app(app, db)
     cors.init_app(app, resources={r"/*": {"origins": "*"}})
     login_manager.init_app(app)
-
+    stream = logging.StreamHandler()
+    stream.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler('app.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    file_handler.mode = 'a'
+    app.logger.addHandler(stream)
+    app.logger.addHandler(file_handler)
+    app.logger.info('App started')
     jwt_wrapper = JWTManagerWrapper()
     jwt_wrapper.init_app(app)
 

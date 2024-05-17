@@ -20,7 +20,6 @@ export default function MenuDisplay({ children }) {
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
     const handleToast = async () => {
-        console.log("toast is here!!")
         // add a promise rejection handler
         try {
             toast({

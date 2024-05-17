@@ -39,7 +39,6 @@ export default function SignInMentor () {
             (async ()=> {
                 try {
                     const result = await axios.post(`${API_URL}/auth/login`, input);
-                    console.log(result.data);
                     login(result.data.access_token, result.data.refresh_token);
                     setRole("mentor")
                     setTimeout(() => {

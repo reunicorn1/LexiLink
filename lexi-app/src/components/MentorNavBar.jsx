@@ -119,7 +119,7 @@ export default function MentorNavBar() {
                   const result = await axios.get(`${API_URL}/student/${studentId}`);
                   return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.student.email];
               } catch (error) {
-                  console.log(`An error occured during retrival of ${studentId} info `, error);
+                  console.error(`An error occured during retrival of ${studentId} info `, error);
               }
           })();
       }

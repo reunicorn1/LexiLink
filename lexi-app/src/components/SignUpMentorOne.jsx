@@ -23,7 +23,7 @@ export default function SignUpMentorOne ({ input, formError, onChange, onClick }
                             <Link to="/mentor/sign-in"><span className="underline"><b>Log in.</b></span></Link>
                         </Text>
                         <Box w="90%" mt="20px">
-                            <GoogleLogin buttonText="Sign in with Google" onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} />
+                            <GoogleLogin buttonText="Sign in with Google" onSuccess={responseMessage} onError={()=>{console.error('Login Failed')}} />
                         </Box>
                     </Box> 
                     <Box m="50px" mt="20px">

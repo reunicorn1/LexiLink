@@ -43,7 +43,6 @@ export default function BrowsingSection({ filter, search, setSearch }) {
 
   const handleSearching = async () => {
     if (search) {
-      console.log("hi");
       try {
         let number = 1;
         let searchResult = [];
@@ -57,7 +56,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
         setMentors(searchResult);
         setIsClicked(searchResult[0])
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     }
   };
@@ -111,9 +110,8 @@ export default function BrowsingSection({ filter, search, setSearch }) {
         if (page === 1) {
           setIsClicked(result.data.mentors[0])
         }
-        console.log("this is filter ", filter);
       } catch (error) {
-        console.log("An error occured during retrival of mentors from the database: ", error);
+        console.error("An error occured during retrival of mentors from the database: ", error);
       }
     })
     allMentors();

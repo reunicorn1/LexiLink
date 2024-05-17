@@ -203,7 +203,7 @@ export default function UpcomingClass() {
                 const result = await axios.get(`${API_URL}/mentor/${mentorId}`);
                 return [`${result.data.mentor.first_name} ${result.data.mentor.last_name}`, result.data.mentor.profile_picture, result.data.mentor.type, result.data.mentor];
             } catch (error) {
-                console.log(`An error occured during retrival of ${mentorId} info `, error);
+                console.error(`An error occured during retrival of ${mentorId} info `, error);
             }
         })();
     }

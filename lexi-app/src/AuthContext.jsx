@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         console.log("refresh token");
         return (result.data.access_token);
       } catch(error) {
-        console.log(error.response.data);
+        console.error(error.response.data);
       }
     })();
   }
