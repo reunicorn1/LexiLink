@@ -1,8 +1,9 @@
 import { Box, Heading, Divider, Input, FormLabel, Textarea, Avatar, Spacer, RadioGroup, Radio, Stack, Flex, Button, Select, useToast, Tag, CloseButton, useBreakpointValue, InputRightElement, Spinner, InputGroup } from '@chakra-ui/react'
 import { useAuth } from '../AuthContext';
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { API_URL } from '../utils/config';
 import { uploadFile } from '@uploadcare/upload-client'
 
@@ -12,7 +13,8 @@ import { uploadFile } from '@uploadcare/upload-client'
 export default function ProfileInfo() {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { refresh, setUser, role } = useAuth();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+    const executor = useAxiosPrivate();
+    //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     const [input, setInput] = useState({});
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setloading] = useState(false);
@@ -60,12 +62,23 @@ export default function ProfileInfo() {
         setUser(result.data.profile);
     }
 
+    // const getProfile = (async () => {
+
+    //     await executor(
+    //         (token) => axios.get(`${API_URL}/${role}/profile`, { headers: { Authorization: "Bearer " + token } }),
+    //         (data) => followup(data)
+    //     );
+    // });
+
+
     const getProfile = (async () => {
-        await executor(
-            (token) => axios.get(`${API_URL}/${role}/profile`, { headers: { Authorization: "Bearer " + token } }),
-            (data) => followup(data)
-        );
-        refresh();
+        try {
+            const response = await executor.get(`/${role}/profile`);
+            followup(response);
+          } catch (err) {
+            //console.log("refreshToken is probably expired");
+            console.log(err);
+          }
     });
 
     useEffect(() => {

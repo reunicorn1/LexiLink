@@ -16,6 +16,7 @@ import MentorNavBar from "./components/MentorNavBar";
 import SignInMentor from "./pages/SignInMentor";
 import SignUpMentor from "./pages/SignUpMentor";
 import MentorDashboard from "./pages/MentorDashboard";
+import About from "./pages/About";
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
         <Route path="/mentor/profile" element={<Profile />}></Route>
         <Route path="/sign-in" element={<SignIn />}></Route>
         <Route path="/sign-up" element={<SignUp />}></Route>
+        <Route path="/about" element={<About />}></Route>
         <Route path="/browse" element={<Browser />}></Route>
         <Route path="/dashboard" element={<Dashboard />}></Route>
         <Route path="/profile" element={<Profile />}></Route>

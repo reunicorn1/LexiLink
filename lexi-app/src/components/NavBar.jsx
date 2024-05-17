@@ -8,32 +8,48 @@ import MenuDisplay from './Menu';
 import MenuButtonN from './MenuButton';
 import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 
 export default function NavBar() {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { authToken, refresh, setUser, user } = useAuth();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+    //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
 
     const followup = (result) => {
         setUser(result.data.profile);
     }
     // This is marked as unhandled promise
-    useEffect(() => {
-        if (authToken) {
-            const getProfile = async () => {
-                await executor(
-                    (token) => axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + token } }),
-                    (data) => {
-                        followup(data);
-                    })
-            };
-            getProfile();
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (authToken) {
+    //         const getProfile = async () => {
+    //             await executor(
+    //                 (token) => axios.get(`${API_URL}/student/profile`, { headers: { Authorization: "Bearer " + token } }),
+    //                 (data) => {
+    //                     followup(data);
+    //                 })
+    //         };
+    //         getProfile();
+    //     }
+    // }, []);
 
+    useEffect(() => {
+        if (authToken) { 
+            const getProfile = async () => {
+            try {
+                const response = await executor.get('/student/profile');
+                followup(response);
+            } catch (err) {
+                //console.log("refreshToken is probably expired");
+                console.log(err);
+            }
+        };
+        getProfile();
+    }
+    }, [])
 
     return (
         <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white" rounded="full" boxShadow='base'>

@@ -6,7 +6,7 @@ export default function Video() {
             <Image src="/img/video.png" maxW={{base: "80%", md: "40%"}} height="auto"></Image>
             <Spacer />
             <Box maxW="500px" m="50px">
-                <Heading mb={2}>Enhanced Learning Connectivity</Heading>
+                <Heading fontSize="4xl" mb={2}>Enhanced Learning Connectivity</Heading>
                 <Text>
                     Experience unparalleled connectivity with our integrated video conferencing feature, designed to revolutionize your learning journey. Our cutting-edge technology guarantees crystal-clear video and audio quality, ensuring every learning session is immersive and productive.
                 </Text>

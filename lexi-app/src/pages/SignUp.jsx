@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useToast } from "@chakra-ui/react";
 //import bcrypt from "bcryptjs-react";
 import SignUpStepOne from "../components/SignUpStepOne";
 import SignUpStepTwo from "../components/SignUpStepTwo";
@@ -9,9 +10,11 @@ import { API_URL } from '../utils/config';
 
 export default function SignUp () {
 
-    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student" })
+    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student", profile_picture: "" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:""});
+    const toast = useToast()
+
     let emailValid = true;
     
     const handleClick = () => {
@@ -47,6 +50,30 @@ export default function SignUp () {
           })();
       };
 
+      const handleToast = () => {
+        // add a promise rejection handler
+        toast({
+            title: `This email is already used`,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+        });
+    }
+
+    const handleGoogle = async (response) => {
+        try {
+          const result = await axios.post(`${API_URL}/auth/verify_email`, { email: response.data.email, user_type: "student" });
+          setInput({ ...input, first_name: response.data.given_name, last_name: response.data.family_name, email: response.data.email, password: response.data.sub, username: response.data.email.split('@')[0], profile_picture: response.data.picture})
+          handleNext();
+        } catch (error) {
+          if (error.response && error.response.status === 403) {
+            handleToast();
+          } else {
+            console.error("An error occurred:", error);
+          }
+        }
+      }
+
     const handleNext = () => {
         setStep(step + 1);
     };
@@ -67,7 +94,7 @@ export default function SignUp () {
     // After Api is implemented, check if the email is in the database after user clicks submit  --- DONE
 
     return <>
-            {step === 1 && <SignUpStepOne input={input} formError={formError} onChange={handleInputChange} onClick={handleClick}></SignUpStepOne>}
+            {step === 1 && <SignUpStepOne input={input} formError={formError} onChange={handleInputChange} onClick={handleClick} handleGoogle={handleGoogle}></SignUpStepOne>}
             {step == 2 && <SignUpStepTwo input={input} formError={formError} setFormError={setFormError} onChange={handleInputChange} setInput={setInput}></SignUpStepTwo>}
     </>
 }

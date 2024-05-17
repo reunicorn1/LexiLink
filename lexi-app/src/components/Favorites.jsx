@@ -3,22 +3,38 @@ import { useAuth } from '../AuthContext';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
+
 import { API_URL } from '../utils/config';
 
 export default function Favorites() {
+  const executor = useAxiosPrivate();
+
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { authToken, refresh } = useAuth();
   const [mentors, setMentors] = useState(null);
-  const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+  //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+
+  // const getMentors = async () => {
+  //     await executor(
+  //     (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
+  //     (data) => {
+  //       setMentors(data.data.mentors);
+  //     }
+  //   )
+  // }
+
 
   const getMentors = async () => {
-      await executor(
-      (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
-      (data) => {
-        setMentors(data.data.mentors);
+      try {
+        const response = await executor.get('/student/mentors/favorites/');
+        setMentors(response.data.mentors);
+      } catch (err) {
+          //console.log("refreshToken is probably expired");
+          console.log(err);
       }
-    )
   }
+  
 
   const handleDelete = (async (mentor) => {
       await executor(
