@@ -17,7 +17,7 @@ import {
 
     return (
         <>
-            <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
                 <ModalCloseButton />

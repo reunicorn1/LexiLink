@@ -1,8 +1,8 @@
 import { Box, Heading, Divider, FormLabel, Flex, Button, Select, useToast, Text, Input } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
-import { useWithRefresh } from '../utils/useWithRefresh';
-import { API_URL } from '../utils/config';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import dayjs from "dayjs";
+
 import utc from 'dayjs/plugin/utc';
 import { useAuth } from '../AuthContext';
 import axios from "axios";
@@ -10,8 +10,8 @@ import axios from "axios";
 export default function Availability(){
     const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const [input, setInput] = useState({});
+    const executor = useAxiosPrivate();
     const [daysSelected, setDaysSelected] = useState([]);
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     const { setUser, role } = useAuth();
     const checks = ["days", "startTime", "endTime"];
     const toast = useToast();
@@ -75,7 +75,7 @@ export default function Availability(){
             status: 'success',
             duration: 3000,
             isClosable: true,
-        })();
+        });
     }
 
 
@@ -90,13 +90,13 @@ export default function Availability(){
         // }
         if (checks.every(value => input.availability[value])) {
             (async () => {
-                await executor(
-                    (token) => axios.put(`${API_URL}/${role}/profile`, {...input, availability: {days: daysSelected, startTime: startTime, endTime: endTime}}, { headers: { Authorization: "Bearer " + token } }),
-                    (_) => {
-                        getProfile()
-                        handleToast();
-                    }
-                );
+                try {
+                    const response = await executor.put(`${role}/profile`, {...input, availability: {days: daysSelected, startTime: startTime, endTime: endTime}})
+                    getProfile()
+                    handleToast();
+                  } catch (err) {
+                    console.error(err);
+                  }
             })();
         } 
     }
@@ -132,10 +132,12 @@ export default function Availability(){
     }
 
     const getProfile = (async () => {
-        await executor(
-            (token) => axios.get(`${API_URL}/${role}/profile`, { headers: { Authorization: "Bearer " + token } }),
-            (data) => followup(data)
-        );
+        try {
+            const response = await executor.get(`/${role}/profile`)
+            followup(response)
+          } catch (err) {
+            console.error(err);
+          }
     });
 
     useEffect(()=>{

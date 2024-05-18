@@ -23,6 +23,7 @@ const useAxiosPrivate = () => {
             async (error) => {
                 const prevRequest = error?.config;
                 if (error?.response?.status === 410 && !prevRequest?.sent) {
+                    console.log("okay?")
                     prevRequest.sent = true;
                     const newAccessToken = await refresh();
                     // Since refresh failed, the value of the accesstokem is undefined
@@ -30,7 +31,7 @@ const useAxiosPrivate = () => {
                     prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                     return axios(prevRequest)
                 }
-                return Promise.reject(error);
+                return Promise.reject("this is error", error);
             }
         );
 

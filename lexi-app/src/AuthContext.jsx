@@ -1,11 +1,15 @@
 import axios from 'axios';
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { createAuthProvider } from 'react-token-auth';
+import { useNavigate } from 'react-router-dom';
 import { API_URL } from './utils/config';
+
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
+
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('authToken'));
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'));
   const [user, setUser] = useState({});
@@ -64,19 +68,33 @@ export const AuthProvider = ({ children }) => {
   //   })();
   // }
 
+  const followup = () => {
+    logout();
+    navigate('/')
+    handleToast();
+}
+
+
+const handleLogOut = async () => {
+    try {
+        const response = await axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: {Authorization: "Bearer " + refreshToken}});
+    } catch (err) {
+        console.error(err);
+    }
+}
+
   const refresh = async () => {
     // I'm getting 410 when the refresh token (not the access token) is expired
     // it's still a 410 but someimes the server doesn't print it in logs but the error recieved while
     // printing is indeed 410 
     // Refresh doesn't work if disable cache toggle isn't on. even normal retrieval of data using access token doesn't work if it's not on
-    console.log("eerrrr refreshinggggg!!!")
-    try {
+    console.log("hello?????")
+    try{
       const response = await axios.get(`${API_URL}/auth/refresh`, {
         headers: { Authorization: "Bearer " + refreshToken },
         withcredentials: true
-      });
-
-      setAuthToken(prev => {
+       });
+       setAuthToken(prev => {
         console.log(prev);
         console.log(response.data.access_token);
         return response.data.access_token
@@ -85,7 +103,14 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       // When refreshing the token fails, this means that the refresh token itself is expired
       // so the response should be kicking the user out of the session
-      console.log(err);
+      if (err.response.status == 410) {
+        logout();
+        handleLogOut();
+        navigate('/');
+      }
+      else {
+        console.log({ err })
+      }
     }
   }
 

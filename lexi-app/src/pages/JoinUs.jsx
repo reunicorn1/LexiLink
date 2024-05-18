@@ -2,9 +2,11 @@ import { Box, Heading, Text, Image, useBreakpointValue, Tag, Center, Button, Car
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from '../AuthContext';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import axios from "axios";
 
 export default function JoinUs () {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const { logout, role, refreshToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });
@@ -17,10 +19,12 @@ export default function JoinUs () {
       }
     
       const handleLogOut = async () => {
-            await executor(
-            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token } }),
-            (_) => afterlogout(),
-        )
+        try {
+            const response = await executor.delete(`/auth/logout`, {data: {refresh_token: refreshToken}});
+            afterlogout();
+        } catch (err) {
+            console.error(err);
+        }
       }
     
       useEffect(() => {

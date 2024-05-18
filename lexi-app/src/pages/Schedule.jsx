@@ -6,15 +6,14 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from '../AuthContext';
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import BookingSuccess from "../components/BookingSuccess";
-import { useWithRefresh } from '../utils/useWithRefresh';
-import { API_URL } from '../utils/config';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 
 
 export default function Schedule() {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const now = dayjs();
     const offset = dayjs().utcOffset();
@@ -24,7 +23,6 @@ export default function Schedule() {
     const { role } = useAuth();
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [appear, setAppear] = useState(false)
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     let location = useLocation();
     const mentor = location.state && location.state.mentor ? location.state.mentor : null;
     const update_id = location.state && location.state.update ? location.state.update : null;
@@ -99,21 +97,21 @@ export default function Schedule() {
         
         if (!update_id) {
             (async () => {
-                await executor(
-                    (token) => axios.request({ url: `${API_URL}/sessions/`, headers: { Authorization: "Bearer " + token }, method: "POST", data: state }),
-                    (_) => {
-                        onOpen();
-                    }
-                    )
+                try {
+                    const response = await executor.post(`/sessions/`, state);
+                    onOpen();
+                } catch (err) {
+                    console.error(err);
+                }
             })();
         } else {
             (async () => {
-                await executor(
-                    (token) => axios.request({ url: `${API_URL}/sessions/${update_id}`, headers: { Authorization: "Bearer " + token }, method: "PUT", data: {date: state.date, time: state.time, status: "Pending"}}),
-                    (_) => {
-                        onOpen();
-                    },
-                )
+                 try {
+                    const response = await executor.put(`/sessions/${update_id}`, {date: state.date, time: state.time, status: "Pending"});
+                    onOpen();
+                } catch (err) {
+                    console.error(err);
+                }
             })();
         }
     }

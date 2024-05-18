@@ -10,7 +10,6 @@ import {
     Heading,
 } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
 
 export default function Success({isOpen, link}) {
 
@@ -25,7 +24,7 @@ export default function Success({isOpen, link}) {
     // }, [isOpen])
 
     return <>
-        <Modal isOpen={isOpen}>
+        <Modal closeOnOverlayClick={false} isOpen={isOpen}>
         <ModalOverlay />
               <ModalContent>
                 <ModalBody textAlign="center">

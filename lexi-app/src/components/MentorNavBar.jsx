@@ -5,18 +5,21 @@ import axios from "axios";
 import { useEffect, useState } from 'react';
 import MenuDisplay from './Menu';
 import { BellIcon } from '@chakra-ui/icons';
-import MenuButtonN from './MenuButton';
 import { API_URL } from '../utils/config';
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
-import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
+
 
 
 
 function BellButton ( {children, pending, setUpdate, update}){
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+    const executor = useAxiosPrivate();
     const {reload, setReload} = useAuth();
-        const settingTime = (date, time) => {
+
+
+
+    const settingTime = (date, time) => {
         dayjs.extend(utc);
         const localtimezoneoffset = dayjs().utcOffset();
         // convert time to datetime and add local timezone offset
@@ -30,15 +33,13 @@ function BellButton ( {children, pending, setUpdate, update}){
     }
 
     const handleClick = async(value, id) => {
-        await executor(
-            (token) => axios.put(`${API_URL}/sessions/${id}`, {status: value}, { headers: { Authorization: "Bearer " + token } }),
-            (result) => { 
-                setUpdate(!update);
-                setReload(!reload);
-
-            }
-
-        );
+        try {
+            const response = await executor.put(`/sessions/${id}`, {status: value});
+            setUpdate(!update);
+            setReload(!reload);
+          } catch (err) {
+            console.error(err);
+          }
     }
 
     return <Menu>
@@ -72,7 +73,7 @@ function BellButton ( {children, pending, setUpdate, update}){
 
 export default function MentorNavBar() {
     const { authToken, setUser, role, user } = useAuth();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+    const executor = useAxiosPrivate();
     const [notificationCount, setNotificationCount] = useState(0);
     const [sessions, setSessions] = useState([]);
     const [update, setUpdate] = useState(true);
@@ -89,18 +90,21 @@ export default function MentorNavBar() {
     useEffect(() => {
         if (authToken) {
             const getProfile = async () => {
-                await executor(
-                    (token) => axios.get(`${API_URL}/mentor/profile`, { headers: { Authorization: "Bearer " + token } }),
-                    (result) => (setUser(result.data.profile))
-                )
+                try {
+                    const response = await executor.get(`/mentor/profile`);
+                    setUser(response.data.profile);
+                  } catch (err) {
+                    console.error(err);
+                  }
             };
 
             const session_with_refresh = async () => {
-                await executor(
-                  // This endpoint has pagination implemented, so only the first 10 results are retrieved currently
-                  (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
-                  (result) => (followup(result))
-                )
+                try {
+                    const response = await executor.get(`/sessions/`);
+                    followup(response);
+                } catch (err) {
+                    console.error(err);
+                }
               };
             getProfile();
             session_with_refresh();

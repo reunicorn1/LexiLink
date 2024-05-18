@@ -1,6 +1,6 @@
 import { Box, Image, useBreakpointValue, Heading, Text, FormControl, FormLabel, Input, Button, Flex, FormErrorMessage, useToast } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useAuth } from '../AuthContext';
@@ -41,6 +41,51 @@ export default function SignInMentor () {
           });
     }
 
+
+    const loging = useGoogleLogin({
+		onSuccess: async (response) => {
+			try {
+				const res = await axios.get(
+					"https://www.googleapis.com/oauth2/v3/userinfo",
+					{
+						headers: {
+							Authorization: `Bearer ${response.access_token}`,
+						},
+					}
+				);
+				handleGoogle(res);
+			} catch (err) {
+				console.log(err);
+			}
+		}
+	  });
+
+    const handleGoogle = (response) => {
+        (async ()=> {
+            try {
+                const result = await axios.post(`${API_URL}/auth/login`, {email: response.data.email, password: response.data.sub, user_type: "mentor"});
+                login(result.data.access_token, result.data.refresh_token);
+                setRole("mentor")
+                setTimeout(() => {
+                    navigate("/mentor/dashboard");
+                }, 1000);
+                handleToast()
+            } catch (error){ 
+                toastError();
+            }
+            })();
+    }
+
+    const toastError = () => {
+        toast({
+            title: "This email isn't registered. Sign up",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+        });
+    }
+
+
     const handleClick = () => {
         if (Object.values(input).every(value => value)) {
             (async ()=> {
@@ -72,11 +117,12 @@ export default function SignInMentor () {
                         <Text>New User? &nbsp;
                             <Link to="/mentor/sign-up"><span className="underline"><b>Sign Up.</b></span></Link>
                         </Text>
-                        <Box w="85%" mt="20px">
-                            <GoogleLogin buttonText="Sign in with Google" onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} />
-                        </Box>
+                        <Button mt="20px" mb={4} bg="#FFFFFF" border="1px" borderColor="#747775" fontFamily="Roboto" fontWeight={500} rounded="full" color="#1F1F1F" w="90%" onClick={() => loging()}>
+                            <Image boxSize="22px" mr="10px" src= "/img/google.png"/>
+                            Sign in with Google
+                        </Button>
                     </Box> 
-                    <Box m="50px" mt="20px">
+                    <Box m="50px" mt="0px">
                     <FormControl mb={3} isInvalid={formError}>
                         <FormLabel>Email Address</FormLabel>
                         <Input placeholder='Enter your email address' w="90%" name="email" value={input.email} onChange={handleInputChange}/>
@@ -87,7 +133,7 @@ export default function SignInMentor () {
                             <FormErrorMessage>{formError}</FormErrorMessage>
                         </FormControl> 
                         <Button colorScheme="facebook" type="submit" h="40px" w="90%" mt={6} onClick={handleClick}>Sign In</Button>
-                        <Flex w="85%" mt={4} justifyContent="center">
+                        <Flex w="90%" mt={4} justifyContent="center">
                             <Text><Link to="/">Forgot Password?</Link></Text>
                         </Flex>
                     </Box>

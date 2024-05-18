@@ -15,33 +15,31 @@ import {
 import { useRef } from "react";
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import axios from "axios";
-import { useWithRefresh } from '../utils/useWithRefresh';
-import { API_URL } from '../utils/config';
+
 
 
 
 export default function Account() {
+    const executor = useAxiosPrivate();
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
     const { authToken, refreshToken, logout, role } = useAuth();
     const navigate = useNavigate();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+    //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
     const deleteAccount = (async () => {
-            await executor(
-              (token) => axios.delete(
-                 `${API_URL}/${role}/profile`,
-                 {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token }},
-    ),
-              (data) => {
-                console.log("I deleted the user");
-                onClose();
-                logout();
-                navigate('/');
-              }
-            );
-    });
+      try {
+        const response = await executor.delete(`/${role}/profile`);
+        console.log("I deleted the user");
+        onClose();
+        logout();
+        navigate('/');
+      } catch (err) {
+        console.error(err);
+      }
+    })
 
     return <Box  m="30px" mt="0px">
             <Heading fontSize="xl" mb={4}>Delete account</Heading>
@@ -50,10 +48,10 @@ export default function Account() {
             <Button mt={2} colorScheme='red' variant='outline' onClick={onOpen}>Delete your account</Button>
 
             <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+              isOpen={isOpen}
+              leastDestructiveRef={cancelRef}
+              onClose={onClose}
+            >
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>

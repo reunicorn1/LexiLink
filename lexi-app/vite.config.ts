@@ -20,7 +20,8 @@ const cacheControlMiddleware = () => {
 export default defineConfig({
   plugins: [react(), cacheControlMiddleware()],
   server: {
-    host: 'localhost'
+    host: 'localhost',
+    port: 3001
   },
   build: {
     chunkSizeWarningLimit: 5000,

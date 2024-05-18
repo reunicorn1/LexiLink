@@ -32,7 +32,7 @@ import utc from 'dayjs/plugin/utc';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useNavigate } from 'react-router-dom';
-import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { API_URL } from '../utils/config';
 import AllSessions from './AllSessions';
 
@@ -163,9 +163,9 @@ function Reschedule({isOpen, onClose, session}) {
 
 
 export default function UpcomingClass() {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const [sessions, setSessions] = useState();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isOpen: isOpenRes, onOpen: onOpenRes, onClose: onCloseRes } = useDisclosure();
     const [clickedRow, setClickedRow] = useState(null);
@@ -181,10 +181,12 @@ export default function UpcomingClass() {
 
     useEffect(() => {
         const gettingSessions = async () => {
-            await executor(
-                (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
-                (result) => followup(result)
-            );
+            try {
+                const response = await executor.get(`/sessions/`);
+                followup(response);
+            } catch (err) {
+                console.error(err);
+            }
         }
         gettingSessions();
     }, [])

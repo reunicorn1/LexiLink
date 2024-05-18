@@ -11,7 +11,6 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room"
 import Schedule from "./pages/Schedule";
-import Payment from "./pages/Payment";
 import MentorNavBar from "./components/MentorNavBar";
 import SignInMentor from "./pages/SignInMentor";
 import SignUpMentor from "./pages/SignUpMentor";
