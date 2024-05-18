@@ -102,13 +102,12 @@ export default function ProfileInfo() {
     };
 
     const handleToast = () => {
-
         toast({
             title: "Your profile has been updated successfully!",
             status: 'success',
             duration: 3000,
             isClosable: true,
-        })();
+        });
     }
 
     const handleClick = () => {
@@ -118,14 +117,14 @@ export default function ProfileInfo() {
             }
         }
         (async () => {
-            await executor(
-                (token) => axios.put(`${API_URL}/${role}/profile`, input, { headers: { Authorization: "Bearer " + token } }),
-                (_) => {
-                    getProfile()
-                    handleToast();
-                }
-
-            );
+            try {
+                const response = await executor.put(`/${role}/profile`, input);
+                getProfile()
+                handleToast();
+              } catch (err) {
+                //console.log("refreshToken is probably expired");
+                console.log(err);
+              }
         })();
     }
 

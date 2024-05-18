@@ -14,12 +14,14 @@ import { Box, Heading, Text, Image, Tag, useBreakpointValue, Center, Button, Inp
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import { useState, useEffect } from 'react';
 import axios from "axios";
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { useAuth } from '../AuthContext';
 import BrowsingSection from '../components/BrowsingSection';
 import { useNavigate } from 'react-router-dom';
 
 
 export default function Browser () {
+    const executor = useAxiosPrivate();
     const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });
     const img = <Image m="20px"src="/img/faces-3.png" maxW={{base: "80%", lg: "40%"}} height="auto" ></Image>
@@ -39,10 +41,12 @@ export default function Browser () {
       }
     
       const handleLogOut = async () => {
-            await executor(
-            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token } }),
-            (_) => afterlogout(),
-        )
+        try {
+            const response = await executor.delete(`/auth/logout`, {data: {refresh_token: refreshToken}});
+            afterlogout();
+        } catch (err) {
+            console.error(err);
+        }
       }
     
       useEffect(() => {

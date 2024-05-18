@@ -1,13 +1,13 @@
 import { Box, Heading, Divider, Text, Flex, Button, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper, InputGroup, InputLeftAddon, useToast} from "@chakra-ui/react"
-import { useWithRefresh } from '../utils/useWithRefresh';
 import { useEffect, useState } from "react";
 import { API_URL } from '../utils/config';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import axios from "axios";
 
 export default function Payment() {
+    const executor = useAxiosPrivate();
     const [input, setInput] = useState({});
     const toast = useToast();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
     const handleToast = () => {
         // add a promise rejection handler
@@ -16,18 +16,18 @@ export default function Payment() {
             status: 'success',
             duration: 3000,
             isClosable: true,
-        })();
+        });
     }
 
     const handleClick = () => {
         (async () => {
-            await executor(
-                (token) => axios.put(`${API_URL}/mentor/profile`, input, { headers: { Authorization: "Bearer " + token } }),
-                (_) => {
-                    getProfile()
-                    handleToast();
-                }
-            );
+            try {
+                const response = await executor.put(`/mentor/profile`, input);
+                getProfile()
+                handleToast();
+            } catch (err) {
+                console.error(err);
+            }
         })();
     }
 
@@ -36,10 +36,12 @@ export default function Payment() {
     };
 
     const getProfile = (async () => {
-        await executor(
-            (token) => axios.get(`${API_URL}/mentor/profile`, { headers: { Authorization: "Bearer " + token } }),
-            (data) => setInput(data.data.profile)
-        );
+        try {
+            const response = await executor.get(`/mentor/profile`);
+            setInput(response.data.profile)
+        } catch (err) {
+            console.error(err);
+        }
     });
 
     useEffect(()=>{

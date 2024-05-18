@@ -21,7 +21,7 @@ import axios from "axios";
 import ChartBar from "../components/Chart";
 import WeeklyCalander from "../components/WeeklyCalander";
 import Students from "../components/Students";
-import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { useState, useEffect, createContext, useContext } from "react";
 import { API_URL } from '../utils/config';
 
@@ -30,12 +30,13 @@ const UpdateContext = createContext();
 export const useUpdate = () => useContext(UpdateContext);
 
 export default function MentorDashboard () {
-    const isLargeScreen = useBreakpointValue({ base: false, xl: true });
-    const { user, authToken, refresh, reload, role } = useAuth();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
-    const [stats, setStats] = useState({ profit: 0, minutes: 0, lessons: 0 });
-    const [sessions, setSessions] = useState([]);
-    const [update, setUpdate] = useState(false);
+  const isLargeScreen = useBreakpointValue({ base: false, xl: true });
+  const { user, authToken, refresh, reload, role } = useAuth();
+  const [stats, setStats] = useState({ profit: 0, minutes: 0, lessons: 0 });
+  const [sessions, setSessions] = useState([]);
+  const [update, setUpdate] = useState(false);
+  const executor = useAxiosPrivate();
+
 
 
     const navigate = useNavigate();
@@ -66,11 +67,12 @@ export default function MentorDashboard () {
 
     useEffect(() => {
         const session_with_refresh = async () => {
-          await executor(
-            // This endpoint has pagination implemented, so only the first 10 results are retrieved currently
-            (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
-            (result) => followup(result)
-          )
+          try {
+            const response = await executor.get(`/sessions/`);
+            followup(response);
+          } catch (err) {
+            console.error(err);
+          }
         };
         session_with_refresh();
       }, [update, reload])
@@ -80,12 +82,14 @@ export default function MentorDashboard () {
       // This function manipulates the content of the session object and adds information about each student linked to the session
       // Including three things: [1] Full name, [2] profile picture, [3] email
         return (async () => {
+          if (studentId) {
             try {
-                const result = await axios.get(`${API_URL}/student/${studentId}`);
-                return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.email];
+              const result = await axios.get(`${API_URL}/student/${studentId}`);
+              return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.email];
             } catch (error) {
-                console.log(`An error occured during retrival of ${studentId} info `, error);
+              console.log(`An error occured during retrival of ${studentId} info `, error);
             }
+          }
         })();
     }
 

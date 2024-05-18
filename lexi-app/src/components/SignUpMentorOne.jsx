@@ -1,16 +1,30 @@
 import { Box, Image, useBreakpointValue, Heading, Text, FormControl, FormLabel, Input, Button, Flex, FormErrorMessage, useToast } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from '@react-oauth/google';
+import { Link } from "react-router-dom";
+import { useGoogleLogin } from '@react-oauth/google';
 import axios from "axios";
-import { useState } from "react";
-import { useAuth } from '../AuthContext';
 
-export default function SignUpMentorOne ({ input, formError, onChange, onClick }) {
+
+export default function SignUpMentorOne ({ input, formError, onChange, onClick, handleGoogle }) {
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
 
-    const responseMessage = (response) => {
-        console.log(response);
-    };
+	const login = useGoogleLogin({
+		onSuccess: async (response) => {
+			try {
+				const res = await axios.get(
+					"https://www.googleapis.com/oauth2/v3/userinfo",
+					{
+						headers: {
+							Authorization: `Bearer ${response.access_token}`,
+						},
+					}
+				);
+				//console.log(res);
+				handleGoogle(res);
+			} catch (err) {
+				console.log(err);
+			}
+		}
+	  });
 
     return <>
         <Box display="flex"  justifyContent="center">
@@ -22,9 +36,10 @@ export default function SignUpMentorOne ({ input, formError, onChange, onClick }
                         <Text>Already have an account?&nbsp;
                             <Link to="/mentor/sign-in"><span className="underline"><b>Log in.</b></span></Link>
                         </Text>
-                        <Box w="90%" mt="20px">
-                            <GoogleLogin buttonText="Sign in with Google" onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} />
-                        </Box>
+                        <Button mt={4} bg="#FFFFFF" border="1px" borderColor="#747775" fontFamily="Roboto" fontWeight={500} rounded="full" color="#1F1F1F" w="90%" onClick={() => login()}>
+							<Image boxSize="22px" mr="10px" src= "/img/google.png"/>
+							Sign up with Google
+						</Button>
                     </Box> 
                     <Box m="50px" mt="20px">
                     <FormControl mb={3} isInvalid={Boolean(formError.email)}>

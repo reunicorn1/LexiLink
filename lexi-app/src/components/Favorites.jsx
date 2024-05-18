@@ -37,12 +37,12 @@ export default function Favorites() {
   
 
   const handleDelete = (async (mentor) => {
-      await executor(
-       (token) => axios.request({ url: `${API_URL}/student/mentors/favorites/`, headers: { Authorization: "Bearer " + token }, method: 'DELETE', data: { mentor: mentor } }),
-       (_) => {
-            getMentors();
-    }
-    )
+      try {
+        const response = await executor.delete('/student/mentors/favorites/', { data: { mentor: mentor } }  );
+        getMentors();
+      } catch (err) {
+        console.log(err);
+      }
   });
 
   useEffect(() => {

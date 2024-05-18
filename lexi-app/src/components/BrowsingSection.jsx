@@ -1,4 +1,4 @@
-import { Box, Card, CardBody, Heading, Avatar, Text, Button, Spacer, Divider, useBreakpointValue, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Badge, Tag, Flex, Spinner, useDisclosure } from '@chakra-ui/react'
+import { Box, Card, CardBody, Heading, Avatar, Text, Button, Spacer, Divider, useBreakpointValue, Modal, ModalOverlay, Badge, Tag, Flex, Spinner, useDisclosure, Menu, ModalContent, CloseButton } from '@chakra-ui/react'
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { Icon } from '@chakra-ui/react'
 import { useState, useEffect } from 'react';
@@ -6,10 +6,13 @@ import axios from "axios";
 import { useAuth } from '../AuthContext';
 import SignUpAlert from './SignUpAlert';
 import { useNavigate } from 'react-router-dom';
-import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { API_URL } from '../utils/config';
 
+
+
 export default function BrowsingSection({ filter, search, setSearch }) {
+  const executor = useAxiosPrivate();
   const { authToken, logout } = useAuth();
   const isLargeScreen = useBreakpointValue({ base: false, md: true });
   const [isClicked, setIsClicked] = useState(null);
@@ -20,10 +23,12 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   const [love, setLove] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure()
   const navigate = useNavigate();
-  const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
-
+  const { isOpen: isOpenRes, onOpen: onOpenRes, onClose: onCloseRes } = useDisclosure();
 
   const handleClick = (mentor) => {
+    if (!isLargeScreen) {
+      onOpenRes()
+    }
     allFavorites();
     setLove(favorites.some((favorite) => (favorite.id === mentor.id)) ? mentor.id : 0);
     setLoading(true);
@@ -68,15 +73,20 @@ export default function BrowsingSection({ filter, search, setSearch }) {
     } else {
       if (love === mentor.id) {
         setLove(0)
-        await executor(
-          (token) => axios.delete(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token }, data: { mentor: mentor.username } }),
-          (_) => console.log(`you removed the mentor: ${mentor.first_name} to your favorites`));
-
+        try {
+          const response = await executor.delete(`/student/mentors/favorites/`,  {data: { mentor: mentor.username }});
+          console.log(`you removed the mentor: ${mentor.first_name} to your favorites`)
+        } catch (err) {
+          console.error(err);
+        }
       } else {
         setLove(mentor.id);
-        await executor(
-          (token) => axios.post(`${API_URL}/student/mentors/favorites/`, { mentor: mentor.username }, { headers: { Authorization: "Bearer " + token } }),
-          (_) => console.log(`you added the mentor: ${mentor.first_name} to your favorites`));
+        try {
+          const response = await executor.post(`/student/mentors/favorites/`,  { mentor: mentor.username });
+          console.log(`you added the mentor: ${mentor.first_name} to your favorites`);
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
   }
@@ -131,9 +141,12 @@ export default function BrowsingSection({ filter, search, setSearch }) {
 
   const allFavorites = async () => {
     if (authToken) {
-      await executor(
-        (token) => axios.get(`${API_URL}/student/mentors/favorites/`, { headers: { Authorization: "Bearer " + token } }),
-        (data) => setFavorites(data.data.mentors))
+      try {
+        const response = await executor.get(`/student/mentors/favorites/`);
+        setFavorites(response.data.mentors)
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -145,6 +158,57 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   }, [mentors]) // Mentors is placed here as a dependency bc the setMentors function is asynchronous so I can't apply useEffect and expect to work in it's own, unless I controlled executation
   // And repeated it if necessary.
 
+  const clickableCard =  <> {loading ? (
+    <Card>
+      <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+        <Spinner size="xl" color="blue.500" />
+        <Box ml="2">Loading...</Box> {/* Additional text indicating loading */}
+      </Box>
+    </Card>
+  ) : (
+    <Card m="8px" >
+      <CardBody>
+        {!isLargeScreen && 
+          <Flex justify="flex-end">
+                    <CloseButton size='lg' onClick={onCloseRes}/>
+          </Flex>
+        }
+        <Box display="flex" justifyContent="center" textAlign="center">
+          <Box>
+            <Avatar m="20px" size="2xl" src={isClicked?.profile_picture}></Avatar>
+            <Heading fontSize="3xl">{isClicked?.first_name} {isClicked?.last_name}</Heading>
+            <Badge colorScheme={isClicked?.type === "Community" ? 'blue' : 'yellow'}>{isClicked?.type} Mentor</Badge>
+          </Box>
+        </Box>
+        <Box m="20px">
+          <Heading mb={2} fontSize="lg">Languages</Heading>
+          <Flex mb={4} gap={2} flexWrap="wrap">
+            <Tag m="2px">{isClicked?.first_language}</Tag>
+            {Array.isArray(isClicked?.other_languages) ? isClicked.other_languages.map((lang, index) => (
+              <Tag key={index} m="2px">{lang}</Tag>
+            )) : null}
+          </Flex>
+          <Heading mb={1} fontSize="lg">Bio</Heading>
+          <Text mb={4}>{isClicked?.bio}</Text>
+          <Heading mb={1} fontSize="lg">Expertise</Heading>
+          <Text mb={4}>{isClicked?.expertise}</Text>
+          <Divider orientation='horizontal' mb={6} />
+          {/* <iframe width="100%" height="315"
+                src={isClicked?.demo_video}>
+                </iframe> */}
+            <iframe width="100%" height="315" src={isClicked?.demo_video}
+            title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; 
+            picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>                  
+          <Box display="flex" alignItems="center" w="100%" mt={6}>
+            <Button colorScheme="teal" w="80%" onClick={() => handleBook(isClicked)}>Book Now</Button>
+            <Spacer></Spacer>
+            <Icon boxSize="30px" as={!love ? IoMdHeartEmpty : IoMdHeart} onClick={() => handleLike(isClicked)} style={{ cursor: "pointer" }} />
+          </Box>
+        </Box>
+      </CardBody>
+    </Card>
+  )}
+</>   
 
   return <Box display="flex" justifyContent="center">
     <Box maxW="1200px" display="flex" justifyContent="center" overflowY="auto">
@@ -177,55 +241,20 @@ export default function BrowsingSection({ filter, search, setSearch }) {
         {!search && <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>}
       </Box>
       {/* fixed section */}
-      {(isLargeScreen && mentors.length) &&
-
-        <Box m="20px" ml="10px" mt="0px" w="100%" height="150vh" overflowY="auto" top="0">
-          {loading ? (
-            <Card>
-              <Box display="flex" justifyContent="center" alignItems="center" height="200px">
-                <Spinner size="xl" color="blue.500" />
-                <Box ml="2">Loading...</Box> {/* Additional text indicating loading */}
-              </Box>
-            </Card>
-          ) : (
-            <Card m="8px" >
-              <CardBody>
-                <Box display="flex" justifyContent="center" textAlign="center">
-                  <Box>
-                    <Avatar m="20px" size="2xl" src={isClicked?.profile_picture}></Avatar>
-                    <Heading fontSize="3xl">{isClicked?.first_name} {isClicked?.last_name}</Heading>
-                    <Badge colorScheme={isClicked?.type === "Community" ? 'blue' : 'yellow'}>{isClicked?.type} Mentor</Badge>
-                  </Box>
-                </Box>
-                <Box m="20px">
-                  <Heading mb={2} fontSize="lg">Languages</Heading>
-                  <Flex mb={4} gap={2} flexWrap="wrap">
-                    <Tag m="2px">{isClicked?.first_language}</Tag>
-                    {Array.isArray(isClicked?.other_languages) ? isClicked.other_languages.map((lang, index) => (
-                      <Tag key={index} m="2px">{lang}</Tag>
-                    )) : null}
-                  </Flex>
-                  <Heading mb={1} fontSize="lg">Bio</Heading>
-                  <Text mb={4}>{isClicked?.bio}</Text>
-                  <Heading mb={1} fontSize="lg">Expertise</Heading>
-                  <Text mb={4}>{isClicked?.expertise}</Text>
-                  <Divider orientation='horizontal' mb={6} />
-                  {/* <iframe width="100%" height="315"
-                        src={isClicked?.demo_video}>
-                        </iframe> */}
-                    <iframe width="100%" height="315" src={isClicked?.demo_video}
-                    title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; 
-                    picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>                  
-                  <Box display="flex" alignItems="center" w="100%" mt={6}>
-                    <Button colorScheme="teal" w="80%" onClick={() => handleBook(isClicked)}>Book Now</Button>
-                    <Spacer></Spacer>
-                    <Icon boxSize="30px" as={!love ? IoMdHeartEmpty : IoMdHeart} onClick={() => handleLike(isClicked)} style={{ cursor: "pointer" }} />
-                  </Box>
-                </Box>
-              </CardBody>
-            </Card>
-          )}
-        </Box>
+      { mentors.length && <>
+        { isLargeScreen ?
+          <Box m="20px" ml="10px" mt="0px" w="100%" height="150vh" overflowY="auto" top="0">
+            {clickableCard}
+          </Box>
+          :
+          <Modal isOpen={isOpenRes} onClose={onCloseRes} size="full">
+            <ModalOverlay />
+            <ModalContent>
+              {clickableCard}
+            </ModalContent>
+          </Modal>
+        }
+        </>
       }
       <SignUpAlert isOpen={isOpen} onClose={onClose} />
     </Box>

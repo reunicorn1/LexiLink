@@ -10,14 +10,13 @@ import {
 import axios from 'axios';
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../AuthContext';
-import { useWithRefresh } from '../utils/useWithRefresh';
-import { API_URL } from '../utils/config';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 
 export default function MenuDisplay({ children }) {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const { authToken, refreshToken, refresh, logout, role } = useAuth();
     const toast = useToast();
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
     const handleToast = async () => {
         console.log("toast is here!!")
@@ -42,10 +41,12 @@ export default function MenuDisplay({ children }) {
 
 
     const handleLogOut = async () => {
-            await executor(
-            (token) => axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: { Authorization: "Bearer " + token } }),
-            (_) => followup()
-        )
+        try {
+            const response = await executor.delete(`/auth/logout`, {data: {refresh_token: refreshToken}});
+            followup()
+        } catch (err) {
+            console.error(err);
+        }
     }
 
 

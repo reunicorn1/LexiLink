@@ -117,7 +117,7 @@ export default function Dashboard() {
         </Box>}
         <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px"> {/* This is the box under the banner image */}
           <Box>
-            <Button colorScheme="blue" onClick={()=>refresh()}>refresh</Button>
+            {/* <Button colorScheme="blue" onClick={()=>refresh()}>refresh</Button> */}
             <UpcomingClass></UpcomingClass>
           </Box>
           <Favorites></Favorites>

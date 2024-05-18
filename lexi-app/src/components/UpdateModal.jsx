@@ -24,9 +24,8 @@ import {
 import { useRef, useState, useEffect } from 'react';
 import { useUpdate } from '../pages/MentorDashboard';
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import { useWithRefresh } from '../utils/useWithRefresh';
-import axios from 'axios';
-import { API_URL } from '../utils/config';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
+
 
 const statusColors = {
     "Pending": undefined,
@@ -59,7 +58,7 @@ function UpdateOptions ({status, setStatus, session}) {
 
 export default function UpdateModal({isOpen, onClose, session}) {  
     const toast = useToast()
-    const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+    const executor = useAxiosPrivate();
     const [status, setStatus] = useState();
     const {setUpdate, update} = useUpdate();
     
@@ -81,10 +80,12 @@ export default function UpdateModal({isOpen, onClose, session}) {
     }
 
     const handleSave = async() => {
-        await executor(
-            (token) => axios.put(`${API_URL}/sessions/${session.id}`, {status: status}, { headers: { Authorization: "Bearer " + token } }),
-            (result) => followup()
-        );
+      try {
+        const response = await executor.put(`/sessions/${session.id}`, {status: status});
+        followup()
+      } catch (err) {
+        console.error(err);
+      }
     }
   
     return (

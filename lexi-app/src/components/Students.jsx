@@ -1,24 +1,27 @@
 import { Box, Flex, Avatar, Text, Heading, IconButton, Spacer } from "@chakra-ui/react"
 import { EmailIcon } from '@chakra-ui/icons'
 import { useEffect, useState } from "react";
-import { useWithRefresh } from '../utils/useWithRefresh';
+import useAxiosPrivate from "../utils/useAxiosPrivate";
 import axios from 'axios';
 import { API_URL } from '../utils/config';
 
 export default function Students() {
-  const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
+  const executor = useAxiosPrivate();
   const [students, setStudents] = useState();
 
   useEffect(()=>{
     const gettingStudents = async () => {
-      await executor(
-          (token) => axios.get(`${API_URL}/mentor/students/`, { headers: { Authorization: "Bearer " + token } }),
-          (result) => setStudents(result.data.students)
-      );
+      try {
+        const response = await executor.get(`/mentor/students/`);
+        setStudents(response.data.students)
+      } catch (err) {
+        console.error(err);
+      }
     };
     gettingStudents();
   }, [])
 
+  
   return (
     <>
     {(Array.isArray(students) && students.length) && 

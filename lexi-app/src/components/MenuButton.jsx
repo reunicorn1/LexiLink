@@ -16,17 +16,17 @@ export default function MenuButtonN({isloggedIn}) {
 
   return <>
     <Menu>
-    <MenuButton
-      as={IconButton}
-      aria-label='Options'
-      icon={<HamburgerIcon />}
-      variant='outline'
-    />
+      <MenuButton
+        as={IconButton}
+        aria-label='Options'
+        icon={<HamburgerIcon />}
+        variant='outline'
+      />
       <MenuList>
       <MenuGroup title='Navigation'>
         <Link to='/'><MenuItem>Home</MenuItem></Link>
         <Link to='/browse'><MenuItem>Browse a Mentor</MenuItem></Link>
-        <Link to="/mentor/"><MenuItem>Join Us</MenuItem></Link>
+        <Link to="/mentor/"><MenuItem>Mentor Portal</MenuItem></Link>
       </MenuGroup>
       <MenuDivider />
       {!isloggedIn &&

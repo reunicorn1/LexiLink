@@ -11,7 +11,6 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room"
 import Schedule from "./pages/Schedule";
-import Payment from "./pages/Payment";
 import MentorNavBar from "./components/MentorNavBar";
 import SignInMentor from "./pages/SignInMentor";
 import SignUpMentor from "./pages/SignUpMentor";
@@ -43,7 +42,6 @@ function App() {
         <Route path="/dashboard" element={<Browser />}></Route>
         <Route path="/room/:sessionid" element={<Room />}></Route>
         <Route path="/booking/:username" element={<Schedule />}></Route>
-        <Route path="/payment" element={<Payment />}></Route>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </AuthProvider>
