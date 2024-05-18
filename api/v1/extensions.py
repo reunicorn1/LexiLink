@@ -23,5 +23,5 @@ def clean_data(data) -> dict | None:
     for key, value in data.items():
         if isinstance(value, str):
             data[key] = value.strip()
-    print(type(data))
+    print(data)
     return data

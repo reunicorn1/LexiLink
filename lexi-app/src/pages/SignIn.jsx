@@ -5,14 +5,22 @@ import axios from "axios";
 import { useState } from "react";
 import { useAuth } from '../AuthContext';
 import { API_URL } from '../utils/config';
+import { useEffect } from "react";
+
 
 export default function SignIn() {
-    const { login, setRole } = useAuth();
+    const { login, setRole, role } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "student" });
     const [formError, setFormError] = useState("");
     const navigate = useNavigate();
     const toast = useToast();
+
+    useEffect(() => {
+        if (role) {
+            navigate("/");
+        }
+    }, [])
 
     // const responseMessage = (response) => {
     //     console.log(response);

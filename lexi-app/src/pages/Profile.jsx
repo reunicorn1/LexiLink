@@ -8,12 +8,20 @@ import Email from '../components/Email';
 import { useAuth } from '../AuthContext';
 import Availability from '../components/Availability';
 import Payment from '../components/Payment';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Profile() {
     const { user, role } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const Smallestcreen = useBreakpointValue({ base: true, sm: false });
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!role) {
+            navigate("/");
+        }
+    }, [])
 
     return <Box display="flex" justifyContent="center" m="30px">
         <Box bg="white" rounded="xl" maxW="1000" width="100%">

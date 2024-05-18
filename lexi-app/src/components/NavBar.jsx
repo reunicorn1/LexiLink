@@ -49,7 +49,7 @@ export default function NavBar() {
         };
         getProfile();
     }
-    }, [])
+    }, [authToken])
 
     return (
         <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white" rounded="full" boxShadow='base'>

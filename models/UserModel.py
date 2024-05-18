@@ -2,7 +2,7 @@
 '''Module defines `UserModel` class'''
 import os
 from models.BaseModel import BaseModel, store
-from sqlalchemy import Column, String, Enum, JSON
+from sqlalchemy import Column, String, Enum, JSON, Boolean
 from flask_login import UserMixin
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -27,6 +27,7 @@ languages = ["English", "Mandarin Chinese", "Hindi",
         first_language=(Column(Enum(*languages), nullable=False), 'English'),
         other_languages=(Column(JSON, nullable=True, default=list([])), {}),
         profile_picture=(Column(String(128), nullable=True), ''),
+        is_verified=(Column(Boolean, nullable=False, default=False), False),
         )
 class UserModel(BaseModel, UserMixin):
     '''User class.

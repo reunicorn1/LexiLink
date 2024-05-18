@@ -54,7 +54,7 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
         time.forEach((element, index) => {
             const newtime = input.availability[element].split(':').map(Number);
             newtime[0] -= differenceInHours;
-            newtime[1] = newtime[1].toString().padStart(2, '0')
+            newtime[1] = newtime[1]?.toString().padStart(2, '0')
 
             time[index] = newtime.join(':')
         });
@@ -88,7 +88,7 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
                 <Text mb={4} >
                 At LexiLink, a video introduction is required to showcase your unique teaching style and personality to prospective students. This personalized video is your opportunity to make a lasting impression and demonstrate your passion for teaching.
                 </Text>
-                <Input mb={6} placeholder="Provide a link for your demo video" name="demo_video" value={input.demo_video} onChange={onChange}></Input>
+                <Input mb={6} placeholder="Provide a link for your demo video" name="demo_video" value={input?.demo_video} onChange={onChange}></Input>
                 <Divider />
                 <Heading mb={4} mt={4} fontSize="3xl"><Icon boxSize="23px" as={FaCalendarTimes}/>&nbsp;&nbsp;How's your availability for teaching?</Heading>
                 <Flex  mb={4} display="flex" gap={6} flexWrap="wrap" p="10px">
@@ -99,16 +99,16 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
                 <Divider />
                 <Heading mb={4} mt={4} fontSize="3xl"><Icon boxSize="23px" as={FaClock}/>&nbsp;&nbsp;What times you want to take sessions on?</Heading>
                 <Flex gap={10} p="10px">
-                    <Select placeholder='Pick your start time' name="startTime" value={input.availability.startTime} onChange={handleChange}> 
-                            {createTimes(undefined, (input.availability.endTime || undefined)).map((item, index) => (
+                    <Select placeholder='Pick your start time' name="startTime" value={input?.availability?.startTime} onChange={handleChange}> 
+                            {createTimes(undefined, (input?.availability?.endTime || undefined)).map((item, index) => (
                                 <option key={index} value={item}>
                                 {item}
                                 </option>
                             ))}
                     </Select>
                     {/* I want the second array to start after the start time */}
-                    <Select placeholder='Pick your end time' name="endTime" value={input.availability.endTime} onChange={handleChange}> 
-                            {createTimes((input.availability.startTime || undefined)).map((item, index) => (
+                    <Select placeholder='Pick your end time' name="endTime" value={input?.availability?.endTime} onChange={handleChange}> 
+                            {createTimes((input?.availability?.startTime || undefined)).map((item, index) => (
                                 <option key={index} value={item}>
                                 {item}
                                 </option>

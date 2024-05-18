@@ -2,7 +2,6 @@ import { Box, Heading, Divider, Input, FormLabel, Textarea, Avatar, Spacer, Radi
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useWithRefresh } from '../utils/useWithRefresh';
 import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { API_URL } from '../utils/config';
 import { uploadFile } from '@uploadcare/upload-client'

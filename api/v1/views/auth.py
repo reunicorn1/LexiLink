@@ -14,8 +14,10 @@ Manages user authentication and JWT token creation.
                                         route for the Flask app.
 
 """
+from os import getenv
 from flask import (
         request,
+        redirect
 )
 from flask_login import login_user, logout_user
 from flask_jwt_extended import (
@@ -30,6 +32,9 @@ from models import storage
 from api.v1.views.parsers import auth_parser
 from api.v1.views.responses import Responses
 from api.v1.extensions import load_user, clean_data
+from api.v1.views.verify_email import send_verification_email, s
+from itsdangerous import SignatureExpired
+import logging
 
 # Create a namespace object
 auth = Namespace('auth', description='Authentication')
@@ -122,6 +127,8 @@ class Login(Resource):
             return respond.invalid_data('Invalid user type')
         user_type = data.pop('user_type')
         user = load_user(data.get('email'), user_type=user_type)
+        if user and not user.is_verified:
+            return respond.forbidden('Please verify your email before logging in')
         if user and user.verify_password(data.get('password')):
             access_token = create_access_token(identity=user.username,
                                                additional_claims={
@@ -168,6 +175,9 @@ class Signup(Resource):
         if storage.find_by(model, username=data.get('username')):
             return respond.forbidden('User with this username already exists')
         storage.create(model, **data)
+        logging.info(f"User {data.get('username')} created")
+        send_verification_email(data.get('email'), f"{data.get('first_name')} {data.get('last_name')}",
+                                user_type=user_type)
         return respond.created({'status': 'success'})
 
 
@@ -270,3 +280,39 @@ class VerifyUsername(Resource):
         if user:
             return respond.forbidden('Username already exists')
         return respond.ok({'status': 'Success'})
+
+@auth.route('/auth_confirm_email/', strict_slashes=False)
+class C(Resource):
+    """
+    This class defines the confirm email route for the Flask app.
+    method: GET - Confirm email, return forbidden if email already confirmed.
+                    otherwise return success.
+    """
+    def get(self):
+        """ Confirm email """
+        return respond.ok({'status': 'Success'})
+
+@auth.route('/auth_confirm_email/<token>', strict_slashes=False)
+class ConfirmEmail(Resource):
+    """
+    This class defines the confirm email route for the Flask app.
+    method: GET - Confirm email, return forbidden if email already confirmed.
+                    otherwise return success.
+    """
+    def get(self, token):
+        """ Confirm email """
+        print(token)
+        try:
+            email = s.loads(token, salt='email-confirm')
+            user_type = request.args.get('user_type')
+            if invalid_user(user_type):
+                return respond.invalid_data('Invalid user type')
+        except SignatureExpired:
+            return respond.forbidden('The token is expired')
+        user = load_user(email, user_type=user_type)
+        user.is_verified = True
+        user.save()
+        frontend = getenv('APP_URL')
+        if user_type == 'mentor':
+            return redirect(f'{frontend}/mentor/sign-in')
+        return redirect(f'{frontend}/sign-in')

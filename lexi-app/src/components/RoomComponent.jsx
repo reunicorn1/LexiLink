@@ -2,20 +2,21 @@ import React, { useEffect, useState } from 'react';
 import AgoraRTC from "agora-rtc-sdk-ng";
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
-import { useWithRefresh } from '../utils/useWithRefresh';
-import { API_URL } from '../utils/config';
-
+import  useAxiosPrivate  from '../utils/useAxiosPrivate';
+import { Button, Heading, Text, Flex } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 const RoomComponent = ({ sessionid }) => {
-  const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
   const { authToken } = useAuth();
+  const executor = useAxiosPrivate();
+  const navigate = useNavigate();
   let token = null;
   let localUid = null;
   let channel = null;
 
   const getToken = async () => {
-      const response = await axios.get(`${API_URL}/sessions/room/${sessionid}`, {headers: {Authorization: "Bearer " + authToken }});
-      if (response.status !== 200) {
+      const response = await executor.get(`/sessions/room/${sessionid}`);     
+      if (!response || response.status !== 200) {
         throw new Error('Failed to get token');
       }
       else {
@@ -174,15 +175,14 @@ const RoomComponent = ({ sessionid }) => {
         await localTracks.audioTrack.setMuted(true);
         localTrackState.audioTrackMuted = true;
         document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-off.svg';
+
         document.getElementById('mic-btn').style.backgroundColor = 'red';
       } else {
         await localTracks.audioTrack.setMuted(false);
         localTrackState.audioTrackMuted = false;
         document.getElementById(`volume-${localUid}`).src = '/img/assets/volume-on.svg';
-        document.getElementById('mic-btn').style.backgroundColor = 'greenf';
+        document.getElementById('mic-btn').style.backgroundColor = '';
 
-        micvar = !micvar;
-        t
       }
     };
     handleMicButtonClick();
@@ -232,7 +232,7 @@ const RoomComponent = ({ sessionid }) => {
     remoteUid = '';
     config = {};
 
-    window.location.reload();
+    navigate('/');
   };
 
   const handleUserJoined = async (user, mediaType) => {
@@ -269,7 +269,10 @@ const RoomComponent = ({ sessionid }) => {
         console.error('Player element not found.');
       }
     }
-
+        const agora_video_player = document.getElementsByClassName('agora_video_player');
+    if (agora_video_player) {
+        agora_video_player[1].style = 'object-fit: contain; width: 100%; height: 100%; position: absolute; left: 0px; top: 0px;';
+    }
     if (mediaType === 'audio') {
       user.audioTrack.play();
     }
@@ -299,14 +302,21 @@ const RoomComponent = ({ sessionid }) => {
 
   return (
     <div className='room'>
-      <div id="join-wrapper">
-        <button id="join-btn" onClick={handleJoinButtonClick}>Join</button>
-      </div>
+        <Flex  id='join-wrapper'
+          direction={'row'}
+          justify={'space-around'}
+          align={'center'}
+          wrap={'wrap'}
+        >
+        <Heading>You are in the waiting room</Heading>
+        <Text fontSize={'xl'}>Click the button below to join the meeting</Text>
+        <Button width={'50%'} mt={4} bg='brand.700' color={'white'} fontSize={'x-large'} size={'lg'} onClick={handleJoinButtonClick}>Join</Button>
+        </Flex>
       <div id="user-streams">
         <div id="foot" style={{ display: 'block' }}>
-          <button id='mic-btn' onClick={handleMicClick}>Toggle Microphone</button>
-          <button id="camera-btn" onClick={handleCameraButtonClick}>Toggle Camera</button>
-          <button id="leave-btn" onClick={handleLeaveButtonClick}>Leave Room</button>
+          <button id='mic-btn' onClick={handleMicClick}><img height={20} width={20} src="/img/assets/microphone.svg" alt="Toggle Mic"></img></button>
+          <button id="camera-btn" onClick={handleCameraButtonClick}><img height={30} width={30} src="/img/assets/video.svg" alt="Toggle Camera"></img></button>
+          <button id="leave-btn" onClick={handleLeaveButtonClick}><img height={25} width={25} src="/img/assets/leave.svg" alt="Leave"></img></button>
         </div>
       </div>
     </div>

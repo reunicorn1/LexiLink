@@ -22,7 +22,7 @@ const useAxiosPrivate = () => {
             response => response,
             async (error) => {
                 const prevRequest = error?.config;
-                if (error?.response?.data.status === 410 && !prevRequest?.sent) {
+                if (error?.response?.status === 410 && !prevRequest?.sent) {
                     prevRequest.sent = true;
                     const newAccessToken = await refresh();
                     // Since refresh failed, the value of the accesstokem is undefined

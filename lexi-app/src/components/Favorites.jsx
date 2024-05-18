@@ -26,52 +26,52 @@ export default function Favorites() {
 
 
   const getMentors = async () => {
-      try {
-        const response = await executor.get('/student/mentors/favorites/');
-        setMentors(response.data.mentors);
-      } catch (err) {
-          //console.log("refreshToken is probably expired");
-          console.log(err);
-      }
+    try {
+      const response = await executor.get('/student/mentors/favorites/');
+      setMentors(response.data.mentors);
+    } catch (err) {
+      //console.log("refreshToken is probably expired");
+      console.error(err);
+    }
   }
-  
+
 
   const handleDelete = (async (mentor) => {
-      await executor(
-       (token) => axios.request({ url: `${API_URL}/student/mentors/favorites/`, headers: { Authorization: "Bearer " + token }, method: 'DELETE', data: { mentor: mentor } }),
-       (_) => {
-            getMentors();
+    try {
+      await executor.delete('/student/mentors/favorites/', { data: { mentor: mentor } });
+      getMentors();
+    } catch (err) {
+      console.error(err);
     }
-    )
-  });
+});
 
-  useEffect(() => {
-    getMentors();
-  }, []);
+useEffect(() => {
+  getMentors();
+}, []);
 
-  return (
-    <>
-      {Array.isArray(mentors) && mentors.length > 0 && (
-        <Box display="block">
-          <Heading m="10px" mt={0} fontSize={"xl"}>Favorites</Heading>
-          <Box display={{ base: "block", sm: "flex", xl: "block" }} gap={3} height={{ xl: "43vh" }} overflowY="auto">
-            {mentors.map((mentor, index) => (
-              <Box key={index} display="flex" bg="brand.700" color="white" rounded="2xl" m="10px" p={2} boxShadow="lg">
-                <Flex alignItems="center" justifyContent="space-between" flex="1">
-                  <Flex alignItems="center">
-                    <Avatar size="sm" src={mentor.profile_picture} />
-                    <Box ml="15px">
-                      <Heading fontSize="sm">{mentor.first_name} {mentor.last_name}</Heading>
-                      <Text fontSize="xs">{mentor.type} Mentor</Text>
-                    </Box>
-                  </Flex>
-                  <CloseButton size='sm' ml="3" onClick={() => handleDelete(mentor.username)} />
+return (
+  <>
+    {Array.isArray(mentors) && mentors.length > 0 && (
+      <Box display="block">
+        <Heading m="10px" mt={0} fontSize={"xl"}>Favorites</Heading>
+        <Box display={{ base: "block", sm: "flex", xl: "block" }} gap={3} height={{ xl: "43vh" }} overflowY="auto">
+          {mentors.map((mentor, index) => (
+            <Box key={index} display="flex" bg="brand.700" color="white" rounded="2xl" m="10px" p={2} boxShadow="lg">
+              <Flex alignItems="center" justifyContent="space-between" flex="1">
+                <Flex alignItems="center">
+                  <Avatar size="sm" src={mentor.profile_picture} />
+                  <Box ml="15px">
+                    <Heading fontSize="sm">{mentor.first_name} {mentor.last_name}</Heading>
+                    <Text fontSize="xs">{mentor.type} Mentor</Text>
+                  </Box>
                 </Flex>
-              </Box>
-            ))}
-          </Box>
+                <CloseButton size='sm' ml="3" onClick={() => handleDelete(mentor.username)} />
+              </Flex>
+            </Box>
+          ))}
         </Box>
-      )}
-    </>
-  );
+      </Box>
+    )}
+  </>
+);
 }

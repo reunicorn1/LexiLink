@@ -11,7 +11,6 @@ import "@fontsource-variable/montserrat"
 
 const client_id= import.meta.env.VITE_CLIENT_ID
 
-
 const colors = {
   brand: {
     900: '#f2e8dd',

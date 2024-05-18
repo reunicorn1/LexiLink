@@ -19,6 +19,9 @@ import SignUpMentorTwo from "../components/SignUpMentorTwo";
 import SignUpMentorThree from "../components/SignUpMentorThree";
 import SignUpMentorFour from "../components/SignUpMentorFour";
 import { API_URL } from '../utils/config';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../AuthContext';
 
 //const salt = bcrypt.genSaltSync(10);
 
@@ -27,6 +30,16 @@ export default function SignUpMentor () {
     const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", education:"", expertise:"", type: "Community", availability: {days: [], startTime: "", endTime: ""}, user_type:"mentor" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: ""});
+    const { role } = useAuth();
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        if (role) {
+            navigate("/");
+        }
+    }, [])
+
+    
     let emailValid = true;
     
     const handleClick = () => {

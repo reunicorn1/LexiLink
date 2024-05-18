@@ -2,17 +2,24 @@ import { Box, Image, useBreakpointValue, Heading, Text, FormControl, FormLabel, 
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from '../AuthContext';
 import { API_URL } from '../utils/config';
 
 export default function SignInMentor () {
-    const { authToken, login, setRole } = useAuth();
+    const { authToken, login, setRole, role } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "mentor"});
     const [formError, setFormError] = useState("");
     const navigate = useNavigate();
     const toast = useToast();
+
+    useEffect(() => {
+        if (role) {
+            navigate("/");
+        }
+    }, [])
+
 
     const responseMessage = (response) => {
         console.log(response);

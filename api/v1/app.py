@@ -81,14 +81,18 @@ Returns:
         print("Development Configuration")
     else:
         print("Production Configuration")
+        
+    # setup the app tools and extensions
     db = SQLAlchemy()
     migration = Migrate()
     cors = CORS()
     metadata = MetaData()
-
     api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
 
+    # create the app instance
     app = Flask(__name__, template_folder='templates')
+    
+    # configure the app
     app.config.from_object(CONFIG)
     db.init_app(app)
     migration.init_app(app, db)
@@ -106,6 +110,7 @@ Returns:
     app.logger.info('App started')
     jwt_wrapper = JWTManagerWrapper()
     jwt_wrapper.init_app(app)
+    
 
     metadata.reflect(bind=create_engine(app.config['SQLALCHEMY_DATABASE_URI']))
     api.init_app(app)

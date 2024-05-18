@@ -37,6 +37,7 @@ export default function Dashboard() {
     if (!authToken || role !== "student") {
       navigate("/");
     }
+  
   }, [])
 
   const followup = (result) => {

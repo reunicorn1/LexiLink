@@ -21,7 +21,7 @@ export default function Schedule() {
     const difference = Math.floor(offset / 60);
     const [selectDate, setSelecteDate] = useState(now);
     const [selectTime, setSelectTime] = useState(null);
-    const { getAccess } = useAuth();
+    const { role } = useAuth();
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [appear, setAppear] = useState(false)
     const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
@@ -29,6 +29,11 @@ export default function Schedule() {
     const mentor = location.state && location.state.mentor ? location.state.mentor : null;
     const update_id = location.state && location.state.update ? location.state.update : null;
 
+    useEffect(() => {
+        if (!role) {
+            navigate("/");
+        }
+    }, [])
     useEffect(() => {
         setSelectTime(null);
         if (selectDate !== now) {

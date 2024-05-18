@@ -18,6 +18,12 @@ class Config:
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     PROPAGATE_EXCEPTIONS = True
     SQLALCHEMY_ECHO = True
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = config('MAIL_USERNAME')
+    MAIL_PASSWORD = config('MAIL_PASSWORD')
+
 
 
 
@@ -62,3 +68,5 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = storage.get_uri()
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=5)
+
+

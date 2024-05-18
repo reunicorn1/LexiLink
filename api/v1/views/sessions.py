@@ -89,7 +89,7 @@ class Sessions(Resource):
         if claims['user_type'] not in ['mentor', 'student']:
             return respond.unauthorized("Unauthorized")
         page = request.args.get('page', 0)
-        
+
         user = storage.find_by(cls=("MentorModel",
                                     "StudentModel")[claims['user_type'] == 'student'],
                                 username=claims['identity'])
@@ -313,7 +313,7 @@ class Room(Resource):
                 Status code: 400 when bad request
         """
         claims = get_jwt()
-        date = datetime.now().date()
+        date = datetime.utcnow().date()
         if claims['user_type'] not in ['mentor', 'student']:
             return respond.unauthorized("Unauthorized")
         user = claims['user_type'] == 'student'

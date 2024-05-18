@@ -5,15 +5,24 @@ import SignUpStepOne from "../components/SignUpStepOne";
 import SignUpStepTwo from "../components/SignUpStepTwo";
 import axios from "axios";
 import { API_URL } from '../utils/config';
-
-//const salt = bcrypt.genSaltSync(10);
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../AuthContext';
+import { useEffect } from "react";
 
 export default function SignUp () {
 
-    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student", profile_picture: "" })
+    const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:""});
     const toast = useToast()
+    const navigate = useNavigate();
+    const { role } = useAuth();
+
+    useEffect(() => {
+      if ( role ) {
+        navigate("/");
+      }
+    }, [])
 
     let emailValid = true;
     

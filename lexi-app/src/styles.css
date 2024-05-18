@@ -65,8 +65,7 @@ form {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100vh;
-  overflow: auto;
+  height: 100%;
   }
 
 /* #videos {
@@ -138,9 +137,13 @@ video {
 #join-wrapper{
     display: flex;
     flex-direction: column;
-    position: fixed;
+    justify-self: center;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+    position: absolute;
     left: 50%;
-    top: 50%;
+    top: 300px;
     transform: translate(-50%, -50%);
 }
 
@@ -158,37 +161,39 @@ video {
     display: none;
     flex-direction: column;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 10%;
+    left: 0%;
+    right: 0%;
+    background-color: #dd4e40;
+    padding: 20px;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     gap: 1em;
 }
+
+
+
 .video-player {
     position: relative;
     width: 100%;
     height: 100%;
     border-radius: 10px;
-    overflow: hidden;
+    z-index: 1;
+    bottom: 0;
+    right: 0; 
 }
 
 .video-player.small {
   position: relative;
-  border-radius: 20%;
+  padding: 0px;
+  border-radius: 15px;
   z-index: 2;
-  width: calc(25% - 20px);
-  height: 35%; 
+  width: calc(25% - 20px);;
+  height: calc(35% - 20px);;
   bottom: 0;
   right: 0; 
 } 
-.video-player.large {
-  width: 80%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
+
 #username{
     padding: 20px;
     font-size: 18px;
@@ -211,7 +216,6 @@ video {
     padding: 20px 30px;
     cursor: pointer;
 }
-
 
 
 
@@ -269,15 +273,25 @@ video {
 }
 
 
-@media screen and (max-width:1400px) {
+@media screen and (max-width: 760px) {
     main {
         width: 90%;
         margin: 0 auto;
+    }
+    .video-player.small {
+        width: calc(45%);
+        height: calc(33% - 20px);
     }
 }
 
 #mic-btn, #camera-btn, #leave-btn {
     background-color: #1f1f1f8e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
     border: none;
     color: #fff;
     font-size: 22px;
