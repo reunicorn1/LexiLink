@@ -24,6 +24,7 @@ from flask_restx import Namespace, Resource, fields
 from api.v1.views.parsers import auth_parser, query_parser
 from models import storage
 from api.v1.views.responses import Responses
+from api.v1.views.verify_email import send_session_email
 
 sessions = Namespace('sessions', description='Session related operations')
 
@@ -167,6 +168,7 @@ class Sessions(Resource):
         mentor.sessions.append(session)
         mentor.save()
         student.save()
+        send_session_email(session)
         return respond.created({"session": session.to_dict()})
 
     @jwt_required()

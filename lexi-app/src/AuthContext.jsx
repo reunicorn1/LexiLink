@@ -24,8 +24,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('role', role);
     } else {
       localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken', refreshToken);
-      localStorage.removeItem('role', role);
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
     }
   }, [authToken]);
 
@@ -50,9 +50,10 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setAuthToken(null);
     setRefreshToken(null);
+    setRole(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role', role);
+    localStorage.removeItem('role');
   };
 
   // const refresh = () => {
