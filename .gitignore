@@ -7,4 +7,5 @@ student.json
 .vscode
 *nginx*
 *.bak
+app.log
 .env

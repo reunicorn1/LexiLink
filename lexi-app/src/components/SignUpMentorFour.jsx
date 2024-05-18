@@ -56,10 +56,8 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
             newtime[0] -= differenceInHours;
             newtime[1] = newtime[1].toString().padStart(2, '0')
 
-            console.log(newtime.join(':'))
             time[index] = newtime.join(':')
         });
-        console.log(time);
         return time
     }
 
@@ -68,10 +66,8 @@ export default function SignUpMentorFour ({input, setInput, onChange, handleStep
         
         try {
             await axios.post(`${API_URL}/auth/signup`, {...input, availability: {days: daysSelected, startTime: newTime[0], endTime: newTime[1]}});
-            console.log("hurray!!!!!")
             onOpen();
         } catch (error) {
-            console.log(error);
             if (error.response) {
                 console.error("An error occurred:", error);
             } 

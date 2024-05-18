@@ -46,7 +46,6 @@ export default function ProfileInfo() {
                     }
                 )
                 setloading(false);
-                console.log(result)
                 setInput({...input, profile_picture: result.cdnUrl});
             }
         }
@@ -130,7 +129,6 @@ export default function ProfileInfo() {
 
 
     const handleLangChange = (lang) => {
-        console.log(lang);
         let others;
     
         if (input.other_languages.includes(lang)) {
@@ -138,7 +136,6 @@ export default function ProfileInfo() {
         } else {
             others = [...input.other_languages, lang]; 
         }
-        console.log(input);
         setInput({...input, other_languages: others});
     };
 

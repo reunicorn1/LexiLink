@@ -15,3 +15,13 @@ def load_user(email, user_type=None):
         return storage.find_by("MentorModel", email=email)
     return storage.find_by("StudentModel", email=email)
 
+
+def clean_data(data) -> dict | None:
+    """ clean data """
+    if not data:
+        return None
+    for key, value in data.items():
+        if isinstance(value, str):
+            data[key] = value.strip()
+    print(type(data))
+    return data

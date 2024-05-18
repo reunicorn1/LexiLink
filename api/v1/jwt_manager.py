@@ -10,6 +10,10 @@ from flask_jwt_extended import JWTManager
 from models import storage
 
 
+
+
+
+
 class JWTManagerWrapper:
     """
     This class wraps the JWT manager for the Flask app.
@@ -17,7 +21,18 @@ class JWTManagerWrapper:
     def __init__(self, app=None):
         if app:
             self.init_app(app)
-
+    
+    @staticmethod
+    def response_headers(response):
+        """
+        This function sets the response headers.
+        """
+        response.headers['Content-Type'] = 'application/json'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        return response
+    
     def init_app(self, app):
         """
         This method initializes the JWT manager for the Flask app.
@@ -59,12 +74,8 @@ class JWTManagerWrapper:
                 'message': 'The token has expired',
                 'error': 'token_expired'
                 }), 410)
-            response.headers['Content-Type'] = 'application/json'
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-            response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-            return response
-
+            return self.response_headers(response)
+        
         @self.jwt.invalid_token_loader
         def invalid_token_callback(error):
             """
@@ -75,11 +86,8 @@ class JWTManagerWrapper:
                 'message': 'Signature verification failed',
                 'error': 'invalid_token'
                 }), 411)
-            response.headers['Content-Type'] = 'application/json'
-            response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-            response.headers['Netlify-CDN-Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-            return response
+            return self.response_headers(response)
+       
 
         @self.jwt.unauthorized_loader
         def unauthorized_loader(error):
@@ -87,10 +95,11 @@ class JWTManagerWrapper:
             This function is called when an unauthorized token is received. It
             should return a response to be sent to the client.
             """
-            return make_response(jsonify({
+            response = make_response(jsonify({
                 'message': 'Request does not contain an access token',
                 'error': 'authorization_required'
                 }), 412)
+            return self.response_headers(response)
 
         @self.jwt.needs_fresh_token_loader
         def needs_fresh_token_callback():
@@ -98,10 +107,11 @@ class JWTManagerWrapper:
             This function is called when a fresh token is required. It should
             return a response to be sent to the client.
             """
-            return make_response(jsonify({
+            response = make_response(jsonify({
                 'message': 'The token is not fresh',
                 'error': 'fresh_token_required'
                 }), 413)
+            return self.response_headers(response)
 
         @self.jwt.revoked_token_loader
         def revoked_token_callback(jwt_header, jwt_data):
@@ -109,10 +119,11 @@ class JWTManagerWrapper:
             This function is called when a revoked token is received. It should
             return a response to be sent to the client.
             """
-            return make_response(jsonify({
+            response = make_response(jsonify({
                 'message': 'The token has been revoked',
                 'error': 'token_revoked'
                 }), 444)
+            return self.response_headers(response)
 
         @self.jwt.token_in_blocklist_loader
         def check_if_token_in_blocklist(jwt_header, jwt_data):

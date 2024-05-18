@@ -19,7 +19,6 @@ export default function MenuDisplay({ children }) {
     const toast = useToast();
 
     const handleToast = async () => {
-        console.log("toast is here!!")
         // add a promise rejection handler
         try {
             toast({
