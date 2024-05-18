@@ -88,8 +88,6 @@ const handleLogOut = async () => {
     // it's still a 410 but someimes the server doesn't print it in logs but the error recieved while
     // printing is indeed 410 
     // Refresh doesn't work if disable cache toggle isn't on. even normal retrieval of data using access token doesn't work if it's not on
-    console.log("eerrrr refreshinggggg!!!")
-    try {
     console.log("hello?????")
     try{
       const response = await axios.get(`${API_URL}/auth/refresh`, {
