@@ -90,7 +90,7 @@ export default function Calander({selectDate, setSelecteDate, days}) {
 
 
 
-    return <Grid maxW="350px" maxH="350px" p="20px" boxShadow="xl">
+    return <Grid maxW={{lg: "350px"}} maxH="350px" p="20px" boxShadow="xl">
         <Box w="100%" display="flex" mb={6} p={2} borderBottom="1px" borderColor="grey">
             <Heading fontSize="md">{monthsOfYear[today.month()]} {today.year()}</Heading>
             <Spacer></Spacer>

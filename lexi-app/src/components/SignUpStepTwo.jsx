@@ -81,7 +81,8 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) =
     }, []);
 
     return <>
-              <Box display="grid" p="50px" gridTemplateColumns="10fr 1fr 10fr" gap={6} m="100px" color="black" bg="white" justifyContent="center" rounded="3xl" boxShadow='md'>
+            <Box display="flex" justifyContent="center">
+              <Box display="grid" p="50px" gridTemplateColumns="10fr 1fr 10fr" gap={6} m="20px"color="black" bg="white" justifyContent="center" rounded="3xl" boxShadow='md'>
                 <GridItem colSpan={{base: 3, lg: 1}}>
                     <Heading mb={2}>Let's get to know you better!</Heading>
                     <Text mb={10}>Provide the following details to tailor your learning journey</Text>
@@ -161,6 +162,7 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) =
                 </GridItem>
               </Box>
               <Success isOpen={isOpen} link={"/sign-in"}/>
+            </Box>
     </>
 };
 export default SignUpStepTwo;
