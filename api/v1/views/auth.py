@@ -150,10 +150,10 @@ class Login(Resource):
                                                  additional_claims={
                                                      "user_type":
                                                      user_type})
-            if data.get('remember'):
-                login_user(user, remember=True)
-            else:
-                login_user(user)
+            # if data.get('remember'):
+            #     login_user(user, remember=True)
+            # else:
+            login_user(user)
             current_app.logger.info(f'User {user.username} logged in')
             return respond.ok({'access_token': access_token,
                             'refresh_token': refresh_token})

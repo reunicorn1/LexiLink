@@ -86,8 +86,8 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, cou
                     <FormLabel>Country</FormLabel>
                     <Select isInvalid={Boolean(formError.country)} placeholder='Select your country' name="country" value={input.country} onChange={onChange}>
                          {countries?.map((item, index) => (
-                            <option key={index} value={item.name.common}>
-                            {item.name.common}
+                            <option key={index} value={item.name}>
+                            {item.name}
                             </option>
                          ))}
                     </Select>
@@ -103,8 +103,8 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, cou
                     <FormLabel>Nationality</FormLabel>
                     <Select isInvalid={Boolean(formError.nationality)} mb={7} placeholder='Select your nationality' name="nationality" value={input.nationality} onChange={onChange}>
                          {countries?.map((item, index) => (                      
-                            <option key={index} value={item.name.common}>
-                                {item.name.common}
+                            <option key={index} value={item.name}>
+                                {item.name}
                             </option>
                          ))}
                     </Select>

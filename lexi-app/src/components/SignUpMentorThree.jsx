@@ -2,8 +2,6 @@ import { Box, Text, Textarea, Input, Heading, useBreakpointValue, Divider, Flex,
 import { useState, useEffect } from "react";
 import { BiWorld } from "react-icons/bi";
 import { FaGraduationCap } from "react-icons/fa";
-import { InfoOutlineIcon } from "@chakra-ui/icons";
-import axios from "axios";
 
 
 export default function SignUpMentorThree ({ input, setInput, onChange, handleStepper, SteppingOver, countries }) {
@@ -43,8 +41,8 @@ export default function SignUpMentorThree ({ input, setInput, onChange, handleSt
                         <FormLabel>Country</FormLabel>
                         <Select placeholder='Select your country' name="country" value={input.country} onChange={onChange}>
                             {countries?.map((item, index) => (
-                                <option key={index} value={item.name.common}>
-                                {item.name.common}
+                                <option key={index} value={item.name}>
+                                {item.name}
                                 </option>
                             ))}
                         </Select>
@@ -53,8 +51,8 @@ export default function SignUpMentorThree ({ input, setInput, onChange, handleSt
                         <FormLabel>Nationality</FormLabel>
                         <Select placeholder='Select your nationality' name="nationality" value={input.nationality} onChange={onChange}>
                             {countries?.map((item, index) => (                      
-                                <option key={index} value={item.name.common}>
-                                   {item.name.common}
+                                <option key={index} value={item.name}>
+                                   {item.name}
                                 </option>
                             ))}
                         </Select>

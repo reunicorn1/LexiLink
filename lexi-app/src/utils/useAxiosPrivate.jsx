@@ -9,16 +9,11 @@ import dayjs from "dayjs";
 
 const useAxiosPrivate = (isLoading, setIsLoading) => {
     const {refresh, authToken, refreshToken } = useAuth();
-    const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
     useEffect(() => {
 
         const requestIntercept = axios.interceptors.request.use(
             config => {
-                if (!hasLoadedOnce) {
-                // setIsLoading(true);
-                setHasLoadedOnce(true);
-                }
                 if (!config.headers['Authorization']) {
                     config.headers['Authorization'] = `Bearer ${authToken}`;
                 }
@@ -30,7 +25,6 @@ const useAxiosPrivate = (isLoading, setIsLoading) => {
                 
                 return config;
             }, (error) =>{
-                setIsLoading(false);
                 return Promise.reject(error)
                 }
         );
@@ -38,11 +32,9 @@ const useAxiosPrivate = (isLoading, setIsLoading) => {
         const responseIntercept = axios.interceptors.response.use(
             response => 
             {
-                setIsLoading(false);
                 return response;
             },
             async (error) => {
-                setIsLoading(false);
                 const prevRequest = error?.config;
                 if (error?.response?.status === 410 && !prevRequest?.sent) {
                     prevRequest.sent = true;

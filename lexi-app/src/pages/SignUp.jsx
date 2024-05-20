@@ -8,13 +8,13 @@ import { API_URL } from '../utils/config';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../AuthContext';
 import { useEffect } from "react";
+import  countries from "../utils/countries";
 
 export default function SignUp ({ isLoading, setIsLoading }) {
 
     const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:""});
-    const [countries, setCountries] = useState([]); 
     const toast = useToast()
     const navigate = useNavigate();
     const { role } = useAuth();
@@ -25,18 +25,7 @@ export default function SignUp ({ isLoading, setIsLoading }) {
       }
     }, [])
 
-    useEffect(() => {
-      const fetchData = async () => {
-          try {
-              const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
-              response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-              setCountries(response.data);
-          } catch (error) {
-              console.error('Error fetching data:', error);
-          }
-      };
-      fetchData();
-  }, []);
+
 
     let emailValid = true;
     
