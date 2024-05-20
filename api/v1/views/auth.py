@@ -36,6 +36,7 @@ from api.v1.login_manager import load_user
 from api.v1.utils import clean_data
 from api.v1.views.email_util import send_verification_email, s
 from itsdangerous import SignatureExpired, BadSignature
+from operator import is_
 
 # Create a namespace object
 auth = Namespace('auth', description='Authentication')
@@ -191,7 +192,8 @@ class Signup(Resource):
                                      current_app.logger)
         storage.create(model, **data)
         current_app.logger.info("User %s created", data.get('username'))
-        if getenv("LEXILINK_MYSQL_ENV") != "test":
+        is_verified = data.get('is_verified') or False
+        if getenv("LEXILINK_MYSQL_ENV") != "test" and not is_verified:
             send_verification_email(data.get('email'),
                                     "%s %s" % (data.get('first_name'),
                                                data.get('last_name')),
