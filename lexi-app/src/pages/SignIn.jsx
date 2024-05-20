@@ -133,10 +133,10 @@ export default function SignIn({ isLoading, setIsLoading }) {
                             <Input type="password" placeholder='Enter your password' w="100%" name="password" value={input.password} onChange={handleInputChange} />
                             <FormErrorMessage>{formError}</FormErrorMessage>
                         </FormControl>
-                        <Button colorScheme="facebook" type="submit" h="40px" w="100%" mt={6} onClick={handleClick}>Sign In</Button>
-                        <Flex w="100%" mt={4} justifyContent="center">
-                            <Text mb="30px"><Link to="/">Forgot Password?</Link></Text>
-                        </Flex>
+                        <Button mb="70px"colorScheme="facebook" type="submit" h="40px" w="100%" mt={6} onClick={handleClick}>Sign In</Button>
+                        {/* <Flex w="100%" mt={4} justifyContent="center">
+                            <Text ><Link to="/">Forgot Password?</Link></Text>
+                        </Flex> */}
                     </Box>
                 </Box>
             </Box>
