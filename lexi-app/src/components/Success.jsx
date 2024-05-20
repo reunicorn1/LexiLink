@@ -30,7 +30,8 @@ export default function Success({isOpen, link}) {
                 <ModalBody textAlign="center">
                   <Image src="/img/tv.gif"></Image>
                   <Heading color="brand.800" mb={2} fontSize={'3xl'}>Congratulations!</Heading>
-                  <Text fontSize="lg">Welcome to our community. Let the learning journey begin!</Text>
+                  <Text fontSize="lg">Welcome to our community. Check your email to verify your account before logging in</Text>
+                  <Text> </Text>
                 </ModalBody>
                 <ModalFooter mb="20px">
                   <Button w="100%" colorScheme='facebook' mr={3} onClick={() => navigate(link)}>

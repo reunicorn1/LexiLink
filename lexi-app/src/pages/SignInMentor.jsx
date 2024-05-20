@@ -132,10 +132,10 @@ export default function SignInMentor () {
                             <Input type="password" placeholder='Enter your password' w="90%" name="password" value={input.password} onChange={handleInputChange}/>
                             <FormErrorMessage>{formError}</FormErrorMessage>
                         </FormControl> 
-                        <Button colorScheme="facebook" type="submit" h="40px" w="90%" mt={6} onClick={handleClick}>Sign In</Button>
-                        <Flex w="90%" mt={4} justifyContent="center">
+                        <Button colorScheme="facebook"  type="submit" h="40px" w="90%" mt={6} onClick={handleClick}>Sign In</Button>
+                        {/* <Flex w="90%" mt={4} justifyContent="center">
                             <Text><Link to="/">Forgot Password?</Link></Text>
-                        </Flex>
+                        </Flex> */}
                     </Box>
                 </Box>
             </Box>
