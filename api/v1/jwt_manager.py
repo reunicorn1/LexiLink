@@ -83,6 +83,7 @@ class JWTManagerWrapper:
                 'message': 'The token has expired',
                 'error': 'token_expired'
                 }), 410)
+            app.logger.error("expired_token_callback")
             return self.response_headers(response)
         
         @self.jwt.invalid_token_loader
@@ -95,6 +96,7 @@ class JWTManagerWrapper:
                 'message': 'Signature verification failed',
                 'error': 'invalid_token'
                 }), 411)
+            app.logger.error("invalid_token_callback")
             return self.response_headers(response)
        
 
@@ -108,6 +110,7 @@ class JWTManagerWrapper:
                 'message': 'Request does not contain an access token',
                 'error': 'authorization_required'
                 }), 412)
+            app.logger.error("unauthorized_loader")
             return self.response_headers(response)
 
         @self.jwt.needs_fresh_token_loader
@@ -120,6 +123,7 @@ class JWTManagerWrapper:
                 'message': 'The token is not fresh',
                 'error': 'fresh_token_required'
                 }), 413)
+            app.logger.error("needs_fresh_token_callback")
             return self.response_headers(response)
 
         @self.jwt.revoked_token_loader
@@ -132,6 +136,7 @@ class JWTManagerWrapper:
                 'message': 'The token has been revoked',
                 'error': 'token_revoked'
                 }), 444)
+            app.logger.error("revoked_token_callback")
             return self.response_headers(response)
 
         @self.jwt.token_in_blocklist_loader
