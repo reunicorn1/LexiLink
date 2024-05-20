@@ -7,8 +7,11 @@ import os
 import inspect
 import pycodestyle as pep8
 import api.v1.app as app_module
-from flask import Flask, jsonify, request, make_response, abort
+from api.v1.app import create_app
+from flask import Flask
 from models import storage
+from create_n_mentors import random_mentor
+from create_n_students import random_student
 
 
 class TestAppDocPep8(unittest.TestCase):
@@ -42,42 +45,93 @@ class TestAppDocPep8(unittest.TestCase):
             self.assertTrue(len(str(func[1].__doc__)) > 0)
 
 
-# class TestApp(unittest.TestCase):
-#     """unittest class for app.py"""
+class TestApp(unittest.TestCase):
+    """unittest class for app.py"""
+    def setUp(self):
+        """Setup for the test"""
+        self.app = create_app()
+        self.client = self.app.test_client()
+        self.client.testing = True
+        self.app_context = self.app.app_context()
+        self.not_found = {'error': 'Not found'}
+        # self.not_found = {'error': '404 Not Found:' +
+        #          ' The requested URL was not found on the server.' +
+        #          ' If you entered the URL manually please check your'
+        #          + ' spelling and try again.'}
 
-#     def setUp(self):
-#         """Setup for the test"""
-#         print('setUp')
-#         self.app = app_module.app.test_client()
-#         self.app.testing = True
+    def test_create_app(self):
+        """Test create_app"""
+        self.assertIsInstance(self.app, Flask)
+        self.assertTrue(self.client.testing)
+        self.assertFalse(self.app.url_map.strict_slashes)
 
-#     def test_app_status(self):
-#         """Test for app.py status"""
-#         with app_module.app.app_context():
-#             response = self.app.get('/api/v1/status')
-#             self.assertEqual(response.status_code, 200)
-#             self.assertEqual(response.data, b'{"status":"OK"}\n')
+    def test_close_db(self):
+        """Test close_db"""
+        with self.app_context:
+            self.app_context.push()
+            self.assertIsNone(self.app.teardown_appcontext(None))
+            self.assertIsNone(storage.close())
+            self.assertIsNone(storage.reload())
+            self.assertIsNone(storage.rollback())
 
-#     def test_app_stats(self):
-#         """Test for app.py stats"""
-#         with app_module.app.app_context():
-#             response = self.app.get('/api/v1/stats')
-#             self.assertEqual(response.status_code, 200)
-#             self.assertEqual(response.data,
-#                              jsonify({"states": storage.count(State),
-#                                       "cities": storage.count(City),
-#                                       "users": storage.count(User),
-#                                       "places": storage.count(Place),
-#                                       "reviews": storage.count(Review),
-#                                       "amenities":
-#                                       storage.count(Amenity)}).data)
+    def test_teardown_appcontext(self):
+        """Test teardown_appcontext"""
+        with self.app_context:
+            self.app_context.push()
+            self.assertIsNone(self.app.teardown_appcontext(None))
 
-#     def test_app_404(self):
-#         """Test for app.py 404"""
-#         with app_module.app.app_context():
-#             response = self.app.get('/api/v1/404')
-#             self.assertEqual(response.status_code, 404)
-#             self.assertEqual(response.data, b'{"error":"Not found"}\n')
+    def test_errorhandler(self):
+        """Test errorhandler"""
+        with self.app_context:
+            self.app_context.push()
+            response = self.client.get('/nonexistent')
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.json, self.not_found)
+
+    def test_app_status(self):
+        """Test app status"""
+        with self.app_context:
+            self.app_context.push()
+            response = self.client.get('/api/status')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json, {'status': 'OK'})
+
+
+class TestApi(unittest.TestCase):
+    """unittest class for app.py"""
+    def setUp(self):
+        """Setup for the test"""
+        self.app = create_app()
+        self.client = self.app.test_client()
+        self.client.testing = True
+        self.app_context = self.app.app_context()
+        self.not_found = {'error': 'Not found'}
+
+    def tearDown(self):
+        """Teardown for the test"""
+        storage.clear_all_tables()
+
+    def test_app_status(self):
+        """Test app status"""
+        with self.app_context:
+            self.app_context.push()
+            response = self.client.get('/api/status')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json, {'status': 'OK'})
+
+    def test_auth_signup(self):
+        """Test auth"""
+        with self.app_context:
+            self.app_context.push()
+            self.assertEqual(storage.all('MentorModel'), {})
+            mentor = random_mentor()
+            response = self.client.post('/api/auth/signup',
+                                        json=mentor)
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(response.json['status'], 'success')
+            self.assertEqual(mentor.get('email'),
+                             storage.find_by('MentorModel',
+                                             email=mentor.get('email')).email)
 
 
 if __name__ == '__main__':

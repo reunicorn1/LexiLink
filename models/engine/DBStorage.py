@@ -131,6 +131,14 @@ class DBStorage:
         """
         Base.metadata.drop_all(self.__engine)
 
+    def clear_all_tables(self):
+        """clear all tables
+        """
+        for table in reversed(Base.metadata.sorted_tables):
+            self.__session.execute(table.delete())
+        self.__session.commit()
+        Base.metadata.create_all(self.__engine)
+
     def get(self, cls, id):
         """get an object by class and id
         """

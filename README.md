@@ -2,7 +2,7 @@
 Welcome to LexiLink, your premier English learning platform! Elevate your English speaking skills through personalized 1-to-1 mentorship sessions conducted via live video conferencing. With LexiLink, you'll embark on a transformative language learning journey guided by experienced mentors who tailor their approach to your unique needs and goals.
 
 
-Explore our live platform at [LexiLink](https://www.lexilink.us.to) and unlock your full linguistic potential today!
+Explore our live platform at [LexiLink](https://lexilink.pals.com.np) and unlock your full linguistic potential today!
 
 ## Our Team
 ### Backend Developer: Mohamed Elfadil
@@ -88,7 +88,7 @@ Are you passionate about teaching English and making a positive impact on others
 - App: Vite
 - Components: React, Chakra UI
 - Video Conferencing: Agora, WebRTC
-- Languages: TypeScript, JavaScript, HTML, CSSZZ
+- Languages: TypeScript, JavaScript, HTML, CSS
 
 
 
@@ -151,7 +151,7 @@ Certainly! Here's an expanded version of the usage section, including details on
 To explore and interact with the LexiLink API, you can access the API documentation directly from your browser. Simply add the `/api/docs` extension to the URL of our website. For example:
 
 ```
-https://www.lexilink.us.to/api/docs
+https://lexilink.pals.com.np/api/docs
 ```
 
 This will take you to the interactive API documentation where you can view all available endpoints, parameters, request bodies, and responses. You can also test each endpoint directly from the documentation by sending requests and observing the results.
@@ -159,7 +159,7 @@ This will take you to the interactive API documentation where you can view all a
 ### Register
 To get started with LexiLink and unlock the full range of features, you'll need to register for a free account on our website. Here's how to do it:
 
-1. **Visit our Website**: Navigate to [LexiLink](https://www.lexilink.us.to) in your web browser.
+1. **Visit our Website**: Navigate to [LexiLink](https://lexilink.pals.com.np/) in your web browser.
 
 2. **Register for an Account**: Click on the "Sign Up" button to begin the registration process. You'll need to provide some basic information such as your name, email address, and a password.
 

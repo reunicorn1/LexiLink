@@ -17,7 +17,8 @@ Manages user authentication and JWT token creation.
 from os import getenv
 from flask import (
         request,
-        redirect
+        redirect,
+        current_app
 )
 from flask_login import login_user, logout_user
 from flask_jwt_extended import (
@@ -31,10 +32,10 @@ from flask_restx import Resource, Namespace, fields
 from models import storage
 from api.v1.views.parsers import auth_parser
 from api.v1.views.responses import Responses
-from api.v1.extensions import load_user, clean_data
-from api.v1.views.verify_email import send_verification_email, s
-from itsdangerous import SignatureExpired
-import logging
+from api.v1.login_manager import load_user
+from api.v1.utils import clean_data
+from api.v1.views.email_util import send_verification_email, s
+from itsdangerous import SignatureExpired, BadSignature
 
 # Create a namespace object
 auth = Namespace('auth', description='Authentication')
@@ -122,35 +123,41 @@ class Login(Resource):
         """ Perform user authentication and obtain JWT token """
         data = clean_data(request.get_json())
         if not data:
-            return respond.invalid_data('Invalid request data')
+            return respond.invalid_data('Invalid request data',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         if invalid_user(data.get('user_type')):
-            return respond.invalid_data('Invalid user type')
+            return respond.invalid_data('Invalid user type',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user_type = data.pop('user_type')
         user = load_user(data.get('email'), user_type=user_type)
         if user and not user.is_verified:
-            return respond.forbidden('Please verify your email before logging in')
+            return respond.forbidden('Please verify your email before current_app.logger in',
+                                     self.__class__.__name__,
+                                     current_app.logger)
         if user and user.verify_password(data.get('password')):
             access_token = create_access_token(identity=user.username,
                                                additional_claims={
                                                    "user_type":
                                                    user_type})
-            print("Length of access token: ", len(access_token))
             refresh_token = create_refresh_token(
                                                  identity=user.username,
                                                  additional_claims={
                                                      "user_type":
                                                      user_type})
-            print("Length of refresh token: ", len(refresh_token))
             if data.get('remember'):
                 login_user(user, remember=True)
             else:
                 login_user(user)
-            print(f'User {user.username} logged in')
+            current_app.logger.info(f'User {user.username} logged in')
             return respond.ok({'access_token': access_token,
                             'refresh_token': refresh_token})
 
         return respond.unauthorized(
-                        'Invalid email or password. Please try again.')
+                        'Invalid email or password. Please try again.',
+                        self.__class__.__name__,
+                        current_app.logger)
 
 
 @auth.route('/signup', strict_slashes=False)
@@ -165,19 +172,32 @@ class Signup(Resource):
         """ Register a new user """
         data = clean_data(request.get_json())
         if not data:
-            return respond.invalid_data('Invalid request data')
+            return respond.invalid_data('Invalid request data',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user_type = data.pop('user_type')
         if invalid_user(user_type):
-            return respond.invalid_data('Invalid user type')
+            return respond.invalid_data('Invalid user type',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         model = get_user_model(user_type)
         if storage.find_by(model, email=data.get('email')):
-            return respond.forbidden('User with this email already exists')
+            return respond.forbidden('User with this email already exists',
+                                     self.__class__.__name__,
+                                     current_app.logger)
         if storage.find_by(model, username=data.get('username')):
-            return respond.forbidden('User with this username already exists')
+            return respond.forbidden('User with this username already exists',
+                                     self.__class__.__name__,
+                                     current_app.logger)
         storage.create(model, **data)
-        logging.info(f"User {data.get('username')} created")
-        send_verification_email(data.get('email'), f"{data.get('first_name')} {data.get('last_name')}",
-                                user_type=user_type)
+        current_app.logger.info("User %s created", data.get('username'))
+        if getenv("LEXILINK_MYSQL_ENV") != "test":
+            send_verification_email(data.get('email'),
+                                    "%s %s" % (data.get('first_name'),
+                                               data.get('last_name')),
+                                    user_type=user_type)
+            current_app.logger.info("Verification email sent to %s",
+                                    data.get('email'))
         return respond.created({'status': 'success'})
 
 
@@ -195,11 +215,15 @@ class Logout(Resource):
         """ Logs out a user """
         claims = get_jwt()
         if invalid_user(claims['user_type']):
-            return respond.invalid_data('Invalid user type')
+            return respond.invalid_data('Invalid user type',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         if current_user:
             refresh_token = clean_data(request.get_json()).get('refresh_token')
             if not refresh_token:
-                return respond.unauthorized('User not logged in')
+                return respond.unauthorized('User not logged in',
+                                            self.__class__.__name__,
+                                            current_app.logger)
             logout_user()
             try:
                 storage.create("BlockListModel",
@@ -208,10 +232,15 @@ class Logout(Resource):
                 storage.create("BlockListModel",
                                 jwt=refresh_token,
                                 type="refresh")
+                current_app.logger.info('User %s logged out', claims['identity'])
                 return respond.ok({'status': 'success', 'message': 'User logged out'})
             except Exception as e:
-                return respond.internal_server_error(str(e))
-        return respond.unauthorized('User not logged in')
+                return respond.internal_server_error(str(e),
+                                                     self.__class__.__name__,
+                                                     current_app.logger)
+        return respond.unauthorized('User not logged in',
+                                    self.__class__.__name__,
+                                    current_app.logger)
 
 
 @auth.route('/refresh', strict_slashes=False)
@@ -228,13 +257,15 @@ class Refresh(Resource):
         user_type = get_jwt()['user_type']
 
         if invalid_user(user_type):
-            return respond.invalid_data('Invalid user type')
+            return respond.invalid_data('Invalid user type',
+                                        self.__class__.__name__,
+                                        current_app.logger)
 
         access_token = create_access_token(identity=current_user.username,
                                             additional_claims={
                                             "user_type": user_type
                                             })
-        print(f'User {current_user.username} refreshed token')
+        current_app.logger.info(f'User {current_user.username} refreshed token')
         return respond.ok({"access_token": access_token})
 
 
@@ -250,12 +281,18 @@ class VerifyEmail(Resource):
         """ Verify if email exists """
         data = clean_data(request.get_json())
         if not data or invalid_user(data.get('user_type')):
-            return respond.invalid_data('Invalid request data')
+            return respond.invalid_data('Invalid request data',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         if not data.get('email') or not data.get('user_type'):
-            return respond.invalid_data('Invalid request data')
+            return respond.invalid_data('Invalid request data',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user = load_user(data.get('email'), data.get('user_type'))
         if user:
-            return respond.forbidden('Email already exists')
+            return respond.forbidden('Email already exists',
+                                     self.__class__.__name__,
+                                     current_app.logger)
         return respond.ok({'status': 'Success'})
 
 
@@ -274,23 +311,17 @@ class VerifyUsername(Resource):
                 or not data.get('username')
                 or not data.get('user_type')
                 or invalid_user(data.get('user_type'))):
-            return respond.invalid_data('Invalid request data')
+            return respond.invalid_data('Invalid request data',
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user = storage.find_by(get_user_model(data.get('user_type')),
                                username=data.get('username'))
         if user:
-            return respond.forbidden('Username already exists')
+            return respond.forbidden('Username already exists',
+                                     self.__class__.__name__,
+                                     current_app.logger)
         return respond.ok({'status': 'Success'})
 
-@auth.route('/auth_confirm_email/', strict_slashes=False)
-class C(Resource):
-    """
-    This class defines the confirm email route for the Flask app.
-    method: GET - Confirm email, return forbidden if email already confirmed.
-                    otherwise return success.
-    """
-    def get(self):
-        """ Confirm email """
-        return respond.ok({'status': 'Success'})
 
 @auth.route('/auth_confirm_email/<token>', strict_slashes=False)
 class ConfirmEmail(Resource):
@@ -301,14 +332,21 @@ class ConfirmEmail(Resource):
     """
     def get(self, token):
         """ Confirm email """
-        print(token)
         try:
             email = s.loads(token, salt='email-confirm')
             user_type = request.args.get('user_type')
             if invalid_user(user_type):
-                return respond.invalid_data('Invalid user type')
+                return respond.invalid_data('Invalid user type',
+                                            self.__class__.__name__,
+                                            current_app.logger)
         except SignatureExpired:
-            return respond.forbidden('The token is expired')
+            return respond.forbidden('The token is expired',
+                                     self.__class__.__name__,
+                                     current_app.logger)
+        except BadSignature:
+            return respond.forbidden('The token is invalid',
+                                     self.__class__.__name__,
+                                     current_app.logger)
         user = load_user(email, user_type=user_type)
         user.is_verified = True
         user.save()

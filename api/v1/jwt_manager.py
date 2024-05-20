@@ -2,21 +2,19 @@
 """
 This module defines the JWT manager for the Flask app.
 """
-from datetime import timedelta
-
 from flask import jsonify, make_response
 from flask_jwt_extended import JWTManager
-
 from models import storage
-
-
-
-
 
 
 class JWTManagerWrapper:
     """
     This class wraps the JWT manager for the Flask app.
+    Properties:
+        jwt (JWTManager): The JWTManager instance.
+    Methods:
+        init_app: This method initializes the JWT manager for the Flask app.
+        response_headers: This function sets the response headers.
     """
     def __init__(self, app=None):
         if app:
@@ -26,6 +24,17 @@ class JWTManagerWrapper:
     def response_headers(response):
         """
         This function sets the response headers.
+        Properties:
+            response (Response): The response to be set.
+        Headers Description:
+            Content-Type: The content type of the response.
+            Access-Control-Allow-Origin: The origin allowed to access the resource.
+            Cache-Control: The caching policy for the response.
+            Netlify-CDN-Cache-Control: The caching policy for the Netlify CDN.
+        Args:
+            response (Response): The response to be set.
+        Returns:
+            The response with the headers set.
         """
         response.headers['Content-Type'] = 'application/json'
         response.headers['Access-Control-Allow-Origin'] = '*'
