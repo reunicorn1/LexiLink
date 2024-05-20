@@ -114,7 +114,7 @@ export default function SignUpMentor () {
     };
 
     const steps = [
-        { title: 'Personalalize'},
+        { title: 'Personalize'},
         { title: 'Teaching'},
         { title: 'Availability'},
       ]

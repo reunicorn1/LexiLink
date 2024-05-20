@@ -23,26 +23,11 @@ export default function MentorPlanner({sessions}) {
     const [clickedRow , setClickedRow] = useState(null);
     const navigate = useNavigate();
 
-    const printTime = (time) => {
-        // This function is made to correct the time zone difference
-        const localtimezoneoffset = dayjs().utcOffset();
-        const differenceInHours = Math.floor(localtimezoneoffset / 60);
-        const newtime = time.split(':').map(Number);
-        newtime[0] += differenceInHours;
-        newtime[1] = newtime[1].toString().padStart(2, '0');
-
-        return `${newtime[0]}:${newtime[1]}`;
-    }
 
     const sessionNow = (day, time, status) => {
-        const localtimezoneoffset = dayjs().utcOffset();
-        // convert time to datetime and add local timezone offset
-        const differenceInHours = Math.floor(localtimezoneoffset / 60);
-        const localTime = { hours: parseInt(time.split(':')[0]) + differenceInHours, minutes: parseInt(time.split(':')[1]) }
-        const newtime = `${localTime.hours}:${localTime.minutes}`
         if (status === "Approved") {
             const currentTime = dayjs();
-            const sessionTime = dayjs(dayjs(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);            
+            const sessionTime = day.format('YYYY-MM-DD') + ' ' + time;            
             if (currentTime.isSame(sessionTime, "date")) {
                 if (currentTime.isSameOrAfter(sessionTime)) {
                     return (2)
@@ -54,13 +39,8 @@ export default function MentorPlanner({sessions}) {
     }
 
     const TimeDifference = (day, time) => {
-        const localtimezoneoffset = dayjs().utcOffset();
-        const difference = Math.floor(localtimezoneoffset / 60);
-        const localTime = { hours: parseInt(time.split(':')[0]) + difference, minutes: parseInt(time.split(':')[1]) }
-        const newtime = `${localTime.hours}:${localTime.minutes}`
-
         const currentTime = dayjs();
-        const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);
+        const sessionTime = day.format('YYYY-MM-DD') + ' ' + time;
         const differenceInHours = sessionTime.diff(currentTime, 'hour');
         if (differenceInHours === 0) {
             return `${sessionTime.diff(currentTime, 'minute')} mins`
@@ -99,7 +79,7 @@ export default function MentorPlanner({sessions}) {
                             <Box h="10px" w="10px" bg={sessionNow(item.date, item.time, item.status) === 2 ? "teal" : "grey"} rounded="full" mr="20px"/>
                         </Td>
                         <Td>
-                            <Text>{printTime(item.time)}</Text>
+                            <Text>{item.time}</Text>
                         </Td>
                         <Td>{item.student_name}</Td>
                         {sessionNow(item.date, item.time, item.status) ?

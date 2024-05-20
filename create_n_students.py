@@ -52,6 +52,7 @@ def random_student():
         "profile_picture": fake.image_url(),
         "is_verified": True,
         "proficiency": random_proficiency(),
+        "is_verified": True,
         "user_type": "student"
         }
 

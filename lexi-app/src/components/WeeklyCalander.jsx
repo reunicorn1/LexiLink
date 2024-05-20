@@ -1,12 +1,18 @@
 import { Grid, Box, Text, Heading, Divider, Spacer, Center, Badge } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon} from '@chakra-ui/icons'
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 import MentorPlanner from "./MentorPlanner";
 
-export default function WeeklyCalander({sessions}) {
+dayjs.extend(utc);
+
+export default function WeeklyCalander({sessions, setSessions}) {
     const [today, setToday] = useState(dayjs());
     const [dayClicked, setDayClicked] = useState(today);
+
+    // To clean this function and adjust the process of fixing the time difference, a loop should go through all sessions to fix them accordingly 
+
 
     const generateDate = (today) => {
 
@@ -32,13 +38,13 @@ export default function WeeklyCalander({sessions}) {
     }
 
     const getSessions = (date=dayClicked) => {
-        const todaysSessions = sessions.filter(session => dayjs(session.date + 'Z').isSame(date, "day"));
+        const todaysSessions = sessions.filter(session => session.date.isSame(date, "day"));
         return todaysSessions.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`));
     }
 
-    const doIhaveSessions = (day) => {
+    const doIhaveSessions = (date) => {
         return sessions.some((session) => {
-            return dayjs(session.date + 'Z').isSame(day, "day")
+            return session.date.isSame(date, "day");
         });
     }
 

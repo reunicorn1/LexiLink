@@ -1,6 +1,9 @@
-import { Box, Center, Heading, Tag, Text, Image, Spacer, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Center, Heading, Tag, Text, Image, Spacer, useBreakpointValue, Flex, Icon } from "@chakra-ui/react";
 import { Circle } from "@chakra-ui/react";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 import Footer from "../components/Footer";
+import { Link } from "react-router-dom";
 
 export default function About() {
 
@@ -74,22 +77,41 @@ export default function About() {
                     <Box justifyContent="center" position="relative"  w="100%" display="flex">
 
                         <Box maxW="1000px" display={{md: "flex"}} justifyContent="center">
-                            <Box m="30px" w="90%">
-                                <Center><Image  w="80%" src="/img/mo.png"/></Center>
-                                <Tag mb={2} size="sm" colorScheme="green">Backend Developer</Tag>
-                                <Heading mb={2} fontSize="2xl">Mohamed Elfadil Abdalla</Heading>
-                                <Text textAlign="justify">
-                                Mohamed's expertise is the driving force behind the inner workings of our platform. He's the architect who ensures that data flows seamlessly throughout, creating a robust and efficient system that operates smoothly, and providing a user-friendly experience for all learners and mentors. Additionally, Mohamed has implemented our integrated video call feature, simplifying connections between students and mentors.
-                                </Text>
-                            </Box>
-                        
-                            <Box m="30px" w="90%">
-                                <Center><Image w="80%" src="/img/reem.png"/></Center>
-                                <Tag mb={2} size="sm"  colorScheme="pink">Frontend Developer</Tag>
-                                <Heading mb={2} fontSize="2xl">Reem Osama</Heading>
-                                <Text textAlign="justify">
-                                With a keen eye for detail and a passion for user experience, Reem has played a pivotal role in refining LexiLink's platform into a sleek and professional interface. Her dedication to simplicity and elegance has resulted in an intuitive design that enhances usability for learners and mentors alike. Moreover, her seamless integration of the frontend with the backend ensures a cohesive experience for every user interaction.                               </Text>
-                            </Box>
+                            <Center>
+                                <Box m="30px" w="75%">
+                                    <Center><Image  w="80%" src="/img/mo.png"/></Center>
+                                    <Tag mb={2} size="sm" colorScheme="green">Backend Developer</Tag>
+                                    <Heading mb={2} fontSize="2xl">Mohamed Elfadil Abdalla</Heading>
+                                    <Text textAlign="justify">
+                                        Mohamed's expertise is the driving force behind the inner workings of our platform. He's the architect who ensures that data flows seamlessly throughout, creating a robust and efficient system that operates smoothly, and providing a user-friendly experience for all learners and mentors. Additionally, Mohamed has implemented our integrated video call feature, simplifying connections between students and mentors.
+                                    </Text>
+                                    <Flex justifyContent="space-around" mt={3} boxShadow="base" justify="flex-end" w="40%" rounded="full" p="8px">
+                                        <Link to="https://github.com/mo7amedElfadil"><Icon fontSize="25px" as={FaGithub}/></Link>
+                                        <Link to="https://linkedin.com/in/mohamedelfadil/"><Icon fontSize="25px" as={FaLinkedin}/></Link>
+                                        <a h="0px" href="mailto:mo7amedelfadil@gmail.com?subject=Business%20Inquiry&body=Dear%20Mohamed%20Elfadil%20Abdalla,%0D%0A%0D%0AI%20hope%20this%20message%20finds%20you%20well.%20I%20am%20interested%20in%20discussing%20a%20potential%20business%20opportunity%20with%20you.%20Could%20we%20schedule%20a%20meeting%20to%20talk%20in%20detail?%0D%0A%0D%0AThank%20you,%0D%0A[Your%20Name]">
+                                            <Icon fontSize="26px" as={MdEmail} />
+                                        </a>
+                                    </Flex>
+                                </Box>
+                            </Center>
+                           
+                            <Center>
+                                <Box m="30px" w="75%">
+                                    <Center><Image w="80%" src="/img/reem.png"/></Center>
+                                    <Tag mb={2} size="sm"  colorScheme="pink">Frontend Developer</Tag>
+                                    <Heading mb={2} fontSize="2xl">Reem Osama</Heading>
+                                    <Text textAlign="justify">
+                                        With a keen eye for detail and a passion for user experience, Reem has played a pivotal role in refining LexiLink's platform into a sleek and professional interface. Her dedication to simplicity and elegance has resulted in an intuitive design that enhances usability for learners and mentors alike. Moreover, her seamless integration of the frontend with the backend ensures a cohesive experience for every user interaction.
+                                    </Text>
+                                    <Flex justifyContent="space-around" mt={3} boxShadow="base" justify="flex-end" w="40%" rounded="full" p="8px">
+                                        <Link to="https://github.com/reunicorn1"><Icon fontSize="25px" as={FaGithub}/></Link>
+                                        <Link to="https://www.linkedin.com/in/reosama/"><Icon fontSize="25px" as={FaLinkedin}/></Link>
+                                        <a h="0px" href="mailto:ireosama1@gmail.com?subject=Business%20Inquiry&body=Dear%20Reem%20Osama,%0D%0A%0D%0AI%20hope%20this%20message%20finds%20you%20well.%20I%20am%20interested%20in%20discussing%20a%20potential%20business%20opportunity%20with%20you.%20Could%20we%20schedule%20a%20meeting%20to%20talk%20in%20detail?%0D%0A%0D%0AThank%20you,%0D%0A[Your%20Name]">
+                                            <Icon fontSize="26px" as={MdEmail} />
+                                        </a>
+                                    </Flex>
+                                </Box>
+                            </Center>  
                         </Box>
                     </Box>
                 </Box>
@@ -99,3 +121,4 @@ export default function About() {
     </>
     )
 }
+

@@ -21,6 +21,8 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [love, setLove] = useState();
+  const [off, setOff] = useState(false);
+  const [prevList, setPrevList] = useState(mentors); 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const navigate = useNavigate();
   const { isOpen: isOpenRes, onOpen: onOpenRes, onClose: onCloseRes } = useDisclosure();
@@ -94,23 +96,65 @@ export default function BrowsingSection({ filter, search, setSearch }) {
     setPage(page + 1);
   }
 
-  const filtering = (list) => {
-    // Filtering work on the basis of the known structure of the filter list that is given as an argument and 
-    // lives here as a global variable.
-    // filter is composed of [1] types, [2] langs, and [3] slider. All these are lists that are inspected indepedndetly and decisions are made
-    // based on their content.
-    if (filter && filter[0]) {
-      if (filter[0].length > 0) {
-        list = list.filter(item => filter[0].includes(item.type));
+  useEffect(()=>{
+
+    const filtering = async() => {
+      const { type, languages, min_price, max_price } = filter;
+      const isFilterActive = type.length === 1 || languages.length || min_price !== 0 || max_price !== 100;
+
+      if (isFilterActive) {
+
+        const validFilter = {};
+      
+        if (filter.type.length === 1) {
+          validFilter.type = type.join(', ');
+        }
+      
+        if (filter.languages.length) {
+          validFilter.languages = languages;
+        }
+      
+        if (filter.min_price !== 0) {
+          validFilter.min_price = min_price;
+        }
+      
+        if (filter.max_price !== 100) {
+          validFilter.max_price = max_price;
+        }
+      
+        try {
+          const result = await axios.post(`${API_URL}/mentor/filter`, validFilter)
+          console.log(result);
+
+          if (!off) {
+            setPrevList(mentors);
+          }
+
+          setMentors(result.data.mentors);
+          setOff(true);
+        } catch (err) {
+          console.log('Error fetching filtered mentors:', err);
+        }
+      } else {
+        
+        if (off) {
+          setMentors(prevList);
+          setOff(false);
+        }
       }
-      if (filter[1].length > 0) {
-        list = list.filter(item => (filter[1].includes(item.first_language) || filter[1].includes(item.other_languages)));
-      }
-      list = list.filter(item => item.price_per_hour <= filter[2][1] && item.price_per_hour >= filter[2][0]);
     }
-    filter = null;
-    return list;
-  }
+    filtering();
+  }, [filter])
+
+
+  // const filtering = async () => {
+  //   // Filtering work on the basis of the known structure of the filter list that is given as an argument and 
+  //   // lives here as a global variable.
+  //   // filter is composed of [1] types, [2] langs, and [3] slider. All these are lists that are inspected indepedndetly and decisions are made
+  //   // based on their content.
+  //   console.log("this from the filtering function", filter);
+
+  // }
 
   useEffect(() => {
     const allMentors = (async () => {
@@ -131,7 +175,6 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   useEffect(() => {
     if (search) {
       handleSearching();
-      filter = null;
     } else {
       setSearch("");
     }
@@ -212,7 +255,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
     <Box maxW="1200px" display="flex" justifyContent="center" overflowY="auto">
       {/* scrollable section */}
       <Box m="20px" mr="10px" mt="0px" w="90%" overflowY="auto" height={{ base: "auto", md: "150vh" }}>
-        {filtering(mentors).map((mentor, index) => (
+        {mentors.map((mentor, index) => (
           <Card key={index} borderWidth={1.7} borderColor={isClicked?.id === mentor.id ? "brand.700" : "grey"} m="15px" p="10px" style={{ cursor: "pointer" }} onClick={() => handleClick(mentor)} >
             <CardBody>
               <Box display={{ base: "block", sm: "flex" }} alignItems="center" textAlign={{ base: "center", sm: "left" }} overflow="hidden" whiteSpace="wrap" textOverflow="ellipsis">
@@ -235,8 +278,8 @@ export default function BrowsingSection({ filter, search, setSearch }) {
             </CardBody>
           </Card>
         ))}
-        {/* I couldn't hide the load more option when you remove the search  // if you can't beat them join them */}
-        {!search && <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>}
+        {/* I couldn't hide the load more option when I remove the search  // if you can't beat them join them */}
+        {!(search || off)&& <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>}
       </Box>
       {/* fixed section */}
       { mentors.length && <>

@@ -237,14 +237,14 @@ export default function UpcomingClass() {
                     </Tr>
                 </Thead>
                 <Tbody textAlign={'center'}>
-                    {!sessions?.length ?
+                    {!sessions?.filter((session) => futuresessions(session.date))?.length ?
                         <Tr>
                             <Td>
                                 <Text m="22px"> No Upcoming classes..</Text>
                             </Td>
                         </Tr>
                         : <>
-                            {sessions.filter((session) => futuresessions(session.date)).map((session, index) => (
+                            {sessions?.filter((session) => futuresessions(session.date)).map((session, index) => (
                                 <Tr key={index} onClick={()=>handleClick(session)} style={{ cursor: "pointer" }}>
                                     {/* Create a for loop for every upcoming session to register it's info  */}
                                     <Td>

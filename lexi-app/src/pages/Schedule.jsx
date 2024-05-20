@@ -1,4 +1,4 @@
-import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Alert, AlertIcon, Avatar, Badge, Collapse, useDisclosure } from "@chakra-ui/react";
+import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Flex, Alert, AlertIcon, Avatar, Badge, Collapse, useDisclosure, useBreakpointValue, useToast } from "@chakra-ui/react";
 import { MdSunny } from "react-icons/md";
 import { IoMoon } from "react-icons/io5";
 import Calander from "../components/Calander";
@@ -26,16 +26,21 @@ export default function Schedule() {
     let location = useLocation();
     const mentor = location.state && location.state.mentor ? location.state.mentor : null;
     const update_id = location.state && location.state.update ? location.state.update : null;
+    const isSmallScreen = useBreakpointValue({ base: true, md: false });
+    const isMediumScreen = useBreakpointValue({ base: true, lg: false});
+    const toast = useToast();
+
 
     useEffect(() => {
         if (!role) {
             navigate("/");
         }
     }, [])
+
+
     useEffect(() => {
         setSelectTime(null);
-        if (selectDate !== now) {
-            console.log(selectDate, dayjs())
+        if (!selectDate.isSame(now, 'day')) {
             setAppear(true);
         }
     }, [selectDate])
@@ -58,9 +63,10 @@ export default function Schedule() {
 
         if (start && end) {
             let [startHours, startMinutes] = start.split(':').map(Number);
-            startHours += differenceInHours;
             let [endHours, endMinutes] = end.split(':').map(Number);
-            endHours += differenceInHours;
+
+            startHours = (startHours + differenceInHours) % 24;
+            endHours = (endHours + differenceInHours) % 24;
     
             if (!time) {
                 endHours = 12;
@@ -75,6 +81,9 @@ export default function Schedule() {
                     h += 1;
                     m -= 60;
                 }
+                if (h >= 24) {
+                    break; // Stop if we go past midnight
+                }
                 // I'm only adding 30 minutes as a duration for every session
                 // Add more to m initially to declare the duration of the session
             }
@@ -83,6 +92,16 @@ export default function Schedule() {
             return arrayofTimes
         }
   
+    }
+
+    const handleToastError = () => {
+        toast({
+            title: 'Schedule Conflict',
+            description: "The selected time overlaps with an existing session. Please choose a different time.",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });          
     }
 
     const handleContinue = () => {
@@ -100,7 +119,10 @@ export default function Schedule() {
                 try {
                     const response = await executor.post(`/sessions/`, state);
                     onOpen();
-                } catch (err) {
+                } catch (error) {
+                    if (error.response && error.response.status === 409)  {
+                        handleToastError();
+                    }
                     console.error(err);
                 }
             })();
@@ -109,7 +131,10 @@ export default function Schedule() {
                  try {
                     const response = await executor.put(`/sessions/${update_id}`, {date: state.date, time: state.time, status: "Pending"});
                     onOpen();
-                } catch (err) {
+                } catch (error) {
+                    if (error.response && error.response.status === 409)  {
+                        handleToastError();
+                    }
                     console.error(err);
                 }
             })();
@@ -117,22 +142,22 @@ export default function Schedule() {
     }
 
     return <Box display="flex" justifyContent="center">
-        <Box display="flex" mb="30px">
+        <Box display={{lg:"flex"}} mb="30px">
             {/* Pick time card */}
-            <Box display="flex" p="40px" bg="white" rounded="xl" m="20px" boxShadow='lg'>
+            <Box display={{lg: "flex"}} p="40px" bg="white" rounded="xl" m="20px" boxShadow='lg'>
                 {/* The calander section */}
                 <Box>
                     <Heading fontSize="xl" mb={2}>Schedule your lessons</Heading>
                     <Calander selectDate={selectDate} setSelecteDate={setSelecteDate} days={mentor?.availability.days} />
-                    <Box display="flex" alignItems="center" bg="brand.700" maxW="350px" p="20px" mt="65px" rounded={'xl'} boxShadow={'xl'}>
+                    <Box display="flex" alignItems="center" bg="brand.700" maxW={{lg:"350px"}} p="20px"  mb={{base: "40px", lg: "0px"}}mt="65px" rounded={'xl'} boxShadow={'xl'}>
                         <Image src="/img/flower.png" maxW="80px" mr={4}></Image>
                         <Box color="white">
                             <Heading fontSize={'lg'}>Prepare for your next lesson!</Heading>
-                            {selectDate !== now && <Text fontSize={'md'}>On {selectDate.format('dddd, D MMM')}</Text>}
+                            {!selectDate.isSame(now, 'day') && <Text fontSize={'md'}>On {selectDate.format('dddd, D MMM')}</Text>}
                         </Box>
                     </Box>
                 </Box>
-                <Divider orientation="vertical" ml={10} mr={10}></Divider>
+                {!isSmallScreen && <Divider orientation="vertical" ml={10} mr={10}></Divider>}
                 <Collapse in={appear} animateOpacity>
                     {/* The part under this must be removed if screen size is small and appear in a popover */}
                     <Box className="horizontal-transition">
@@ -145,7 +170,7 @@ export default function Schedule() {
                                 {/* map a list of times to be singly included in their own button */}
                                 <Box display="flex" flexWrap="wrap">
                                     {generateTime(0)?.map((time, index) => (
-                                        <Button key={index} m="10px" width="80px" isActive={selectTime === time} onClick={() => setSelectTime(time)}>{time}</Button>
+                                        <Button key={index} m="10px" isActive={selectTime === time} onClick={() => setSelectTime(time)}>{time}</Button>
                                     ))}
                                 </Box>
                             </Box>
@@ -154,26 +179,31 @@ export default function Schedule() {
                                 {/* map a list of times to be singly included in their own button */}
                                 <Box display="flex" flexWrap="wrap">
                                     {generateTime(1)?.map((time, index) => (
-                                        <Button key={index} m="10px" width="80px" isActive={selectTime === time} onClick={() => setSelectTime(time)}>{time}</Button>
+                                        <Button key={index} m="10px" isActive={selectTime === time} onClick={() => setSelectTime(time)}>{time}</Button>
                                     ))}
                                 </Box>
                             </Box>
-                            <Alert status='info' maxW="400px" mt="30px" >
+                            {!isMediumScreen && 
+                            <Alert status='info' maxW={{md: "400px"}} mt="30px" >
                                 <AlertIcon />
                                 All times are shown in your Local Time Zone
                             </Alert>
+                            }
                         </Box>
                     </Box>
                 </Collapse>
             </Box>
             {/* The mentor card */}
             {mentor &&
-                <Box bg="brand.800" color="white" rounded="xl" textAlign="center" m="20px" p="30px" boxShadow='lg' maxW="300px" h="auto">
-                    <Avatar size={'xl'} src={mentor?.profile_picture} />
-                    <Heading fontSize="2xl">{mentor.first_name} {mentor.last_name}</Heading>
-                    <Badge mt={2} colorScheme={mentor.type === "Community" ? 'blue' : 'yellow'}>{mentor.type} Mentor</Badge>
-                    <Text textAlign="left" mt="20px" mb="20px">{mentor.bio}</Text>
-                    <Box mt="40px" textAlign="left">
+                <Box display={{base: "flex", lg:"block"}} alignItems="center"  bg="brand.800" color="white" rounded="xl" textAlign="center" m="20px" p="30px" boxShadow='lg' maxW={{lg: "300px"}} h="auto">
+                    <Box>
+                        <Avatar size={'xl'} src={mentor?.profile_picture} />
+                        <Heading  mt={2} fontSize={{base: "xl", lg: "2xl"}}>{mentor.first_name} {mentor.last_name}</Heading>
+                        <Badge mt={2} colorScheme={mentor.type === "Community" ? 'blue' : 'yellow'}>{mentor.type} Mentor</Badge>
+                    </Box>
+                   
+                    {!isMediumScreen && <Text textAlign="left" mt="20px" mb="20px">{mentor.bio}</Text>}
+                    <Box mt="40px" ml={{base: "40px", lg: "0px"}} textAlign="left">
                         {selectTime &&
                             <Stat>
                                 <StatLabel>Time</StatLabel>
@@ -181,7 +211,7 @@ export default function Schedule() {
                                 <Divider />
                             </Stat>
                         }
-                        {selectDate !== now &&
+                        {!selectDate.isSame(now, 'day') &&
                             <Stat>
                                 <StatLabel>Date</StatLabel>
                                 <Heading mt={1} mb={1} fontSize="xl">{selectDate.format('dddd, D MMM')}</Heading>
@@ -193,8 +223,11 @@ export default function Schedule() {
                             <StatNumber>${mentor.price_per_hour}</StatNumber>
                             <Divider />
                         </Stat>
+                        <Flex justify="center">
+                            <Button isDisabled={!selectTime} colorScheme="orange" mt="40px" onClick={handleContinue}>Continue</Button>
+                        </Flex>
+
                     </Box>
-                    <Button isDisabled={!selectTime} colorScheme="orange" mt="40px" onClick={handleContinue}>Continue</Button>
 
 
                 </Box>

@@ -6,7 +6,7 @@ from api.v1.config import DevelopmentConfig, ProductionConfig, TestingConfig
 
 # config = ProductionConfig
 config = DevelopmentConfig
-# config = TestingConfig
+#config = TestingConfig
 
 print("CONFIG: ", config.__name__)
 app=create_app(config)

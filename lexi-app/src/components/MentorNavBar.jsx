@@ -1,4 +1,5 @@
-import { Spacer, Box, Badge, Button, Image, Text, Flex, Heading, Avatar, Menu, MenuButton, MenuList, MenuItem, Tag } from '@chakra-ui/react'
+import { Spacer, Box, Badge, Button, Image, Text, Flex, Avatar, Menu, MenuButton, MenuList, MenuItem, Tag, useBreakpointValue, IconButton } from '@chakra-ui/react'
+import { HamburgerIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom'
 import { useAuth } from '../AuthContext';
 import axios from "axios";
@@ -9,7 +10,7 @@ import { API_URL } from '../utils/config';
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import useAxiosPrivate from "../utils/useAxiosPrivate";
-
+import MenuButtonN from './MenuButton';
 
 
 
@@ -72,6 +73,7 @@ function BellButton ( {children, pending, setUpdate, update}){
 }
 
 export default function MentorNavBar() {
+    const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { authToken, setUser, role, user } = useAuth();
     const executor = useAxiosPrivate();
     const [notificationCount, setNotificationCount] = useState(0);
@@ -172,8 +174,24 @@ export default function MentorNavBar() {
                 </Box> 
             </Box>:
                 <Box>
-                    <Link to='/mentor/sign-in'><Button size="sm" colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
-                    <Link to='/mentor/sign-up' ><Button size="sm" colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
+                    {isSmallScreen ? 
+                    <Menu>
+                        <MenuButton
+                        as={IconButton}
+                        aria-label='Options'
+                        icon={<HamburgerIcon />}
+                        variant='outline'
+                        />
+                        <MenuList>
+                            <Link to='/mentor/sign-in'><MenuItem>Login</MenuItem></Link>
+                            <Link to='/mentor/sign-up'><MenuItem>Sign up</MenuItem></Link>
+                        </MenuList>
+                    </Menu> : 
+                        <>
+                            <Link to='/mentor/sign-in'><Button size="sm" colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
+                            <Link to='/mentor/sign-up' ><Button size="sm" colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>
+                        </>
+                    }
                 </Box>
             }
         </Box>

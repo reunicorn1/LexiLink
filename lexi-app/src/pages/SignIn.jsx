@@ -97,7 +97,8 @@ export default function SignIn() {
                     }, 1000);
                     handleToast()
                 } catch (error) {
-                    setFormError(error.response.data.error)
+                    console.log(error);
+                    setFormError(error.response.data.error);
                 }
             })();
         } else {
