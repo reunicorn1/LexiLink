@@ -54,6 +54,10 @@ mentor_student_model = mentor.model('MentorStudent', {
     'student': fields.String(),
     })
 
+delete_model = mentor.model('DeleteAccount', {
+    'refresh_token': fields.String(),
+    })
+
 
 @mentor.route('/<string:id>/', strict_slashes=False)
 class MentorById(Resource):
@@ -124,7 +128,7 @@ class Mentor(Resource):
         return respond.ok({"profile": user.to_dict()})
 
     @jwt_required()
-    @mentor.expect(auth_parser)
+    @mentor.expect(auth_parser, delete_model)
     def delete(self):
         """ Deletes a mentor 
             If not mentor, returns unauthorized 401 error

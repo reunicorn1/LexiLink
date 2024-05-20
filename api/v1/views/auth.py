@@ -134,6 +134,9 @@ class Login(Resource):
         user_type = data.pop('user_type')
         user = load_user(data.get('email'), user_type=user_type)
         if user and not user.is_verified:
+            send_verification_email(data.get('email'),
+                                    "%s %s" % (user.first_name, user.last_name),
+                                    user_type=user_type)
             return respond.forbidden('Please verify your email before logging in',
                                      self.__class__.__name__,
                                      current_app.logger)

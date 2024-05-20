@@ -2,11 +2,13 @@ import axios from "./axios"
 import { useEffect } from "react";
 import { useAuth } from "../AuthContext";
 import { useState } from "react";
+import { MdOutlineSubdirectoryArrowRight } from "react-icons/md";
+import dayjs from "dayjs";
 
 
 
 const useAxiosPrivate = (isLoading, setIsLoading) => {
-    const {refresh, authToken } = useAuth();
+    const {refresh, authToken, refreshToken } = useAuth();
     const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
     useEffect(() => {
@@ -19,7 +21,13 @@ const useAxiosPrivate = (isLoading, setIsLoading) => {
                 }
                 if (!config.headers['Authorization']) {
                     config.headers['Authorization'] = `Bearer ${authToken}`;
-                } 
+                }
+                // if method is delete we want to send the refresh token
+                // and endpoint ends in /profile
+                if (config.method === 'delete' && config.url.endsWith('/profile')) {
+                    config.data = {refresh_token: refreshToken};
+                }
+                
                 return config;
             }, (error) =>{
                 setIsLoading(false);

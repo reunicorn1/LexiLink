@@ -75,7 +75,7 @@ def send_mentor_session_email(session):
     mentor_message = Mail(
         from_email='mail.lexilink@gmail.com',
         to_emails=mentor.email,
-        subject='Verify Your Email Address',
+        subject='Session Scheduled',
         html_content=mentor_msg)
     try:
         sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
@@ -106,7 +106,7 @@ def send_student_session_email(session):
     std_message = Mail(
         from_email='mail.lexilink@gmail.com',
         to_emails=student.email,
-        subject='Verify Your Email Address',
+        subject='Session Scheduled',
         html_content=student_msg)
     try:
         sg = SendGridAPIClient(getenv('SENDGRID_API_KEY'))
