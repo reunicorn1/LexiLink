@@ -6,7 +6,7 @@ import Success from "./Success";
 import { API_URL } from '../utils/config';
 
 
-const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) => {
+const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, countries }) => {
 
     const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
@@ -61,19 +61,6 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) =
         })();
     }
 
-    const [countries, setCountries] = useState([]); 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
-                response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-                setCountries(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-    }, []);
 
     return <>
             <Box display="flex" justifyContent="center">
@@ -116,8 +103,8 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) =
                     <FormLabel>Nationality</FormLabel>
                     <Select isInvalid={Boolean(formError.nationality)} mb={7} placeholder='Select your nationality' name="nationality" value={input.nationality} onChange={onChange}>
                          {countries?.map((item, index) => (                      
-                            <option key={index} value={item.demonyms.eng.m}>
-                                {item.demonyms.eng.m}
+                            <option key={index} value={item.name.common}>
+                                {item.name.common}
                             </option>
                          ))}
                     </Select>

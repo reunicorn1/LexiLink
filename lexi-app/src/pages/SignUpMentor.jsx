@@ -31,6 +31,7 @@ export default function SignUpMentor ({ isLoading, setIsLoading }) {
     const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", education:"", expertise:"", type: "Community", availability: {days: [], startTime: "", endTime: ""}, profile_picture: "", user_type:"mentor" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: ""});
+    const [countries, setCountries] = useState([]); 
     const toast = useToast()
 
     const { role } = useAuth();
@@ -41,6 +42,19 @@ export default function SignUpMentor ({ isLoading, setIsLoading }) {
             navigate("/");
         }
     }, [])
+
+    useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
+              response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+              setCountries(response.data);
+          } catch (error) {
+              console.error('Error fetching data:', error);
+          }
+      };
+      fetchData();
+  }, []);
 
     
     let emailValid = true;
@@ -163,7 +177,7 @@ export default function SignUpMentor ({ isLoading, setIsLoading }) {
     return <>
             {step === 1 && <SignUpMentorOne input={input} formError={formError} onChange={handleInputChange} onClick={handleClick} handleGoogle={handleGoogle}></SignUpMentorOne>}
             {step === 2 && <SignUpMentorTwo input={input} formError={formError} setFormError={setFormError} onChange={handleInputChange} handleStepper={handleStepper} SteppingOver={SteppingOver}></SignUpMentorTwo>}
-            {step === 3 && <SignUpMentorThree input={input} setInput={setInput} onChange={handleInputChange} handleStepper={handleStepper} SteppingOver={SteppingOver}></SignUpMentorThree>}
+            {step === 3 && <SignUpMentorThree input={input} setInput={setInput} onChange={handleInputChange} handleStepper={handleStepper} SteppingOver={SteppingOver} countries={countries}></SignUpMentorThree>}
             {step === 4 && <SignUpMentorFour input={input} setInput={setInput} onChange={handleInputChange} handleStepper={handleStepper} SteppingOver={SteppingOver}></SignUpMentorFour>}
     </>
 }
