@@ -56,7 +56,6 @@ export default function MentorDashboard ({ isLoading, setIsLoading }) {
             newStats.minutes += Number(element.duration.substring(3, 5));
             newStats.profit += Number(user.price_per_hour);
           }
-          //console.log(newStats.profit)
         })
         setStats(newStats);
         const sessionsWithStudents = await Promise.all(result.data.sessions.map(async session => {

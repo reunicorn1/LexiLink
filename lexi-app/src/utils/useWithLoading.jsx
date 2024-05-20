@@ -4,7 +4,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 function withLoading(Component, delay = 10000) {
   return function WithLoadingComponent({ isLoading, setIsLoading, ...props }) {
 
-    console.log("Is loading", isLoading)
     useEffect(() => {
       let timeoutId;
       if (isLoading) {

@@ -36,8 +36,6 @@ export const AuthProvider = ({ children }) => {
   }
 
   const login = (token, refresh) => {
-    console.log(refresh)
-    console.log(token)
     setAuthToken(token);
     setRefreshToken(refresh);
 
@@ -56,18 +54,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('role');
   };
 
-  // const refresh = () => {
-  //   return (async () => {
-  //     try {
-  //       const result = await axios.get(`${API_URL}/auth/refresh`, { headers: {Authorization: "Bearer " + refreshToken} } );
-  //       setAuthToken(result.data.access_token);
-  //       console.log("refresh token");
-  //       return (result.data.access_token);
-  //     } catch(error) {
-  //       console.log(error.response.data);
-  //     }
-  //   })();
-  // }
 
   const followup = () => {
     logout();
@@ -89,15 +75,13 @@ const handleLogOut = async () => {
     // it's still a 410 but someimes the server doesn't print it in logs but the error recieved while
     // printing is indeed 410 
     // Refresh doesn't work if disable cache toggle isn't on. even normal retrieval of data using access token doesn't work if it's not on
-    console.log("hello?????")
     try{
       const response = await axios.get(`${API_URL}/auth/refresh`, {
         headers: { Authorization: "Bearer " + refreshToken },
         withcredentials: true
        });
        setAuthToken(prev => {
-        console.log(prev);
-        console.log(response.data.access_token);
+
         return response.data.access_token
       });
       return response.data.access_token;

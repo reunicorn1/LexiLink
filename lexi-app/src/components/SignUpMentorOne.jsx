@@ -18,7 +18,6 @@ export default function SignUpMentorOne ({ input, formError, onChange, onClick, 
 						},
 					}
 				);
-				//console.log(res);
 				handleGoogle(res);
 			} catch (err) {
 				console.log(err);

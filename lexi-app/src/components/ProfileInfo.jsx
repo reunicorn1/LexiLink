@@ -75,7 +75,6 @@ export default function ProfileInfo( { isLoading, setIsLoading } ) {
             const response = await executor.get(`/${role}/profile`);
             followup(response);
           } catch (err) {
-            //console.log("refreshToken is probably expired");
             console.log(err);
           }
     });
@@ -120,7 +119,6 @@ export default function ProfileInfo( { isLoading, setIsLoading } ) {
                 getProfile()
                 handleToast();
               } catch (err) {
-                //console.log("refreshToken is probably expired");
                 console.log(err);
               }
         })();

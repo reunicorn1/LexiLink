@@ -30,7 +30,6 @@ export default function Favorites({isLoading, setIsLoading}) {
       const response = await executor.get('/student/mentors/favorites/');
       setMentors(response.data.mentors);
     } catch (err) {
-      //console.log("refreshToken is probably expired");
       console.error(err);
     }
   }

@@ -22,7 +22,6 @@ const SignUpStepOne = ({ input, formError, onChange, onClick, handleGoogle }) =>
 						},
 					}
 				);
-				//console.log(res);
 				handleGoogle(res);
 			} catch (err) {
 				console.log(err);
@@ -30,10 +29,6 @@ const SignUpStepOne = ({ input, formError, onChange, onClick, handleGoogle }) =>
 		}
 	  });
 	  
-	// const responseMessage = (response) => {
-	// 	const responsedecoded = jwtDecode(response.credential)
-	// 	console.log(responsedecoded);
-	// };
 
 	return (
 		<>
@@ -51,7 +46,6 @@ const SignUpStepOne = ({ input, formError, onChange, onClick, handleGoogle }) =>
 							<Image boxSize="22px" mr="10px" src= "/img/google.png"/>
 							Sign up with Google
 						</Button>
-						{/* <GoogleLogin onSuccess={responseMessage} onError={()=>{console.log('Login Failed')}} /> */}
                     </Box> 
                     <Box m="50px" mt="0px" >
 						<FormControl mb={3} isInvalid={Boolean(formError.email)}>

@@ -166,7 +166,6 @@ export default function Availability({isLoading, setIsLoading}){
                 </Select>
             </Box>
             <Box w="100%">
-                {console.log(input?.availability?.endTime, input?.availability?.startTime)}
                 <FormLabel>Ending time</FormLabel>
                 <Select variant="filled" placeholder='Pick your end time' name="endTime" value={input?.availability?.endTime} onChange={handleChange}> 
                     {createTimes((input?.availability?.startTime), undefined).map((item, index) => (

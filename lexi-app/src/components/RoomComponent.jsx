@@ -27,20 +27,6 @@ const RoomComponent = ({ sessionid, isLoading, setIsLoading }) => {
   };
 
 
-  // const getToken = async () => {
-  //   await executor(
-  //     (token) => axios.get(`${API_URL}/sessions/room/${sessionid}`, { headers: { Authorization: "Bearer " + token } }),
-  //     (response) => {
-	// 	  console.log('response', response);
-  //       token = response.data.token;
-  //       localUid = response.data.uid;
-  //       channel = response.data.channel;
-  //     }
-  //   );
-  //   return token, localUid, channel;
-  // };
-
-
   let config = {
     appid: import.meta.env.VITE_AGORA_APPID,
     token: token,

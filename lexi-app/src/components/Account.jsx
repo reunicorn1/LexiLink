@@ -32,7 +32,6 @@ export default function Account({isLoading, setIsLoading}) {
     const deleteAccount = (async () => {
       try {
         const response = await executor.delete(`/${role}/profile`);
-        console.log("I deleted the user");
         onClose();
         logout();
         navigate('/');

@@ -18,7 +18,6 @@ const useAxiosPrivate = (isLoading, setIsLoading) => {
                 setHasLoadedOnce(true);
                 }
                 if (!config.headers['Authorization']) {
-                    // console.log("This is access token", authToken);
                     config.headers['Authorization'] = `Bearer ${authToken}`;
                 } 
                 return config;
@@ -38,7 +37,6 @@ const useAxiosPrivate = (isLoading, setIsLoading) => {
                 setIsLoading(false);
                 const prevRequest = error?.config;
                 if (error?.response?.status === 410 && !prevRequest?.sent) {
-                    console.log("okay?")
                     prevRequest.sent = true;
                     const newAccessToken = await refresh();
                     // Since refresh failed, the value of the accesstokem is undefined

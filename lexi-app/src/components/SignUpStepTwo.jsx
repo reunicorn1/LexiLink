@@ -35,16 +35,11 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput }) =
             try{
                 const checkuser = await axios.post(`${API_URL}/auth/verify_username`, {username: input.username, user_type: "student"})
                 setFormError({...errors})
-                console.log(checkuser);
-                console.log(input);
                 if (Object.values(input).every(value => value)) {
-                    console.log("All fields are filled");
                     // send the data to the end point 
                     (async () => {
                         try {
-                            console.log(input);
                             const result = await axios.post(`${API_URL}/auth/signup`, input);
-                            console.log(result);
                             handleOtherElementClick();
                             // If email is not used, emailValid should remain true
                         } catch (error) {

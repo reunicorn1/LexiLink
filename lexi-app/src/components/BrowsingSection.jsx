@@ -124,7 +124,6 @@ export default function BrowsingSection({ filter, search, setSearch, isLoading, 
       
         try {
           const result = await axios.post(`${API_URL}/mentor/filter`, validFilter)
-          console.log(result);
 
           if (!off) {
             setPrevList(mentors);
@@ -146,16 +145,7 @@ export default function BrowsingSection({ filter, search, setSearch, isLoading, 
     filtering();
   }, [filter])
 
-
-  // const filtering = async () => {
-  //   // Filtering work on the basis of the known structure of the filter list that is given as an argument and 
-  //   // lives here as a global variable.
-  //   // filter is composed of [1] types, [2] langs, and [3] slider. All these are lists that are inspected indepedndetly and decisions are made
-  //   // based on their content.
-  //   console.log("this from the filtering function", filter);
-
-  // }
-
+  
   useEffect(() => {
     const allMentors = (async () => {
       try {

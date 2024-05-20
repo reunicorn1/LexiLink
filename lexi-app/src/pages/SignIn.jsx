@@ -22,9 +22,6 @@ export default function SignIn({ isLoading, setIsLoading }) {
         }
     }, [])
 
-    // const responseMessage = (response) => {
-    //     console.log(response);
-    // };
 
     const loging = useGoogleLogin({
         onSuccess: async (response) => {

@@ -43,7 +43,6 @@ export default function NavBar({ isLoading, setIsLoading }) {
                 const response = await executor.get('/student/profile');
                 followup(response);
             } catch (err) {
-                //console.log("refreshToken is probably expired");
                 console.log(err);
             }
         };

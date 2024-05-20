@@ -20,11 +20,6 @@ export default function SignInMentor ( { isLoading, setIsLoading } ) {
         }
     }, [])
 
-
-    const responseMessage = (response) => {
-        console.log(response);
-    };
-
     const handleInputChange = (e) => {
         const { name, value } = e.currentTarget;
         setInput({ ...input, [name]: value });
