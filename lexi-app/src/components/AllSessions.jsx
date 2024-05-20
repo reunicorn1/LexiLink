@@ -37,18 +37,22 @@ export default function AllSessions ({isOpen, onClose, sessions}) {
         "Approved": "purple"
     };
 
+
     const settingTime = (date, time) => {
-        const localtimezoneoffset = dayjs().utcOffset();
-        // convert time to datetime and add local timezone offset
-        const differenceInHours = Math.floor(localtimezoneoffset / 60);
-        const daydiff = { hours: (parseInt(time?.split(':')[0]) + differenceInHours) % 24, day: parseInt(time?.split(':')[0]) + differenceInHours > 24 ? 1 : 0}
-        const localTime = { hours: daydiff.hours, minutes: parseInt(time?.split(':')[1]) }
-        const newtime = `${localTime.hours}:${localTime.minutes}`
-        const dateform = dayjs.utc(date + 'Z').add(daydiff.day, 'day');
-        const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + newtime);
-    
-        return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
+        const localTimezoneOffset = dayjs().utcOffset();
+        const sessionTimeParts = time.split(':');
+        const sessionHour = parseInt(sessionTimeParts[0], 10);
+        const sessionMinute = parseInt(sessionTimeParts[1], 10);
+
+        const newHour = (sessionHour + Math.floor(localTimezoneOffset / 60)) % 24;
+        const dayDiff = sessionHour + Math.floor(localTimezoneOffset / 60) >= 24 ? 1 : 0;
+
+
+        const newTime = `${newHour.toString().padStart(2, '0')}:${sessionMinute.toString().padStart(2, '0')}`;
+        const newDate = dayjs(date + 'Z').add(dayDiff, 'day');
+        return newDate.format("DD MMM") + " - " + newTime
     }
+
 
 
     return (

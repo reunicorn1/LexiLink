@@ -196,7 +196,8 @@ export default function UpcomingClass({ isLoading, setIsLoading }) {
         const currentTime = dayjs();
         const sessionTime = dayjs(day + 'Z');
 
-        return currentTime.isSameOrBefore(sessionTime, "date");
+        // return currentTime.isSameOrBefore(sessionTime, "date");
+        return true;
     }
 
 
