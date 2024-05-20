@@ -8,4 +8,5 @@ student.json
 *nginx*
 *.bak
 app.log
-.env
+*.env*
+*.log

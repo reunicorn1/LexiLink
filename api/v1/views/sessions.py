@@ -17,14 +17,14 @@ from datetime import datetime, timedelta
 from os import getenv
 
 from agora_token_builder import RtcTokenBuilder
-from flask import jsonify, make_response, request
+from flask import current_app, request
 from flask_jwt_extended import current_user, get_jwt, jwt_required
 from flask_restx import Namespace, Resource, fields
 
 from api.v1.views.parsers import auth_parser, query_parser
-from models import storage
 from api.v1.views.responses import Responses
-from api.v1.views.verify_email import send_session_email
+from api.v1.views.email_util import send_session_email
+from models import storage
 
 sessions = Namespace('sessions', description='Session related operations')
 
@@ -88,12 +88,12 @@ class Sessions(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         page = request.args.get('page', 0)
 
-        user = storage.find_by(cls=("MentorModel",
-                                    "StudentModel")[claims['user_type'] == 'student'],
-                                username=claims['identity'])
+        user = current_user
         user_sessions = user.sessions
         if not user_sessions:
             return respond.ok({"sessions": []})
@@ -119,14 +119,20 @@ class Sessions(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] != 'student':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         data = request.get_json()
-        student = storage.find_by("StudentModel", username=claims['identity'])
+        student = current_user
         mentor = storage.find_by("MentorModel", username=data['mentor'])
         if mentor is None:
-            return respond.not_found({"error": "Mentor not found"})
+            return respond.not_found({"error": "Mentor not found"},
+                                     self.__class__.__name__,
+                                    current_app.logger)
         if student is None:
-            return respond.not_found({"error": "Student not found"})
+            return respond.not_found({"error": "Student not found"},
+                                     self.__class__.__name__,
+                                     current_app.logger)
         data['mentor_id'] = mentor.id
         data['student_id'] = student.id
         data['date'] = datetime.fromisoformat(data['date']).date()
@@ -152,6 +158,23 @@ class Sessions(Resource):
             'duration': data['duration'],
             'status': 'Pending',  # 'Approved', 'Declined', 'Pending'
         }
+        # search for existing session with same mentor and date
+        existing_mentor_session = storage.find_by("SessionModel",
+                                           mentor_id=mentor.id,
+                                           date=data['date'],
+                                           time=data['time'])
+        if existing_mentor_session:
+            return respond.conflict({"error": "Mentor already has a session at this time"},
+                                    self.__class__.__name__,
+                                    current_app.logger)
+        existing_student_session = storage.find_by("SessionModel",
+                                             student_id=student.id,
+                                             date=data['date'],
+                                             time=data['time'])
+        if existing_student_session:
+            return respond.conflict({"error": "Student already has a session at this time"},
+                                    self.__class__.__name__,
+                                    current_app.logger)
         # Create payment and session objects
         payment = storage.create("PaymentModel", **payment_data)
         payment.save()
@@ -169,6 +192,10 @@ class Sessions(Resource):
         mentor.save()
         student.save()
         send_session_email(session)
+        current_app.logger.info("Session created" +
+                                f"\n\t by {claims['user_type']}" +
+                                f"\n\t  id: {student.id} with" +
+                                f"\n\t  mentor id: {mentor.id}")
         return respond.created({"session": session.to_dict()})
 
     @jwt_required()
@@ -177,11 +204,37 @@ class Sessions(Resource):
         """ Updates a session """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         data = request.get_json()
         session = storage.find_by("SessionModel", id=data['session_id'])
+        mentor = session.mentor
+        student = session.student
+        
         del data['session_id']
+        # search for existing session with same mentor and date
+        existing_mentor_session = storage.find_by("SessionModel",
+                                           mentor_id=mentor.id,
+                                           **data)
+        if existing_mentor_session:
+            return respond.conflict({"error": "Mentor already has a session at this time"},
+                                    self.__class__.__name__,
+                                    current_app.logger)
+        existing_student_session = storage.find_by("SessionModel",
+                                             student_id=student.id,
+                                             **data)
+        if existing_student_session:
+            return respond.conflict({"error": "Student already has a session at this time"},
+                                    self.__class__.__name__,
+                                    current_app.logger)
+        session.mentor_token = None
+        session.student_token = None
         session.update(**data)
+        
+        current_app.logger.info(f"""Session updated by \
+                                    {claims['user_type']}
+                                    id: {claims['identity']}""")
         return respond.ok({
             "session": session.to_dict()})
 
@@ -205,10 +258,14 @@ class Session(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                    current_app.logger)
         return respond.ok({"session": session.to_dict()})
 
     @jwt_required()
@@ -222,10 +279,14 @@ class Session(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                    current_app.logger)
         data = request.get_json()
         if "date" in data:
             data['date'] = datetime.fromisoformat(data['date']).date()
@@ -247,10 +308,14 @@ class Session(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] not in ['mentor', 'student']:
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                    current_app.logger)
         session.delete()
         return respond.ok({"message": "Session deleted successfully"})
 
@@ -317,7 +382,9 @@ class Room(Resource):
         claims = get_jwt()
         date = datetime.utcnow().date()
         if claims['user_type'] not in ['mentor', 'student']:
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user = claims['user_type'] == 'student'
         try:
             if claims['user_type'] == 'mentor':
@@ -338,13 +405,21 @@ class Room(Resource):
                                             id=session.mentor_id)
                 user_id = student.id
             if not mentor or not student or not session:
-                return respond.not_found(f"Not found")
+                return respond.not_found("Not found",
+                                         self.__class__.__name__,
+                                         current_app.logger)
         except Exception as e:
-            return respond.bad_request({"error": str(e)})
+            return respond.bad_request({"error": str(e)},
+                                       self.__class__.__name__,
+                                       current_app.logger)
         if session.date.date() < date:
-            return respond.bad_request({"error": "Session has passed"})
+            return respond.bad_request({"error": "Session has passed"},
+                                        self.__class__.__name__,
+                                       current_app.logger)
         if session.status != 'Approved':
-            return respond.bad_request({"error": "Session is not approved"})
+            return respond.bad_request({"error": "Session is not approved"},
+                                        self.__class__.__name__,
+                                       current_app.logger)
         # session.mentor_token = None
         # session.student_token = None
         # session.save()
@@ -394,13 +469,21 @@ class Status(Resource):
         claims = get_jwt()
         data = request.get_json()
         if not data or 'status' not in data:
-            return respond.bad_request({"error": "Missing status"})
+            return respond.bad_request({"error": "Missing status"},
+                                        self.__class__.__name__,
+                                        current_app.logger)
         if claims['user_type'] != 'mentor':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         session.status = data['status']
+        session.mentor_token = None
+        session.student_token = None
         session.save()
         return respond.ok({
             "session": session.to_dict()})

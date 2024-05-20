@@ -8,6 +8,7 @@ from api.v1.config import DevelopmentConfig, ProductionConfig, TestingConfig
 config = DevelopmentConfig
 # config = TestingConfig
 
+print("CONFIG: ", config.__class__.__name__)
 app=create_app(config)
 
 if __name__ == '__main__':

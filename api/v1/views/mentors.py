@@ -10,13 +10,14 @@
         SessionsById(Resource): retrieves a session by id
         
 """
-from flask import jsonify, make_response, request
+from flask import request, current_app
 from flask_jwt_extended import current_user, get_jwt, jwt_required
 from flask_restx import Namespace, Resource, fields
 from flask_login import logout_user
 from api.v1.views.parsers import auth_parser, query_parser
 from api.v1.views.responses import Responses
 from models import storage
+from api.v1.views.email_util import send_email
 from models.SessionModel import SessionModel
 
 # Create a namespace object
@@ -66,7 +67,9 @@ class MentorById(Resource):
         """ Retrieves a mentor """
         user = storage.find_by("MentorModel", id=id)
         if user is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         return respond.ok({"mentor": user.to_dict()})
 
 
@@ -88,10 +91,14 @@ class Mentor(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user = current_user
         if user is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         return respond.ok({"profile": user.to_dict()})
 
     @jwt_required()
@@ -103,12 +110,17 @@ class Mentor(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user = current_user
         if user is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         data = request.get_json()
         user.update(**data)
+        current_app.logger.info(f"User {user.id} updated")
         return respond.ok({"profile": user.to_dict()})
 
     @jwt_required()
@@ -120,14 +132,20 @@ class Mentor(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         user = current_user
         if user is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         if current_user:
             refresh_token = request.get_json().get('refresh_token')
             if not refresh_token:
-                return respond.unauthorized('User not logged in')
+                return respond.unauthorized('User not logged in',
+                                            self.__class__.__name__,
+                                            current_app.logger)
         logout_user()
         try:
             storage.create("BlockListModel",
@@ -136,10 +154,13 @@ class Mentor(Resource):
             storage.create("BlockListModel",
                             jwt=refresh_token,
                             type="refresh")
+            current_app.logger.info(f"User {user.id} deleted")
             user.delete()
             return respond.ok({'status': 'success', 'message': 'Mentor deleted successfully'})
         except Exception as e:
-            return respond.internal_server_error(str(e))
+            return respond.internal_server_error(str(e),
+                                                 self.__class__.__name__,
+                                                 current_app.logger)
 
 
 
@@ -200,7 +221,9 @@ class Students(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         students = current_user.students
         if students is None:
             return respond.ok({"students": []})
@@ -217,12 +240,16 @@ class Students(Resource):
         """
         claims = get_jwt()
         if claims['user_type'] != 'mentor':
-            return respond.unauthorized("Unauthorized")
+            return respond.unauthorized("Unauthorized",
+                                        self.__class__.__name__,
+                                        current_app.logger)
         data = request.get_json()
         user = current_user
         student = storage.find_by("StudentModel", username=data.get('student'))
         if student is None:
-            return respond.not_found("Student not found")
+            return respond.not_found("Student not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         user.students.append(student)
         user.save()
         return respond.ok({"message": "Student added successfully"})
@@ -240,12 +267,14 @@ class Sessions(Resource):
         """
         user = storage.find_by("MentorModel", id=mentor_id)
         if user is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         sessions = user.sessions.order_by(SessionModel.date.desc()).all()
         if sessions is None:
             return respond.ok({"sessions": []})
         return respond.ok({"sessions": [session.to_dict()
-                                                    for session in sessions]})
+                                        for session in sessions]})
 
 
 @mentor.route('/sessions/<string:session_id>', strict_slashes=False)
@@ -277,7 +306,9 @@ class SessionsById(Resource):
         """
         session = storage.find_by("SessionModel", id=session_id)
         if session is None:
-            return respond.not_found("Not found")
+            return respond.not_found("Not found",
+                                     self.__class__.__name__,
+                                     current_app.logger)
         if current_user and session and session not in current_user.sessions:
             current_user.sessions.append(session)
         sessions = current_user.sessions.order_by(SessionModel.date.desc()).all()
@@ -335,3 +366,24 @@ class Filter(Resource):
         return respond.ok({"mentors": [user.to_dict()
                                         for user in mentors]})
 
+
+@mentor.route('/email_student/', strict_slashes=False)
+class EmailStudent(Resource):
+    """
+    Email a student
+    methods:
+        POST - Email a student
+    """
+    def post(self):
+        """
+        Send an email to a student
+        """
+        data = request.get_json()
+        sender = storage.find_by("MentorModel", email=data.get('sender'))
+        receiver = storage.find_by("StudentModel", email=data.get('receiver'))
+        response = send_email(sender, receiver, data.get('subject'), data.get('message'))
+        if response.status_code != 202:
+            return respond.internal_server_error(response.body,
+                                                 self.__class__.__name__,
+                                                 current_app.logger)
+        return respond.ok(response)

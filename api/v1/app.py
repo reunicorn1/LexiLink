@@ -5,47 +5,10 @@ and database.
 
 """
 from flask import Flask, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-from sqlalchemy import create_engine, MetaData
-from flask_restx import Api
-from flask_migrate import Migrate
-import logging
 from models import storage
-from api.v1.extensions import login_manager
-from api.v1.views.auth import auth
-from api.v1.views.student import std
-from api.v1.views.mentors import mentor
-from api.v1.views.sessions import sessions
-from api.v1.jwt_manager import JWTManagerWrapper
+from api.v1.extensions import setup_tools_and_extensions
 from api.v1.config import DevelopmentConfig
-
-MY_PREFIX = '/api'
-
-
-class ReverseProxied(object):
-    '''Wrap the application in this middleware and configure the
-    front-end server to add these headers, to let you quietly bind
-    this to a URL other than / and to an HTTP scheme that is
-    different than what is used locally.
-
-    :param app: the WSGI application
-    '''
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        path_info = environ['PATH_INFO']
-
-        # Check if the request path already starts with /api
-        environ['SCRIPT_NAME'] = MY_PREFIX
-        path_info = path_info[len(MY_PREFIX):]
-
-        environ['PATH_INFO'] = path_info
-        scheme = environ.get('HTTP_X_SCHEME', '')
-        if scheme:
-            environ['wsgi.url_scheme'] = scheme
-        return self.app(environ, start_response)
+from api.v1.views.responses import Responses
 
 
 def create_app(CONFIG=DevelopmentConfig):
@@ -55,70 +18,32 @@ def create_app(CONFIG=DevelopmentConfig):
     create_app: This function creates the Flask app and initializes the
                 extensions and database.
                 It returns the app instance.
-
-Properties:
-    app (Flask app): The Flask app instance. Managed by the create_app
-                    function and api using flask_restx.
-    db (SQLAlchemy): The SQLAlchemy instance. Managed by the create_app
-                    function.
-    migration (Migrate): The Migrate instance. Managed by the create_app
-                    function.
-    cors (CORS): The CORS instance. Managed by the create_app function.
-    jwt (JWTManager): The JWTManager instance. Managed by the create_app
-                    function.
-    metadata (MetaData): The MetaData instance. Managed by the create_app
-
-Methods:
-
+    Methods:
         close_db: This function closes the database connection.
                     Serves as a teardown function.
         not_found: This function handles the 404 error.
 
-Returns:
-    app: The Flask app instance with the extensions and database initialized.
+    Returns:
+        app: The Flask app instance with the extensions
+                and database initialized.
     """
-    if CONFIG == DevelopmentConfig:
-        print("Development Configuration")
-    else:
-        print("Production Configuration")
-        
+
+    # create the app instance and
     # setup the app tools and extensions
-    db = SQLAlchemy()
-    migration = Migrate()
-    cors = CORS()
-    metadata = MetaData()
-    api = Api(version='1.0', title='Lexilink Restful API', doc='/docs')
+    app = setup_tools_and_extensions(Flask(__name__,
+                                           template_folder='templates'),
+                                     CONFIG)
+    respond = Responses()
 
-    # create the app instance
-    app = Flask(__name__, template_folder='templates')
-    
-    # configure the app
-    app.config.from_object(CONFIG)
-    db.init_app(app)
-    migration.init_app(app, db)
-    cors.init_app(app, resources={r"/*": {"origins": "*"}})
-    login_manager.init_app(app)
-    stream = logging.StreamHandler()
-    stream.setLevel(logging.DEBUG)
-    file_handler = logging.FileHandler('app.log')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    file_handler.mode = 'a'
-    app.logger.addHandler(stream)
-    app.logger.addHandler(file_handler)
-    app.logger.info('App started')
-    jwt_wrapper = JWTManagerWrapper()
-    jwt_wrapper.init_app(app)
-    
-
-    metadata.reflect(bind=create_engine(app.config['SQLALCHEMY_DATABASE_URI']))
-    api.init_app(app)
-    api.add_namespace(auth)
-    api.add_namespace(std)
-    api.add_namespace(mentor)
-    api.add_namespace(sessions)
-    app.wsgi_app = ReverseProxied(app.wsgi_app)
+    @app.route('/status', methods=['GET'])
+    def status():
+        """ app status
+        ---
+        responses:
+            200:
+        accessed by a GET request to /status
+        """
+        return respond.ok({'status': 'OK'})
 
     @app.teardown_appcontext
     def close_db(error):
@@ -132,9 +57,9 @@ Returns:
         """ 404 Error
         ---
         responses:
-          404:
-            description: a resource was not found
+            404:
+                description: a resource was not found
         """
-        return make_response(jsonify({'error': "Not found"}), 404)
+        return respond.not_found("Not found", None)
 
     return app
