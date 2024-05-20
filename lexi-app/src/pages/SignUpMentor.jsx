@@ -99,16 +99,16 @@ export default function SignUpMentor ({ isLoading, setIsLoading }) {
           handleStepper();
         } catch (error) {
           if (error.response && error.response.status === 403) {
-            handleToast();
+            handleToast(error.response.data.error);
           } else {
             console.error("An error occurred:", error);
           }
         }
       }
 
-    const handleToast = () => {
+    const handleToast = (error) => {
         toast({
-            title: `This email is already used`,
+            title: error,
             status: 'error',
             duration: 3000,
             isClosable: true,

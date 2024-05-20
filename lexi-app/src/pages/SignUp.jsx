@@ -73,10 +73,10 @@ export default function SignUp ({ isLoading, setIsLoading }) {
           })();
       };
 
-      const handleToast = () => {
+      const handleToast = (error) => {
         // add a promise rejection handler
         toast({
-            title: `This email is already used`,
+            title: error,
             status: 'error',
             duration: 3000,
             isClosable: true,
@@ -90,7 +90,7 @@ export default function SignUp ({ isLoading, setIsLoading }) {
           handleNext();
         } catch (error) {
           if (error.response && error.response.status === 403) {
-            handleToast();
+            handleToast(error.response.data.error);
           } else {
             console.error("An error occurred:", error);
           }
