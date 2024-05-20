@@ -5,6 +5,7 @@
 .PHONY: start stop logs setup_database create_data create_n_mentors create_n_students
 backend:
 	tmux new-session -d -s lexi-app -n backend 'source venv/bin/activate && flask run'
+	make logs
 
 start:
 	tmux new-session -d -s lexi-app -n frontend 'cd lexi-app && npm run dev'
