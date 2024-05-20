@@ -50,6 +50,7 @@ def random_student():
         "first_language": random_language(),
         "other_languages": random_languages(),
         "profile_picture": fake.image_url(),
+        "is_verified": True,
         "proficiency": random_proficiency(),
         "user_type": "student"
         }
