@@ -76,6 +76,7 @@ def random_mentor():
             "availability": random_availability(),
             "type": random_type(),
             "bio": fake.text(),
+            "is_verified": True,
             # "demo_video": fake.url(),
             "demo_video": "https://www.youtube.com/embed/dQw4w9WgXcQ",
             "user_type": "mentor"

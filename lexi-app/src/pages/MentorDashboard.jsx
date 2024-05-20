@@ -22,6 +22,7 @@ import ChartBar from "../components/Chart";
 import WeeklyCalander from "../components/WeeklyCalander";
 import Students from "../components/Students";
 import useAxiosPrivate from "../utils/useAxiosPrivate";
+import dayjs from "dayjs";
 import { useState, useEffect, createContext, useContext } from "react";
 import { API_URL } from '../utils/config';
 
@@ -62,8 +63,33 @@ export default function MentorDashboard () {
           const values = await retrieveStudent(session.student_id);
           return { ...session, student_name: values[0], student_dp: values[1], student_email: values[2] };
         }));
-        setSessions(sessionsWithStudents.sort((a, b) => new Date(b.date) - new Date(a.date)))
+        updateSessions(sessionsWithStudents.sort((a, b) => new Date(b.date) - new Date(a.date)))
+        //setSessions()
       }
+
+    const updateSessions = (sessions) => {
+        const updatedSessions = sessions.map(session => {
+          const updated_session = {...session}
+          const localTimezoneOffset = dayjs().utcOffset();
+          const sessionTimeParts = session.time.split(':');
+          const sessionHour = parseInt(sessionTimeParts[0], 10);
+          const sessionMinute = parseInt(sessionTimeParts[1], 10);
+      
+          const newHour = (sessionHour + Math.floor(localTimezoneOffset / 60)) % 24;
+          const dayDiff = sessionHour + Math.floor(localTimezoneOffset / 60) >= 24 ? 1 : 0;
+          
+          
+          const newTime = `${newHour.toString().padStart(2, '0')}:${sessionMinute.toString().padStart(2, '0')}`;
+          const newDate = dayjs(session.date + 'Z').add(dayDiff, 'day');
+
+          
+          updated_session.time = newTime;
+          updated_session.date = newDate;
+
+          return updated_session;
+      })
+      setSessions(updatedSessions);
+    }
 
     useEffect(() => {
         const session_with_refresh = async () => {
@@ -85,7 +111,7 @@ export default function MentorDashboard () {
           if (studentId) {
             try {
               const result = await axios.get(`${API_URL}/student/${studentId}`);
-              return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.email];
+              return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.student.email];
             } catch (error) {
               console.log(`An error occured during retrival of ${studentId} info `, error);
             }
@@ -122,20 +148,21 @@ export default function MentorDashboard () {
               </Box>
             </Flex>
             <Box display="flex" m="20px" p="20px" bg="white" boxShadow='lg' rounded={'xl'}>
-              <CircularProgress value={(stats.lessons/sessions.length ) * 100} size='120px' color='brand.800'/>
+              <CircularProgress value={(stats.lessons/sessions?.length ) * 100} size='120px' color='brand.800'/>
                 <Stat rounded="xl" p="10px" m="10px" ml="15px">
                   <StatLabel fontSize="sm">Total Completed Lessons</StatLabel>
                   <StatNumber fontSize="3xl">{stats.lessons}</StatNumber>
                 </Stat>
             </Box>
             {!Object.values(user).every(value => value !== undefined && value !== null) && 
-              <Box display="flex" alignItems="center" bg="brand.700" m="20px" p="20px" rounded={'xl'} boxShadow={'xl'}>
+              <Link to="/mentor/profile"><Box display="flex" alignItems="center" bg="brand.700" m="20px" p="20px" rounded={'xl'} boxShadow={'xl'}>
                   <Image src="/img/x.png" maxW="70px" mr={4}></Image>
                   <Box color="white">
                   <Heading fontSize={'xl'}>Alert!</Heading>
                   <Text fontSize={'sm'}>Complete your profile to start accepting sessions with students.</Text>
                   </Box>
               </Box>
+              </Link>
             }
         </Flex>
         <Box>
@@ -151,7 +178,7 @@ export default function MentorDashboard () {
                 <Box flexGrow={1}>
                     <Heading fontSize={"xl"} mb={4}>Your Planner</Heading>
                     <UpdateContext.Provider value={{setUpdate, update}}>
-                      <WeeklyCalander sessions={sessions}/>
+                      <WeeklyCalander sessions={sessions} setSessions={setSessions}/>
                     </UpdateContext.Provider>
                 </Box>
                 <Box>

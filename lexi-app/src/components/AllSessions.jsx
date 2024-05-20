@@ -41,11 +41,12 @@ export default function AllSessions ({isOpen, onClose, sessions}) {
         const localtimezoneoffset = dayjs().utcOffset();
         // convert time to datetime and add local timezone offset
         const differenceInHours = Math.floor(localtimezoneoffset / 60);
-        const localTime = { hours: parseInt(time.split(':')[0]) + differenceInHours, minutes: parseInt(time.split(':')[1]) }
+        const daydiff = { hours: (parseInt(time?.split(':')[0]) + differenceInHours) % 24, day: parseInt(time?.split(':')[0]) + differenceInHours > 24 ? 1 : 0}
+        const localTime = { hours: daydiff.hours, minutes: parseInt(time?.split(':')[1]) }
         const newtime = `${localTime.hours}:${localTime.minutes}`
-        const dateform = dayjs.utc(date + 'Z')
+        const dateform = dayjs.utc(date + 'Z').add(daydiff.day, 'day');
         const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + newtime);
-
+    
         return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
     }
 

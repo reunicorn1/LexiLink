@@ -1,4 +1,4 @@
-import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Alert, AlertIcon, Avatar, Badge, Collapse, useDisclosure, useBreakpointValue } from "@chakra-ui/react";
+import { Stat, StatLabel, StatNumber, Box, Heading, Text, Image, Divider, Icon, Button, Flex, Alert, AlertIcon, Avatar, Badge, Collapse, useDisclosure, useBreakpointValue, useToast } from "@chakra-ui/react";
 import { MdSunny } from "react-icons/md";
 import { IoMoon } from "react-icons/io5";
 import Calander from "../components/Calander";
@@ -28,6 +28,7 @@ export default function Schedule() {
     const update_id = location.state && location.state.update ? location.state.update : null;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const isMediumScreen = useBreakpointValue({ base: true, lg: false});
+    const toast = useToast();
 
 
     useEffect(() => {
@@ -36,24 +37,10 @@ export default function Schedule() {
         }
     }, [])
 
-    // const mentor = {
-    //     first_name: "Reem",
-    //     last_name: "Osama",
-    //     type: "Community",
-    //     bio: "This teacher is amaxing he teaches you a lot of things in english and make sure that you're having fun while learning, pick this one you won't regret hurray hurray hurray good moorning goog night beeboo beee boooo",
-    //     price_per_hour: 20,
-    //     availability: {
-    //         days: ["Tuesday", "Wednesday"],
-    //         startTime: "12:00",
-    //         endTime: "17:00"
-    //     },
-    //     username: "reosama1"
-    // }
 
     useEffect(() => {
         setSelectTime(null);
-        if (selectDate !== now) {
-            console.log(selectDate, dayjs())
+        if (!selectDate.isSame(now, 'day')) {
             setAppear(true);
         }
     }, [selectDate])
@@ -76,9 +63,10 @@ export default function Schedule() {
 
         if (start && end) {
             let [startHours, startMinutes] = start.split(':').map(Number);
-            startHours += differenceInHours;
             let [endHours, endMinutes] = end.split(':').map(Number);
-            endHours += differenceInHours;
+
+            startHours = (startHours + differenceInHours) % 24;
+            endHours = (endHours + differenceInHours) % 24;
     
             if (!time) {
                 endHours = 12;
@@ -93,6 +81,9 @@ export default function Schedule() {
                     h += 1;
                     m -= 60;
                 }
+                if (h >= 24) {
+                    break; // Stop if we go past midnight
+                }
                 // I'm only adding 30 minutes as a duration for every session
                 // Add more to m initially to declare the duration of the session
             }
@@ -101,6 +92,16 @@ export default function Schedule() {
             return arrayofTimes
         }
   
+    }
+
+    const handleToastError = () => {
+        toast({
+            title: 'Schedule Conflict',
+            description: "The selected time overlaps with an existing session. Please choose a different time.",
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });          
     }
 
     const handleContinue = () => {
@@ -118,7 +119,10 @@ export default function Schedule() {
                 try {
                     const response = await executor.post(`/sessions/`, state);
                     onOpen();
-                } catch (err) {
+                } catch (error) {
+                    if (error.response && error.response.status === 409)  {
+                        handleToastError();
+                    }
                     console.error(err);
                 }
             })();
@@ -127,7 +131,10 @@ export default function Schedule() {
                  try {
                     const response = await executor.put(`/sessions/${update_id}`, {date: state.date, time: state.time, status: "Pending"});
                     onOpen();
-                } catch (err) {
+                } catch (error) {
+                    if (error.response && error.response.status === 409)  {
+                        handleToastError();
+                    }
                     console.error(err);
                 }
             })();
@@ -146,7 +153,7 @@ export default function Schedule() {
                         <Image src="/img/flower.png" maxW="80px" mr={4}></Image>
                         <Box color="white">
                             <Heading fontSize={'lg'}>Prepare for your next lesson!</Heading>
-                            {selectDate !== now && <Text fontSize={'md'}>On {selectDate.format('dddd, D MMM')}</Text>}
+                            {!selectDate.isSame(now, 'day') && <Text fontSize={'md'}>On {selectDate.format('dddd, D MMM')}</Text>}
                         </Box>
                     </Box>
                 </Box>
@@ -204,7 +211,7 @@ export default function Schedule() {
                                 <Divider />
                             </Stat>
                         }
-                        {selectDate !== now &&
+                        {!selectDate.isSame(now, 'day') &&
                             <Stat>
                                 <StatLabel>Date</StatLabel>
                                 <Heading mt={1} mb={1} fontSize="xl">{selectDate.format('dddd, D MMM')}</Heading>
@@ -216,7 +223,9 @@ export default function Schedule() {
                             <StatNumber>${mentor.price_per_hour}</StatNumber>
                             <Divider />
                         </Stat>
-                        <Button isDisabled={!selectTime} colorScheme="orange" mt="40px" onClick={handleContinue}>Continue</Button>
+                        <Flex justify="center">
+                            <Button isDisabled={!selectTime} colorScheme="orange" mt="40px" onClick={handleContinue}>Continue</Button>
+                        </Flex>
 
                     </Box>
 

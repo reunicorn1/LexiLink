@@ -141,7 +141,7 @@ export default function Browser () {
                 </InputGroup>
                 <Box display="flex" mt={4} justifyContent={"center"} gap={3}>
                     <Menu closeOnSelect={false}>
-                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full"  overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
+                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg={checkedTypes.length ? "#606060" : "brand.700"} rounded="full"  overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
                             <Text display={{base: "none", sm: "block"}}>Type</Text>
                         </MenuButton>
                         <MenuList>
@@ -154,7 +154,7 @@ export default function Browser () {
                         </MenuList>
                     </Menu>
                     <Menu closeOnSelect={false} boundary={"scrollParent"}>
-                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full" overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
+                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg={checkedLanguages.length ? "#606060" : "brand.700"} rounded="full" overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
                             <Text display={{base: "none", sm: "block"}}>Language</Text>
                         </MenuButton>
                         <MenuList height="300px" overflowY="auto">
@@ -166,7 +166,7 @@ export default function Browser () {
                         </MenuList>
                     </Menu>
                     <Menu closeOnSelect={false}>
-                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg="brand.700" rounded="full"  overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
+                        <MenuButton as={Button}  rightIcon={<ChevronDownIcon />} color="white" bg={(slider[0] !== 0 || slider[1] !== 100) ? "#606060" : "brand.700"} rounded="full"  overflow="hidden" whiteSpace="nowrap" textOverflow="ellipsis">
                             <Text display={{base: "none", sm: "block"}}>Price</Text>
                         </MenuButton>
                         <MenuList>
@@ -187,6 +187,6 @@ export default function Browser () {
                 </Box>
             </Box>
         </Box>
-        <BrowsingSection filter={[checkedTypes, checkedLanguages, slider]} search={isClicked ? search : null} setSearch={setSearch}/>
+        <BrowsingSection filter={{type: checkedTypes, languages: checkedLanguages, min_price: slider[0], max_price: slider[1]}} search={isClicked ? search : null} setSearch={setSearch}/>
     </>
 }
