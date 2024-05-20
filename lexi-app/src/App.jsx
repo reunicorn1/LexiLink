@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Room from "./pages/Room"
 import Schedule from "./pages/Schedule";
+import Footer from "./components/Footer";
 import MentorNavBar from "./components/MentorNavBar";
 import SignInMentor from "./pages/SignInMentor";
 import SignUpMentor from "./pages/SignUpMentor";
@@ -22,6 +23,7 @@ import withLoading from "./utils/useWithLoading";
 
 
 function App() {
+  //const noAuth = ['dashboard', 'profile', 'browse', 'booking', 'room', 'sign'];
   const location = useLocation().pathname;
   const [isLoading, setIsLoading] = useState(false);
   const NavBarWithLoading = withLoading(NavBar);

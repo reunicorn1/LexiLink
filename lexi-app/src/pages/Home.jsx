@@ -36,7 +36,7 @@ export default function Home ({ isLoading, setIsLoading }) {
             <Video />
             <Reviews />
             <FinalBanner />
-            <Footer></Footer>
+            <Footer/>
         </div>
     }   
     </>

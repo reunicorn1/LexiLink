@@ -117,7 +117,7 @@ export default function About({ isLoading, setIsLoading }) {
                 </Box>
             </Box>
         </Box>
-        <Footer />
+        <Footer/>
     </>
     )
 }
