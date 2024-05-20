@@ -137,7 +137,7 @@ def send_email(sender, receiver, subject, message):
     Lexilink Team"""
     
     email = Mail(
-        from_email=sender.email,
+        from_email='mail.lexilink@gmail.com',
         to_emails=receiver.email,
         subject=subject,
         html_content=html_msg)
