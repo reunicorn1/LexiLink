@@ -123,7 +123,7 @@ export default function Schedule({ isLoading, setIsLoading }) {
                     if (error.response && error.response.status === 409)  {
                         handleToastError();
                     }
-                    console.error(err);
+                    console.error(error);
                 }
             })();
         } else {
@@ -135,7 +135,7 @@ export default function Schedule({ isLoading, setIsLoading }) {
                     if (error.response && error.response.status === 409)  {
                         handleToastError();
                     }
-                    console.error(err);
+                    console.error(error);
                 }
             })();
         }

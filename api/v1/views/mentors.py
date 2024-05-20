@@ -382,8 +382,8 @@ class EmailStudent(Resource):
         sender = storage.find_by("MentorModel", email=data.get('sender'))
         receiver = storage.find_by("StudentModel", email=data.get('receiver'))
         response = send_email(sender, receiver, data.get('subject'), data.get('message'))
-        if response.status_code != 202:
+        if not response or response.status_code != 202:
             return respond.internal_server_error(response.body,
                                                  self.__class__.__name__,
                                                  current_app.logger)
-        return respond.ok(response)
+        return respond.ok({"message": "Email sent successfully"})
