@@ -7,7 +7,7 @@ import MentorPlanner from "./MentorPlanner";
 
 dayjs.extend(utc);
 
-export default function WeeklyCalander({sessions, setSessions}) {
+export default function WeeklyCalander({sessions, setSessions, isLoading, setIsLoading}) {
     const [today, setToday] = useState(dayjs());
     const [dayClicked, setDayClicked] = useState(today);
 
@@ -111,7 +111,7 @@ export default function WeeklyCalander({sessions, setSessions}) {
         </Box>
         <Box>{!getSessions(dayClicked).length ? 
             <Center><Text mb="10px" mt="30px">No classes are hosted today</Text></Center>
-            : <MentorPlanner sessions={getSessions(dayClicked)}/>
+            : <MentorPlanner sessions={getSessions(dayClicked)} isLoading={isLoading} setIsLoading={setIsLoading}/>
         }
         </Box>
     </Box>

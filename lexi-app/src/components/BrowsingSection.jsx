@@ -1,4 +1,4 @@
-import { Box, Card, CardBody, Heading, Avatar, Text, Button, Spacer, Divider, useBreakpointValue, Modal, ModalOverlay, Badge, Tag, Flex, Spinner, useDisclosure, Menu, ModalContent, CloseButton } from '@chakra-ui/react'
+import { Box, Card, CardBody, Heading, Center, Avatar, Text, Button, Spacer, Divider, useBreakpointValue, Modal, ModalOverlay, Badge, Tag, Flex, Spinner, useDisclosure, Menu, ModalContent, CloseButton } from '@chakra-ui/react'
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { Icon } from '@chakra-ui/react'
 import { useState, useEffect } from 'react';
@@ -11,8 +11,8 @@ import { API_URL } from '../utils/config';
 
 
 
-export default function BrowsingSection({ filter, search, setSearch }) {
-  const executor = useAxiosPrivate();
+export default function BrowsingSection({ filter, search, setSearch, isLoading, setIsLoading }) {
+  const executor = useAxiosPrivate(isLoading, setIsLoading);
   const { authToken, logout } = useAuth();
   const isLargeScreen = useBreakpointValue({ base: false, md: true });
   const [isClicked, setIsClicked] = useState(null);
@@ -239,7 +239,11 @@ export default function BrowsingSection({ filter, search, setSearch }) {
                 </iframe> */}
             <iframe width="100%" height="315" src={isClicked?.demo_video}
             title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; 
-            picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>                  
+            picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen
+            loading='lazy'
+            onLoad={() => setIsLoading(false)}
+            onError={() => setIsLoading(false)}
+            ></iframe>                  
           <Box display="flex" alignItems="center" w="100%" mt={6}>
             <Button colorScheme="teal" w="80%" onClick={() => handleBook(isClicked)}>Book Now</Button>
             <Spacer></Spacer>
@@ -254,6 +258,12 @@ export default function BrowsingSection({ filter, search, setSearch }) {
   return <Box display="flex" justifyContent="center">
     <Box maxW="1200px" display="flex" justifyContent="center" overflowY="auto">
       {/* scrollable section */}
+      { mentors.length == 0 ? (
+        <Center h="30vh" w="30vw" alignContent={"center"} flexDirection={"column"} marginBottom={"20px"}>
+        <Spinner size="xl" color="blue.500" speed='2s' />
+          <Text mt={4}> Nothing to show here! </Text>
+        </Center>
+      ) : (
       <Box m="20px" mr="10px" mt="0px" w="90%" overflowY="auto" height={{ base: "auto", md: "150vh" }}>
         {mentors.map((mentor, index) => (
           <Card key={index} borderWidth={1.7} borderColor={isClicked?.id === mentor.id ? "brand.700" : "grey"} m="15px" p="10px" style={{ cursor: "pointer" }} onClick={() => handleClick(mentor)} >
@@ -281,8 +291,9 @@ export default function BrowsingSection({ filter, search, setSearch }) {
         {/* I couldn't hide the load more option when I remove the search  // if you can't beat them join them */}
         {!(search || off)&& <Button w="100%" colorScheme="orange" variant="ghost" onClick={handleLoad}>Load More</Button>}
       </Box>
+      )}
       {/* fixed section */}
-      { mentors.length && <>
+      { mentors.length ? <>
         { isLargeScreen ?
           <Box m="20px" ml="10px" mt="0px" w="100%" height="150vh" overflowY="auto" top="0">
             {clickableCard}
@@ -295,8 +306,7 @@ export default function BrowsingSection({ filter, search, setSearch }) {
             </ModalContent>
           </Modal>
         }
-        </>
-      }
+        </> : null}
       <SignUpAlert isOpen={isOpen} onClose={onClose} />
     </Box>
   </Box>

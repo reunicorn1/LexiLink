@@ -4,6 +4,7 @@ This module defines the logging for the Flask app.
 """
 import logging
 from logging.handlers import RotatingFileHandler
+from datetime import datetime
 
 
 def apply_logging(app):
@@ -22,19 +23,7 @@ def apply_logging(app):
     Returns:
         app: The Flask app instance with logging applied.
     """
-    # # file_handler = logging.FileHandler('app.log')
-    # stream = logging.StreamHandler()
-    # stream.setLevel(logging.DEBUG)
-    # logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    # # file_handler.setLevel(logging.DEBUG)
-    # # file_handler.setFormatter(logging.Formatter(
-    # #     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    # # file_handler.mode = 'a'
-    # # app.logger.addHandler(file_handler)
-    # app.logger.addHandler(stream)
-    # app.logger.info('App started')
-     # Set up file handler
-    file_handler = RotatingFileHandler('app.log')
+    file_handler = RotatingFileHandler(f'logs/app_log_{datetime.now().date()}.log')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
@@ -48,6 +37,9 @@ def apply_logging(app):
     # Add handlers to app's logger
     app.logger.addHandler(file_handler)
     app.logger.addHandler(stream_handler)
+    
+    # uncomment the lines below to log the werkzeug logs to a file
+    
     # werkzeug_logger = logging.getLogger('werkzeug')
     # werkzeug_logger.addHandler(file_handler)
     return app

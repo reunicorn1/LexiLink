@@ -12,8 +12,8 @@ import BookingSuccess from "../components/BookingSuccess";
 import useAxiosPrivate from "../utils/useAxiosPrivate";
 
 
-export default function Schedule() {
-    const executor = useAxiosPrivate();
+export default function Schedule({ isLoading, setIsLoading }) {
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const navigate = useNavigate();
     const now = dayjs();
     const offset = dayjs().utcOffset();

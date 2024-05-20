@@ -14,8 +14,8 @@ import MenuButtonN from './MenuButton';
 
 
 
-function BellButton ( {children, pending, setUpdate, update}){
-    const executor = useAxiosPrivate();
+function BellButton ( {children, pending, setUpdate, update, isLoading, setIsLoading}){
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const {reload, setReload} = useAuth();
 
 
@@ -72,10 +72,10 @@ function BellButton ( {children, pending, setUpdate, update}){
             </Menu>
 }
 
-export default function MentorNavBar() {
+export default function MentorNavBar({isLoading, setIsLoading}) {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { authToken, setUser, role, user } = useAuth();
-    const executor = useAxiosPrivate();
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const [notificationCount, setNotificationCount] = useState(0);
     const [sessions, setSessions] = useState([]);
     const [update, setUpdate] = useState(true);
@@ -137,7 +137,7 @@ export default function MentorNavBar() {
             </Box>
             <Spacer></Spacer>
             {authToken && role === "mentor" ? <Box display="flex" alignItems="center" justifyContent="center">
-                <BellButton pending={sessions} setUpdate={setUpdate} update={update}>
+                <BellButton pending={sessions} setUpdate={setUpdate} update={update} isLoading={isLoading} setIsLoading={setIsLoading}>
                     <Box position="relative">
                         <BellIcon boxSize="2em" />
                         {notificationCount > 0 && (
@@ -162,7 +162,7 @@ export default function MentorNavBar() {
                     </Box>
                 </BellButton>
                 <Box ml={4} className="image-container">
-                    <MenuDisplay>
+                    <MenuDisplay isLoading={isLoading} setIsLoading={setIsLoading}>
                         {user.profile_picture ?
                             <Avatar size="sm" bg='red.500' src={user.profile_picture}></Avatar>
                             : <>

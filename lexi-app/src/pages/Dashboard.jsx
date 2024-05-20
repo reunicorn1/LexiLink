@@ -24,11 +24,12 @@ import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
 
-export default function Dashboard() {
-  const executor = useAxiosPrivate();
+export default function Dashboard({ isLoading, setIsLoading }) {
+  const executor = useAxiosPrivate(isLoading, setIsLoading);
   const [stats, setStats] = useState({ minutes: 0, lessons: 0 });
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { user, authToken, refresh, role } = useAuth();
+  const [ranOnce, setRanOnce] = useState(false);
   //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
   const navigate = useNavigate();
@@ -60,10 +61,12 @@ export default function Dashboard() {
   //   };
   //   session_with_refresh();
   // }, [])
-
+    console.log("dashboard")
     useEffect(() => {
+      if (!ranOnce) {
       const session_with_refresh = async () => {
         try {
+          console.log("seesion with refresh")
           const response = await executor.get('/sessions');
           followup(response);
         } catch (err) {
@@ -72,6 +75,8 @@ export default function Dashboard() {
         }
       };
     session_with_refresh();
+      }
+
   }, [])
 
 
@@ -119,9 +124,9 @@ export default function Dashboard() {
         <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px"> {/* This is the box under the banner image */}
           <Box>
             {/* <Button colorScheme="blue" onClick={()=>refresh()}>refresh</Button> */}
-            <UpcomingClass></UpcomingClass>
+            <UpcomingClass isLoading={isLoading} setIsLoading={setIsLoading}></UpcomingClass>
           </Box>
-          <Favorites></Favorites>
+          <Favorites isLoading={isLoading} setIsLoading={setIsLoading} ></Favorites>
         </Box>
       </Box>
     </Box>

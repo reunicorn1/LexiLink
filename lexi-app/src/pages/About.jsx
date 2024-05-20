@@ -5,7 +5,7 @@ import { MdEmail } from "react-icons/md";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
 
-export default function About() {
+export default function About({ isLoading, setIsLoading }) {
 
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
 

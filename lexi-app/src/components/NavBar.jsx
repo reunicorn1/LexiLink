@@ -10,8 +10,8 @@ import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
 import useAxiosPrivate from "../utils/useAxiosPrivate";
 
-export default function NavBar() {
-    const executor = useAxiosPrivate();
+export default function NavBar({ isLoading, setIsLoading }) {
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const navigate = useNavigate();
     const location = useLocation().pathname;
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
@@ -80,7 +80,7 @@ export default function NavBar() {
                 onClick={()=>navigate('/browse')}
                 />
                 <Box ml={4} className="image-container">
-                    <MenuDisplay>
+                    <MenuDisplay isLoading={isLoading} setIsLoading={setIsLoading}>
                         {user.profile_picture ?
                             <Avatar size="sm" bg='red.500' src={user.profile_picture}></Avatar>
                             : <>

@@ -30,13 +30,13 @@ const UpdateContext = createContext();
 
 export const useUpdate = () => useContext(UpdateContext);
 
-export default function MentorDashboard () {
+export default function MentorDashboard ({ isLoading, setIsLoading }) {
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { user, authToken, refresh, reload, role } = useAuth();
   const [stats, setStats] = useState({ profit: 0, minutes: 0, lessons: 0 });
   const [sessions, setSessions] = useState([]);
   const [update, setUpdate] = useState(false);
-  const executor = useAxiosPrivate();
+  const executor = useAxiosPrivate(isLoading, setIsLoading);
 
 
 
@@ -178,11 +178,11 @@ export default function MentorDashboard () {
                 <Box flexGrow={1}>
                     <Heading fontSize={"xl"} mb={4}>Your Planner</Heading>
                     <UpdateContext.Provider value={{setUpdate, update}}>
-                      <WeeklyCalander sessions={sessions} setSessions={setSessions}/>
+                      <WeeklyCalander sessions={sessions} setSessions={setSessions} isLoading={isLoading} setIsLoading={setIsLoading}/>
                     </UpdateContext.Provider>
                 </Box>
                 <Box>
-                    <Students />
+                    <Students isLoading={isLoading} setIsLoading={setIsLoading} />
                 </Box>
                 
             </Box>

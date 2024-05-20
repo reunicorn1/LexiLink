@@ -18,7 +18,7 @@ import { useState } from 'react';
 import UpdateModal from './UpdateModal';
 import { useNavigate } from 'react-router-dom';
 
-export default function MentorPlanner({sessions}) {
+export default function MentorPlanner({sessions, isLoading, setIsLoading}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [clickedRow , setClickedRow] = useState(null);
     const navigate = useNavigate();
@@ -93,6 +93,6 @@ export default function MentorPlanner({sessions}) {
                 </Tbody>
             </Table>
         </TableContainer>
-        <UpdateModal isOpen={isOpen} onClose={onClose} session={clickedRow}/>
+        <UpdateModal isOpen={isOpen} onClose={onClose} session={clickedRow} isLoading={isLoading} setIsLoading={setIsLoading}/>
     </>
 }

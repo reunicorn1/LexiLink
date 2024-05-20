@@ -134,7 +134,7 @@ class Login(Resource):
         user_type = data.pop('user_type')
         user = load_user(data.get('email'), user_type=user_type)
         if user and not user.is_verified:
-            return respond.forbidden('Please verify your email before current_app.logger in',
+            return respond.forbidden('Please verify your email before logging in',
                                      self.__class__.__name__,
                                      current_app.logger)
         if user and user.verify_password(data.get('password')):

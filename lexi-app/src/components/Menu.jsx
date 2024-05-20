@@ -12,8 +12,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../AuthContext';
 import useAxiosPrivate from "../utils/useAxiosPrivate";
 
-export default function MenuDisplay({ children }) {
-    const executor = useAxiosPrivate();
+export default function MenuDisplay({ children, isLoading, setIsLoading }) {
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const navigate = useNavigate();
     const { authToken, refreshToken, refresh, logout, role } = useAuth();
     const toast = useToast();

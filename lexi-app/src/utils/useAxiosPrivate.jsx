@@ -1,26 +1,41 @@
 import axios from "./axios"
 import { useEffect } from "react";
 import { useAuth } from "../AuthContext";
+import { useState } from "react";
 
 
-const useAxiosPrivate = () => {
+
+const useAxiosPrivate = (isLoading, setIsLoading) => {
     const {refresh, authToken } = useAuth();
+    const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
     useEffect(() => {
 
         const requestIntercept = axios.interceptors.request.use(
             config => {
+                if (!hasLoadedOnce) {
+                // setIsLoading(true);
+                setHasLoadedOnce(true);
+                }
                 if (!config.headers['Authorization']) {
                     // console.log("This is access token", authToken);
                     config.headers['Authorization'] = `Bearer ${authToken}`;
                 } 
                 return config;
-            }, (error) => Promise.reject(error)
+            }, (error) =>{
+                setIsLoading(false);
+                return Promise.reject(error)
+                }
         );
 
         const responseIntercept = axios.interceptors.response.use(
-            response => response,
+            response => 
+            {
+                setIsLoading(false);
+                return response;
+            },
             async (error) => {
+                setIsLoading(false);
                 const prevRequest = error?.config;
                 if (error?.response?.status === 410 && !prevRequest?.sent) {
                     console.log("okay?")
@@ -40,7 +55,7 @@ const useAxiosPrivate = () => {
             axios.interceptors.response.eject(responseIntercept)
         }
     }, [authToken, refresh])
-    return axios;
+    return  axios;
 }
 
 export default useAxiosPrivate

@@ -4,8 +4,8 @@ import { API_URL } from '../utils/config';
 import useAxiosPrivate from "../utils/useAxiosPrivate";
 import axios from "axios";
 
-export default function Payment() {
-    const executor = useAxiosPrivate();
+export default function Payment(isLoading, setIsLoading) {
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const [input, setInput] = useState({});
     const toast = useToast();
 

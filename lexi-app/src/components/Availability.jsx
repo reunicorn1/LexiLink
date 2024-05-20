@@ -7,10 +7,10 @@ import utc from 'dayjs/plugin/utc';
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 
-export default function Availability(){
+export default function Availability({isLoading, setIsLoading}){
     const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const [input, setInput] = useState({});
-    const executor = useAxiosPrivate();
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const [daysSelected, setDaysSelected] = useState([]);
     const { setUser, role } = useAuth();
     const checks = ["days", "startTime", "endTime"];

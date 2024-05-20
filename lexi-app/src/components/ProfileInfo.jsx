@@ -9,10 +9,10 @@ import { uploadFile } from '@uploadcare/upload-client'
 // fileData must be Blob or File or Buffer
 
 
-export default function ProfileInfo() {
+export default function ProfileInfo( { isLoading, setIsLoading } ) {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { refresh, setUser, role } = useAuth();
-    const executor = useAxiosPrivate();
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     const [input, setInput] = useState({});
     const [selectedFile, setSelectedFile] = useState(null);

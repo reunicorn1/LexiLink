@@ -20,11 +20,12 @@ import BrowsingSection from '../components/BrowsingSection';
 import { useNavigate } from 'react-router-dom';
 
 
-export default function Browser () {
-    const executor = useAxiosPrivate();
+export default function Browser ({ isLoading, setIsLoading }) {
+    const executor = useAxiosPrivate(isLoading, setIsLoading);
     const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });
-    const img = <Image m="20px"src="/img/faces-3.png" maxW={{base: "80%", lg: "40%"}} height="auto" ></Image>
+    const img = <Image m="20px"src="/img/faces-3.png" maxW={{base: "80%", lg: "40%"}} height="auto"
+    alt="Image" loading="lazy" onLoad={() => setIsLoading(false)} onError={() => setIsLoading(false)} ></Image>
     const [slider, setSlider] = useState([0, 100]);
     const [checkedLanguages, setCheckedLanguages] = useState([]);
     const [checkedTypes, setCheckedTypes] = useState([]);
@@ -187,6 +188,6 @@ export default function Browser () {
                 </Box>
             </Box>
         </Box>
-        <BrowsingSection filter={{type: checkedTypes, languages: checkedLanguages, min_price: slider[0], max_price: slider[1]}} search={isClicked ? search : null} setSearch={setSearch}/>
+        <BrowsingSection isLoading={isLoading} setIsLoading={setIsLoading} filter={{type: checkedTypes, languages: checkedLanguages, min_price: slider[0], max_price: slider[1]}} search={isClicked ? search : null} setSearch={setSearch}/>
     </>
 }
