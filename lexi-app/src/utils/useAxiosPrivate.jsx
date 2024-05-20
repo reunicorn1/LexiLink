@@ -52,7 +52,7 @@ const useAxiosPrivate = (isLoading, setIsLoading) => {
                     prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                     return axios(prevRequest)
                 }
-                return Promise.reject( error );
+                return Promise.reject(error);
             }
         );
 

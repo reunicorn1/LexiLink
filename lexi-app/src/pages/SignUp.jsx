@@ -14,6 +14,7 @@ export default function SignUp ({ isLoading, setIsLoading }) {
     const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student" })
     const [step, setStep] = useState(1); //the common state between all steps 
     const [formError, setFormError] = useState({email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:""});
+    const [countries, setCountries] = useState([]); 
     const toast = useToast()
     const navigate = useNavigate();
     const { role } = useAuth();
@@ -23,6 +24,19 @@ export default function SignUp ({ isLoading, setIsLoading }) {
         navigate("/");
       }
     }, [])
+
+    useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
+              response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+              setCountries(response.data);
+          } catch (error) {
+              console.error('Error fetching data:', error);
+          }
+      };
+      fetchData();
+  }, []);
 
     let emailValid = true;
     
@@ -59,10 +73,10 @@ export default function SignUp ({ isLoading, setIsLoading }) {
           })();
       };
 
-      const handleToast = () => {
+      const handleToast = (error) => {
         // add a promise rejection handler
         toast({
-            title: `This email is already used`,
+            title: error,
             status: 'error',
             duration: 3000,
             isClosable: true,
@@ -76,7 +90,7 @@ export default function SignUp ({ isLoading, setIsLoading }) {
           handleNext();
         } catch (error) {
           if (error.response && error.response.status === 403) {
-            handleToast();
+            handleToast(error.response.data.error);
           } else {
             console.error("An error occurred:", error);
           }
@@ -104,6 +118,6 @@ export default function SignUp ({ isLoading, setIsLoading }) {
 
     return <>
             {step === 1 && <SignUpStepOne input={input} formError={formError} onChange={handleInputChange} onClick={handleClick} handleGoogle={handleGoogle}></SignUpStepOne>}
-            {step == 2 && <SignUpStepTwo input={input} formError={formError} setFormError={setFormError} onChange={handleInputChange} setInput={setInput}></SignUpStepTwo>}
+            {step == 2 && <SignUpStepTwo input={input} formError={formError} setFormError={setFormError} onChange={handleInputChange} setInput={setInput} countries={countries}></SignUpStepTwo>}
     </>
 }

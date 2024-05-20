@@ -66,14 +66,14 @@ export default function SignInMentor ( { isLoading, setIsLoading } ) {
                 }, 1000);
                 handleToast()
             } catch (error){ 
-                toastError();
+                toastError(error.response.data.error);
             }
             })();
     }
 
-    const toastError = () => {
+    const toastError = (error) => {
         toast({
-            title: "This email isn't registered. Sign up",
+            title: error,
             status: 'error',
             duration: 3000,
             isClosable: true,

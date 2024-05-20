@@ -6,9 +6,8 @@ import { InfoOutlineIcon } from "@chakra-ui/icons";
 import axios from "axios";
 
 
-export default function SignUpMentorThree ({ input, setInput, onChange, handleStepper, SteppingOver }) {
+export default function SignUpMentorThree ({ input, setInput, onChange, handleStepper, SteppingOver, countries }) {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const [countries, setCountries] = useState([]); 
     const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const checks = ["country", "nationality", "first_language", "type", "expertise", "education"];
 
@@ -17,19 +16,6 @@ export default function SignUpMentorThree ({ input, setInput, onChange, handleSt
         // setFormError({ ...formError, proficency: ""})
     };
 
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
-                response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-                setCountries(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-    }, []);
 
     const disable = () => {
         if (checks.every(check => input[check])) { 
@@ -67,8 +53,8 @@ export default function SignUpMentorThree ({ input, setInput, onChange, handleSt
                         <FormLabel>Nationality</FormLabel>
                         <Select placeholder='Select your nationality' name="nationality" value={input.nationality} onChange={onChange}>
                             {countries?.map((item, index) => (                      
-                                <option key={index} value={item.demonyms.eng.m}>
-                                    {item.demonyms.eng.m}
+                                <option key={index} value={item.name.common}>
+                                   {item.name.common}
                                 </option>
                             ))}
                         </Select>
