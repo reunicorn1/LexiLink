@@ -30,7 +30,7 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, cou
                 errors[key] = "" 
             }
         }
-        setFormError({...errors})
+        setFormError({...errors});
         
         (async () => {
             try{

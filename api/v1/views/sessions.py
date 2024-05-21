@@ -213,6 +213,12 @@ class Sessions(Resource):
         student = session.student
         
         del data['session_id']
+        if "date" in data:
+            data['date'] = datetime.fromisoformat(data['date']).date()
+        if "time" in data:
+            data['time'] = datetime.fromisoformat(data['time']).strftime("%H:%M:%S")
+        if "duration" in data:
+            data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
         # search for existing session with same mentor and date
         existing_mentor_session = storage.find_by("SessionModel",
                                            mentor_id=mentor.id,
