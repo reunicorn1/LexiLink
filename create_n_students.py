@@ -13,7 +13,7 @@ def random_proficiency():
 
 def random_language():
     return random.choice(["English", "Mandarin Chinese", "Hindi",
-             "Spanish", "French", "Standard Arabic",
+             "Spanish", "Swahili", "French", "Standard Arabic",
              "Bengali", "Portuguese", "Russian", "Urdu",
              "Indonesian", "Standard German", "Japanese",
              "Nigerian Pidgin", "Egyptian Spoken Arabic",
