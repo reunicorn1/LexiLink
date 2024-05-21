@@ -49,26 +49,15 @@ const statusColors = {
 };
 
 const settingTime = (date, time) => {
-    const localtimezoneoffset = dayjs().utcOffset();
-    // convert time to datetime and add local timezone offset
-    const differenceInHours = Math.floor(localtimezoneoffset / 60);
-    const daydiff = { hours: (parseInt(time?.split(':')[0]) + differenceInHours) % 24, day: parseInt(time?.split(':')[0]) + differenceInHours > 24 ? 1 : 0}
-    const localTime = { hours: daydiff.hours, minutes: parseInt(time?.split(':')[1]) }
-    const newtime = `${localTime.hours}:${localTime.minutes}`
-    const dateform = dayjs.utc(date + 'Z').add(daydiff.day, 'day');
-    const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + newtime);
+    const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + time);
 
-    return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
+    return date?.format("DD MMM") + " - " + timeform.format("hh:mm A")
 }
 
 const TimeDifference = (day, time) => {
-    const localtimezoneoffset = dayjs().utcOffset();
-    const difference = Math.floor(localtimezoneoffset / 60);
-    const localTime = { hours: parseInt(time?.split(':')[0]) + difference, minutes: parseInt(time?.split(':')[1]) }
-    const newtime = `${localTime.hours}:${localTime.minutes}`
 
     const currentTime = dayjs();
-    const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);
+    const sessionTime = dayjs(day.format('YYYY-MM-DD') + ' ' + time);
     const differenceInHours = sessionTime.diff(currentTime, 'hour');
     if (differenceInHours === 0) {
         return `${sessionTime.diff(currentTime, 'minute')} mins`
@@ -77,14 +66,9 @@ const TimeDifference = (day, time) => {
 }
 
 const sessionNow = (day, time, status) => {
-    const localtimezoneoffset = dayjs().utcOffset();
-    // convert time to datetime and add local timezone offset
-    const differenceInHours = Math.floor(localtimezoneoffset / 60);
-    const localTime = { hours: parseInt(time?.split(':')[0]) + differenceInHours, minutes: parseInt(time?.split(':')[1]) }
-    const newtime = `${localTime.hours}:${localTime.minutes}`
     if (status === "Approved") {
         const currentTime = dayjs();
-        const sessionTime = dayjs(dayjs(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);            
+        const sessionTime = dayjs(day.format('YYYY-MM-DD') + ' ' + time);            
         if (currentTime.isSame(sessionTime, "date")) {
             if (currentTime.isSameOrAfter(sessionTime)) {
                 return (2)
@@ -102,13 +86,8 @@ function Reschedule({isOpen, onClose, session}) {
     const navigate = useNavigate();
 
     const hoursLeft = (day, time) => {
-        const localtimezoneoffset = dayjs().utcOffset();
-        const difference = Math.floor(localtimezoneoffset / 60);
-        const localTime = { hours: parseInt(time?.split(':')[0]) + difference, minutes: parseInt(time?.split(':')[1]) }
-        const newtime = `${localTime.hours}:${localTime.minutes}`
-    
         const currentTime = dayjs();
-        const sessionTime = dayjs(dayjs.utc(day + 'Z').format('YYYY-MM-DD') + ' ' + newtime);
+        const sessionTime = dayjs(day?.format('YYYY-MM-DD') + ' ' + time);
         const differenceInHours = sessionTime.diff(currentTime, 'hour');
 
         return differenceInHours;
@@ -176,7 +155,31 @@ export default function UpcomingClass() {
             const values = await retrieveMentor(session.mentor_id);
             return { ...session, mentorName: values[0], mentorDp: values[1], mentorType: values[2], mentor: values[3] };
         }));
-        setSessions(sessionsWithMentors.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`)).sort((b, a) => new Date(b.date) - new Date(a.date)))
+        updateSessions(sessionsWithMentors.sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`)).sort((b, a) => new Date(b.date) - new Date(a.date)))
+    }
+
+    const updateSessions = (sessions) => {
+        const updatedSessions = sessions.map(session => {
+          const updated_session = {...session}
+          const localTimezoneOffset = dayjs().utcOffset();
+          const sessionTimeParts = session.time.split(':');
+          const sessionHour = parseInt(sessionTimeParts[0], 10);
+          const sessionMinute = parseInt(sessionTimeParts[1], 10);
+      
+          const newHour = (sessionHour + Math.floor(localTimezoneOffset / 60)) % 24;
+          const dayDiff = sessionHour + Math.floor(localTimezoneOffset / 60) >= 24 ? 1 : 0;
+          
+          
+          const newTime = `${newHour.toString().padStart(2, '0')}:${sessionMinute.toString().padStart(2, '0')}`;
+          const newDate = dayjs(session.date + 'Z').add(dayDiff, 'day');
+
+          
+          updated_session.time = newTime;
+          updated_session.date = newDate;
+
+          return updated_session;
+      })
+      setSessions(updatedSessions);
     }
 
     useEffect(() => {
@@ -194,10 +197,7 @@ export default function UpcomingClass() {
 
     const futuresessions= (day) => {
         const currentTime = dayjs();
-        const sessionTime = dayjs(day + 'Z');
-
-        // return currentTime.isSameOrBefore(sessionTime, "date");
-        return true;
+        return currentTime.isSameOrBefore(day, "date");
     }
 
 

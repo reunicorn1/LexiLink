@@ -1,4 +1,4 @@
-import { Text, Flex, Box, GridItem, FormControl, FormLabel, Heading, Input, Select, Divider, Stack, Radio, RadioGroup, Button, useBreakpointValue, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Text, Flex, Box, GridItem, FormControl, FormLabel, Heading, Input, Select, Divider, Stack, Radio, RadioGroup, Button, useBreakpointValue, Tooltip, useDisclosure, FormErrorMessage } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { InfoOutlineIcon } from "@chakra-ui/icons";
@@ -30,11 +30,13 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, cou
                 errors[key] = "" 
             }
         }
+        setFormError({...errors})
         
         (async () => {
             try{
                 const checkuser = await axios.post(`${API_URL}/auth/verify_username`, {username: input.username, user_type: "student"})
                 setFormError({...errors})
+                console.log(Object.values(input).every(value => value));
                 if (Object.values(input).every(value => value)) {
                     // send the data to the end point 
                     (async () => {
@@ -68,9 +70,10 @@ const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, cou
                 <GridItem colSpan={{base: 3, lg: 1}}>
                     <Heading mb={2}>Let's get to know you better!</Heading>
                     <Text mb={10}>Provide the following details to tailor your learning journey</Text>
-                    <FormControl isInvalid={Boolean(formError.username)} >
+                    <FormControl isInvalid={Boolean(formError.username)} mb={3}>
                         <FormLabel>Username</FormLabel>
-                        <Input  mb={3} placeholder="Enter your username" name="username" value={input.username} onChange={onChange}></Input>
+                        <Input   placeholder="Enter your username" name="username" value={input.username} onChange={onChange}></Input>
+                        {formError.username && (<FormErrorMessage>{formError.username}</FormErrorMessage>)}
                     </FormControl>
                     <FormControl  isInvalid={Boolean(formError.first_name)}>
                         <FormLabel>First Name</FormLabel>

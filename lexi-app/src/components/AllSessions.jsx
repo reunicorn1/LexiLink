@@ -39,18 +39,9 @@ export default function AllSessions ({isOpen, onClose, sessions}) {
 
 
     const settingTime = (date, time) => {
-        const localTimezoneOffset = dayjs().utcOffset();
-        const sessionTimeParts = time.split(':');
-        const sessionHour = parseInt(sessionTimeParts[0], 10);
-        const sessionMinute = parseInt(sessionTimeParts[1], 10);
+        const timeform = dayjs.utc(dayjs().format('YYYY-MM-DD') + ' ' + time);
 
-        const newHour = (sessionHour + Math.floor(localTimezoneOffset / 60)) % 24;
-        const dayDiff = sessionHour + Math.floor(localTimezoneOffset / 60) >= 24 ? 1 : 0;
-
-
-        const newTime = `${newHour.toString().padStart(2, '0')}:${sessionMinute.toString().padStart(2, '0')}`;
-        const newDate = dayjs(date + 'Z').add(dayDiff, 'day');
-        return newDate.format("DD MMM") + " - " + newTime
+        return date.format("DD MMM") + " - " + timeform.format("hh:mm A")
     }
 
 
