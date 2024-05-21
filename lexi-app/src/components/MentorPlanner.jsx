@@ -27,7 +27,7 @@ export default function MentorPlanner({sessions}) {
     const sessionNow = (day, time, status) => {
         if (status === "Approved") {
             const currentTime = dayjs();
-            const sessionTime = day.format('YYYY-MM-DD') + ' ' + time;            
+            const sessionTime = dayjs(day.format('YYYY-MM-DD') + ' ' + time);            
             if (currentTime.isSame(sessionTime, "date")) {
                 if (currentTime.isSameOrAfter(sessionTime)) {
                     return (2)
