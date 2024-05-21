@@ -6,7 +6,7 @@ import { FaGraduationCap } from "react-icons/fa";
 
 export default function SignUpMentorThree ({ input, setInput, onChange, handleStepper, SteppingOver, countries }) {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
-    const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
+    const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "Swahili", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const checks = ["country", "nationality", "first_language", "type", "expertise", "education"];
 
     const handleChange = (value) => {
