@@ -11,7 +11,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 UPLOAD_FOLDER = 'lexi-app/public/profile_pictures'
 
 languages = ["English", "Mandarin Chinese", "Hindi",
-             "Spanish", "French", "Standard Arabic",
+             "Spanish", "French", "Standard Arabic", "Swahili", 
              "Bengali", "Portuguese", "Russian", "Urdu",
              "Indonesian", "Standard German", "Japanese",
              "Nigerian Pidgin", "Egyptian Spoken Arabic",
