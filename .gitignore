@@ -1,6 +1,7 @@
 **/__pycache__
 venv/
 !/requirements.txt
+migrations
 test_create
 mentor.json
 student.json
