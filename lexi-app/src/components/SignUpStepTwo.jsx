@@ -8,7 +8,7 @@ import { API_URL } from '../utils/config';
 
 const SignUpStepTwo = ({ input, formError, setFormError, onChange, setInput, countries }) => {
 
-    const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
+    const languages = ["English", "Mandarin Chinese", "Hindi", "Spanish", "Swahili", "French", "Standard Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Indonesian", "Standard German", "Japanese", "Nigerian Pidgin", "Egyptian Spoken Arabic", "Marathi", "Telugu", "Turkish", "Tamil", "Yue Chinese"];
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
     const { isOpen, onOpen, onClose } = useDisclosure();
     // I wanted to delete this one, bc it felt very similar to onChange, but the name is just inaccessible in radio

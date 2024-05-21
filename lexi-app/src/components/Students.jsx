@@ -27,6 +27,7 @@ const handleSend = async() => {
       duration: 3000,
       isClosable: true,
     });
+    onClose();
   } catch(err) {
     console.log(err);
   }
