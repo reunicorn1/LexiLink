@@ -40,7 +40,7 @@ export default function MentorPlanner({sessions}) {
 
     const TimeDifference = (day, time) => {
         const currentTime = dayjs();
-        const sessionTime = day.format('YYYY-MM-DD') + ' ' + time;
+        const sessionTime = dayjs(day.format('YYYY-MM-DD') + ' ' + time);
         const differenceInHours = sessionTime.diff(currentTime, 'hour');
         if (differenceInHours === 0) {
             return `${sessionTime.diff(currentTime, 'minute')} mins`
