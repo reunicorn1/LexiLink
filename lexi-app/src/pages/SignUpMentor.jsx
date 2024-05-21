@@ -27,7 +27,7 @@ import countries from "../utils/countries";
 
 //const salt = bcrypt.genSaltSync(10);
 
-export default function SignUpMentor ({ isLoading, setIsLoading }) {
+export default function SignUpMentor () {
     
     const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", education:"", expertise:"", type: "Community", availability: {days: [], startTime: "", endTime: ""}, profile_picture: "", user_type:"mentor" })
     const [step, setStep] = useState(1); //the common state between all steps 

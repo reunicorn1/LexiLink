@@ -6,8 +6,8 @@ import { useAuth } from '../AuthContext';
 import useAxiosPrivate from "../utils/useAxiosPrivate";
 import axios from "axios";
 
-export default function JoinUs ( { isLoading, setIsLoading } ) {
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+export default function JoinUs (  ) {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const { logout, role, refreshToken } = useAuth();
     const isLargeScreen = useBreakpointValue({ base: false, lg: true });

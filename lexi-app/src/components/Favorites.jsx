@@ -7,8 +7,8 @@ import useAxiosPrivate from "../utils/useAxiosPrivate";
 
 import { API_URL } from '../utils/config';
 
-export default function Favorites({isLoading, setIsLoading}) {
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+export default function Favorites() {
+  const executor = useAxiosPrivate();
 
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { authToken, refresh } = useAuth();

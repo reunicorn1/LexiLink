@@ -21,8 +21,8 @@ import axios from "axios";
 
 
 
-export default function Account({isLoading, setIsLoading}) {
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+export default function Account() {
+    const executor = useAxiosPrivate();
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef()
     const { authToken, refreshToken, logout, role } = useAuth();

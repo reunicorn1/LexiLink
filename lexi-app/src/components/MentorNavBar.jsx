@@ -14,9 +14,9 @@ import MenuButtonN from './MenuButton';
 
 
 
-function BellButton ( {children, pending, setUpdate, update, isLoading, setIsLoading}){
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
-    const {reload, setReload} = useAuth();
+function BellButton({ children, pending, setUpdate, update,  }) {
+    const executor = useAxiosPrivate();
+    const { reload, setReload } = useAuth();
 
 
 
@@ -33,24 +33,24 @@ function BellButton ( {children, pending, setUpdate, update, isLoading, setIsLoa
         return dateform.format("DD MMM") + " - " + timeform.format("hh:mm A")
     }
 
-    const handleClick = async(value, id) => {
+    const handleClick = async (value, id) => {
         try {
-            const response = await executor.put(`/sessions/${id}`, {status: value});
+            const response = await executor.put(`/sessions/${id}`, { status: value });
             setUpdate(!update);
             setReload(!reload);
-          } catch (err) {
+        } catch (err) {
             console.error(err);
-          }
+        }
     }
 
     return <Menu>
-                <MenuButton>
-                    {children}
-                </MenuButton>
-                <MenuList  maxH="350px" overflowY="auto">
-                    {!pending.length ? 
-                    <MenuItem>No Notifications to be displayed</MenuItem> :
-                    <>
+        <MenuButton>
+            {children}
+        </MenuButton>
+        <MenuList maxH="350px" overflowY="auto">
+            {!pending.length ?
+                <MenuItem>No Notifications to be displayed</MenuItem> :
+                <>
                     {pending?.map((item, index) => (
                         <MenuItem key={index}>
                             <Flex maxW="300px" gap={4} alignItems="center">
@@ -59,34 +59,35 @@ function BellButton ( {children, pending, setUpdate, update, isLoading, setIsLoa
                                     <Text fontSize="sm"><b>{item?.student_name}</b> has requested to have a session with you</Text>
                                     <Text mt={1} color="gray.600" fontSize="sm"><b>{settingTime(item?.date, item?.time)}</b></Text>
                                     <Flex mt={2} gap={3}>
-                                        <Tag colorScheme='orange' size="md" onClick={()=>handleClick("Approved", item.id)}>Approve</Tag>
-                                        <Tag size="md" onClick={()=>handleClick("Declined", item.id)}>Decline</Tag>
+                                        <Tag colorScheme='orange' size="md" onClick={() => handleClick("Approved", item.id)}>Approve</Tag>
+                                        <Tag size="md" onClick={() => handleClick("Declined", item.id)}>Decline</Tag>
                                     </Flex>
                                 </Box>
                             </Flex>
                         </MenuItem>
                     ))}
-                    </>
-                }
-                </MenuList>
-            </Menu>
+                </>
+            }
+        </MenuList>
+    </Menu>
 }
 
-export default function MentorNavBar({isLoading, setIsLoading}) {
+export default function MentorNavBar() {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { authToken, setUser, role, user } = useAuth();
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+    const executor = useAxiosPrivate();
     const [notificationCount, setNotificationCount] = useState(0);
     const [sessions, setSessions] = useState([]);
     const [update, setUpdate] = useState(true);
 
 
-    const followup = async(result) => {
+    const followup = async (result) => {
         const sessionsWithStudents = await Promise.all(result.data.sessions.map(async session => {
+
             const values = await retrieveStudent(session.student_id);
             return { ...session, student_name: values[0], student_dp: values[1], student_email: values[2] };
-          }));
-          setSessions(sessionsWithStudents.filter(element => element.status === "Pending"))
+        }));
+        setSessions(sessionsWithStudents.filter(element => element.status === "Pending"))
     }
 
     useEffect(() => {
@@ -95,9 +96,9 @@ export default function MentorNavBar({isLoading, setIsLoading}) {
                 try {
                     const response = await executor.get(`/mentor/profile`);
                     setUser(response.data.profile);
-                  } catch (err) {
+                } catch (err) {
                     console.error(err);
-                  }
+                }
             };
 
             const session_with_refresh = async () => {
@@ -107,28 +108,29 @@ export default function MentorNavBar({isLoading, setIsLoading}) {
                 } catch (err) {
                     console.error(err);
                 }
-              };
+            };
             getProfile();
             session_with_refresh();
         }
     }, [update]);
 
-    useEffect(()=>{
+    useEffect(() => {
         setNotificationCount(sessions.length);
     }, [sessions])
 
     const retrieveStudent = (studentId) => {
         // This function manipulates the content of the session object and adds information about each student linked to the session
         // Including three things: [1] Full name, [2] profile picture, [3] email
-          return (async () => {
-              try {
-                  const result = await axios.get(`${API_URL}/student/${studentId}`);
-                  return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.student.email];
-              } catch (error) {
-                  console.error(`An error occured during retrival of ${studentId} info `, error);
-              }
-          })();
-      }
+        if (!studentId) return ["Deleted User", "", ""];
+        return (async () => {
+            try {
+                const result = await axios.get(`${API_URL}/student/${studentId}`);
+                                return [`${result.data.student.first_name} ${result.data.student.last_name}`, result.data.student.profile_picture, result.data.student.email];
+            } catch (error) {
+                console.error(`An error occured during retrival of ${studentId} info `, error);
+            }
+        })();
+    }
 
     return (
         <Box display="flex" as="nav" alignItems="center" m="30px" p="30px" h="40px" bg="white" rounded="2xl" boxShadow='base'>
@@ -137,32 +139,32 @@ export default function MentorNavBar({isLoading, setIsLoading}) {
             </Box>
             <Spacer></Spacer>
             {authToken && role === "mentor" ? <Box display="flex" alignItems="center" justifyContent="center">
-                <BellButton pending={sessions} setUpdate={setUpdate} update={update} isLoading={isLoading} setIsLoading={setIsLoading}>
+                <BellButton pending={sessions} setUpdate={setUpdate} update={update}>
                     <Box position="relative">
                         <BellIcon boxSize="2em" />
                         {notificationCount > 0 && (
-                            <Badge 
-                            display="flex"
-                            justifyContent="center"
-                            alignItems="center"
-                            textAlign="center"
-                            position="absolute" 
-                            top="-1px" 
-                            right="-1px" 
-                            borderRadius="full" 
-                            bgColor="red.500" 
-                            color="white"
-                            fontSize="12px"
-                            h="18px"
-                            w="18px"
+                            <Badge
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                textAlign="center"
+                                position="absolute"
+                                top="-1px"
+                                right="-1px"
+                                borderRadius="full"
+                                bgColor="red.500"
+                                color="white"
+                                fontSize="12px"
+                                h="18px"
+                                w="18px"
                             >
-                            {notificationCount}
+                                {notificationCount}
                             </Badge>
                         )}
                     </Box>
                 </BellButton>
                 <Box ml={4} className="image-container">
-                    <MenuDisplay isLoading={isLoading} setIsLoading={setIsLoading}>
+                    <MenuDisplay >
                         {user.profile_picture ?
                             <Avatar size="sm" bg='red.500' src={user.profile_picture}></Avatar>
                             : <>
@@ -171,22 +173,22 @@ export default function MentorNavBar({isLoading, setIsLoading}) {
                             </>
                         }
                     </MenuDisplay>
-                </Box> 
-            </Box>:
+                </Box>
+            </Box> :
                 <Box>
-                    {isSmallScreen ? 
-                    <Menu>
-                        <MenuButton
-                        as={IconButton}
-                        aria-label='Options'
-                        icon={<HamburgerIcon />}
-                        variant='outline'
-                        />
-                        <MenuList>
-                            <Link to='/mentor/sign-in'><MenuItem>Login</MenuItem></Link>
-                            <Link to='/mentor/sign-up'><MenuItem>Sign up</MenuItem></Link>
-                        </MenuList>
-                    </Menu> : 
+                    {isSmallScreen ?
+                        <Menu>
+                            <MenuButton
+                                as={IconButton}
+                                aria-label='Options'
+                                icon={<HamburgerIcon />}
+                                variant='outline'
+                            />
+                            <MenuList>
+                                <Link to='/mentor/sign-in'><MenuItem>Login</MenuItem></Link>
+                                <Link to='/mentor/sign-up'><MenuItem>Sign up</MenuItem></Link>
+                            </MenuList>
+                        </Menu> :
                         <>
                             <Link to='/mentor/sign-in'><Button size="sm" colorScheme='facebook' variant='outline' ml="10px">Login</Button></Link>
                             <Link to='/mentor/sign-up' ><Button size="sm" colorScheme='facebook' ml="10px" variant='solid'>Sign up</Button></Link>

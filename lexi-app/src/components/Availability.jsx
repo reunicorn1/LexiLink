@@ -7,10 +7,10 @@ import utc from 'dayjs/plugin/utc';
 import { useAuth } from '../AuthContext';
 import axios from "axios";
 
-export default function Availability({isLoading, setIsLoading}){
+export default function Availability(){
     const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const [input, setInput] = useState({});
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+    const executor = useAxiosPrivate();
     const [daysSelected, setDaysSelected] = useState([]);
     const { setUser, role } = useAuth();
     const checks = ["days", "startTime", "endTime"];
@@ -29,15 +29,6 @@ export default function Availability({isLoading, setIsLoading}){
         let [endHour, endMinutes] = end.split(':').map(Number);
         const arrayOfTimes = [];
 
-        // const localtimezoneoffset = dayjs().utcOffset();
-        // const differenceInHours = Math.floor(localtimezoneoffset / 60);
-
-        // if (start !== "8:00") {
-        //     startHour += differenceInHours
-        // }
-        // if (end !== "22:00") {
-        //     endHour += differenceInHours
-        // }
 
         for (let h = startHour, m = startMinutes; h < endHour; m += 30) {
             if (m >= 60) {
@@ -83,11 +74,6 @@ export default function Availability({isLoading, setIsLoading}){
         const startTime = cleanup(input.availability.startTime);
         const endTime = cleanup(input.availability.endTime);
 
-        // for (let value in input.availability) {
-        //     if (!input.availability[value].length) {
-        //         delete input.availability;
-        //     }
-        // }
         if (checks.every(value => input.availability[value])) {
             (async () => {
                 try {

@@ -10,7 +10,7 @@ import { useAuth } from '../AuthContext';
 import { useEffect } from "react";
 import  countries from "../utils/countries";
 
-export default function SignUp ({ isLoading, setIsLoading }) {
+export default function SignUp () {
 
     const [input, setInput] = useState({ email: "", password: "", username: "", first_name: "", last_name: "", country:"", nationality:"", first_language: "", proficiency:"", user_type:"student" })
     const [step, setStep] = useState(1); //the common state between all steps 

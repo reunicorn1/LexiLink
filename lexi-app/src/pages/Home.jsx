@@ -10,7 +10,7 @@ import Video from "../components/Video"
 import Reviews from "../components/Reviews"
 
 
-export default function Home ({ isLoading, setIsLoading }) {
+export default function Home () {
     const { authToken, role } = useAuth();
 
     const navigate = useNavigate();

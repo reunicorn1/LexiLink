@@ -9,10 +9,10 @@ import { uploadFile } from '@uploadcare/upload-client'
 // fileData must be Blob or File or Buffer
 
 
-export default function ProfileInfo( { isLoading, setIsLoading } ) {
+export default function ProfileInfo(  ) {
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const { refresh, setUser, role } = useAuth();
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+    const executor = useAxiosPrivate();
     //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
     const [input, setInput] = useState({});
     const [selectedFile, setSelectedFile] = useState(null);
@@ -168,7 +168,7 @@ export default function ProfileInfo( { isLoading, setIsLoading } ) {
                     <Input variant='filled' name="last_name" value={input.last_name} onChange={handleInputChange}></Input>
                     {role === "mentor" && <>
                         <FormLabel mt={4}>Bio</FormLabel>
-                        <Textarea variant='filled' placeholder="Tell us about yourself" name="expertise" value={input.bio} onChange={handleInputChange}/>
+                        <Textarea variant='filled' placeholder="Tell us about yourself" name="bio" value={input.bio} onChange={handleInputChange}/>
                     </>}
                 </Box>
                 <Spacer></Spacer>
@@ -240,7 +240,7 @@ export default function ProfileInfo( { isLoading, setIsLoading } ) {
                 </RadioGroup>
                 
                 <FormLabel mt={4}>Expertise</FormLabel>
-                <Textarea variant="filled" placeholder="Let students know what a class with you will be like!" name="expertise" value={input.expertise} onChange={handleChange}/>
+                <Textarea variant="filled" placeholder="Let students know what a class with you will be like!" name="expertise" value={input.expertise} onChange={handleInputChange}/>
                 </>
                 }
             </Box>

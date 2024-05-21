@@ -5,30 +5,22 @@ import { useState } from "react";
 import { MdOutlineSubdirectoryArrowRight } from "react-icons/md";
 import dayjs from "dayjs";
 
-
-
-const useAxiosPrivate = (isLoading, setIsLoading) => {
+const useAxiosPrivate = () => {
     const {refresh, authToken, refreshToken } = useAuth();
-
     useEffect(() => {
-
         const requestIntercept = axios.interceptors.request.use(
             config => {
                 if (!config.headers['Authorization']) {
                     config.headers['Authorization'] = `Bearer ${authToken}`;
                 }
-                // if method is delete we want to send the refresh token
-                // and endpoint ends in /profile
                 if (config.method === 'delete' && config.url.endsWith('/profile')) {
                     config.data = {refresh_token: refreshToken};
                 }
-                
                 return config;
             }, (error) =>{
                 return Promise.reject(error)
                 }
         );
-
         const responseIntercept = axios.interceptors.response.use(
             response => 
             {

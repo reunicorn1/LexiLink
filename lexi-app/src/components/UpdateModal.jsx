@@ -56,9 +56,9 @@ function UpdateOptions ({status, setStatus, session}) {
 }
 
 
-export default function UpdateModal({isOpen, onClose, session, isLoading, setIsLoading}) {  
+export default function UpdateModal({isOpen, onClose, session }) {  
     const toast = useToast()
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+    const executor = useAxiosPrivate();
     const [status, setStatus] = useState();
     const {setUpdate, update} = useUpdate();
     

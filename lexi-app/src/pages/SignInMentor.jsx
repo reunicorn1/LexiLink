@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from '../AuthContext';
 import { API_URL } from '../utils/config';
 
-export default function SignInMentor ( { isLoading, setIsLoading } ) {
+export default function SignInMentor (  ) {
     const { authToken, login, setRole, role } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, lg: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "mentor"});

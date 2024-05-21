@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
-export default function Profile({ isLoading, setIsLoading }) {
+export default function Profile() {
     const { user, role } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const Smallestcreen = useBreakpointValue({ base: true, sm: false });
@@ -43,18 +43,18 @@ export default function Profile({ isLoading, setIsLoading }) {
 
                 <TabPanels>
                     <TabPanel>
-                        <ProfileInfo isLoading={isLoading} setIsLoading={setIsLoading} />
+                        <ProfileInfo  />
                     </TabPanel>
                     {role === "mentor" && <TabPanel>
-                    <Availability isLoading={isLoading} setIsLoading={setIsLoading} />
+                    <Availability  />
                     </TabPanel>
                     }
                     {role === "mentor" && <TabPanel>
-                        <Payment isLoading={isLoading} setIsLoading={setIsLoading} />
+                        <Payment  />
                     </TabPanel>
                     }
                     <TabPanel>
-                        <Account isLoading={isLoading} setIsLoading={setIsLoading} />
+                        <Account  />
                     </TabPanel>
                     <TabPanel>
                         <Email />

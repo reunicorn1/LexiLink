@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+   import dayjs from "dayjs";
 import { Box, Heading, Text, Grid, Spacer } from "@chakra-ui/react";
 import { useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon} from '@chakra-ui/icons'
@@ -25,9 +25,7 @@ export default function Calander({selectDate, setSelecteDate, days}) {
     const generateDate = (month = dayjs().month(), year = dayjs().year()) => {
         const firstDay = dayjs().year(year).month(month).startOf("month");
         const lastDay =  dayjs().year(year).month(month).endOf("month");
-    
         const arrayOfDate = [];
-    
         // Creating the last days of last month - prefix
         for (let i = 0; i < firstDay.day(); i++) {
             arrayOfDate.push({
@@ -35,7 +33,6 @@ export default function Calander({selectDate, setSelecteDate, days}) {
                 date: firstDay.day(i)
             })
         }
-    
         // Creating the daya of the month
         for (let i = firstDay.date(); i <= lastDay.date(); i++) {
             arrayOfDate.push({

@@ -162,8 +162,8 @@ function Reschedule({isOpen, onClose, session}) {
   }
 
 
-export default function UpcomingClass({ isLoading, setIsLoading }) {
-    const executor = useAxiosPrivate(isLoading, setIsLoading);
+export default function UpcomingClass() {
+    const executor = useAxiosPrivate();
     const navigate = useNavigate();
     const [sessions, setSessions] = useState();
     const { isOpen, onOpen, onClose } = useDisclosure()

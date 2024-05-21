@@ -30,13 +30,13 @@ const UpdateContext = createContext();
 
 export const useUpdate = () => useContext(UpdateContext);
 
-export default function MentorDashboard ({ isLoading, setIsLoading }) {
+export default function MentorDashboard () {
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { user, authToken, refresh, reload, role } = useAuth();
   const [stats, setStats] = useState({ profit: 0, minutes: 0, lessons: 0 });
   const [sessions, setSessions] = useState([]);
   const [update, setUpdate] = useState(false);
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+  const executor = useAxiosPrivate();
 
 
 
@@ -59,6 +59,7 @@ export default function MentorDashboard ({ isLoading, setIsLoading }) {
         })
         setStats(newStats);
         const sessionsWithStudents = await Promise.all(result.data.sessions.map(async session => {
+
           const values = await retrieveStudent(session.student_id);
           return { ...session, student_name: values[0], student_dp: values[1], student_email: values[2] };
         }));
@@ -114,6 +115,9 @@ export default function MentorDashboard ({ isLoading, setIsLoading }) {
             } catch (error) {
               console.log(`An error occured during retrival of ${studentId} info `, error);
             }
+          }
+          else {
+            return ["Deleted User", "", ""];
           }
         })();
     }
@@ -177,11 +181,11 @@ export default function MentorDashboard ({ isLoading, setIsLoading }) {
                 <Box flexGrow={1}>
                     <Heading fontSize={"xl"} mb={4}>Your Planner</Heading>
                     <UpdateContext.Provider value={{setUpdate, update}}>
-                      <WeeklyCalander sessions={sessions} setSessions={setSessions} isLoading={isLoading} setIsLoading={setIsLoading}/>
+                      <WeeklyCalander sessions={sessions} setSessions={setSessions} />
                     </UpdateContext.Provider>
                 </Box>
                 <Box>
-                    <Students isLoading={isLoading} setIsLoading={setIsLoading} />
+                    <Students  />
                 </Box>
                 
             </Box>

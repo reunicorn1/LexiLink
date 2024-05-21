@@ -8,7 +8,7 @@ import { API_URL } from '../utils/config';
 import { useEffect } from "react";
 
 
-export default function SignIn({ isLoading, setIsLoading }) {
+export default function SignIn() {
     const { login, setRole, role } = useAuth();
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
     const [input, setInput] = useState({ email: "", password: "", user_type: "student" });

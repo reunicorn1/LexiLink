@@ -11,8 +11,8 @@ import { API_URL } from '../utils/config';
 
 
 
-export default function BrowsingSection({ filter, search, setSearch, isLoading, setIsLoading }) {
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+export default function BrowsingSection({ filter, search, setSearch,  }) {
+  const executor = useAxiosPrivate();
   const { authToken, logout } = useAuth();
   const isLargeScreen = useBreakpointValue({ base: false, md: true });
   const [isClicked, setIsClicked] = useState(null);
@@ -231,8 +231,6 @@ export default function BrowsingSection({ filter, search, setSearch, isLoading, 
             title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; 
             picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen
             loading='lazy'
-            onLoad={() => setIsLoading(false)}
-            onError={() => setIsLoading(false)}
             ></iframe>                  
           <Box display="flex" alignItems="center" w="100%" mt={6}>
             <Button colorScheme="teal" w="80%" onClick={() => handleBook(isClicked)}>Book Now</Button>

@@ -6,7 +6,7 @@ import { useAuth } from '../AuthContext';
 
 
 
-export default function Room({ isLoading, setIsLoading }) {
+export default function Room() {
 	const [joined, setJoined] = useState(false);
 	const { sessionid } = useParams();
 	const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function Room({ isLoading, setIsLoading }) {
     }, [])
 	return (
 		<div className="Video-Room">
-			{<RoomComponent sessionid={sessionid} isLoading={isLoading} setIsLoading={setIsLoading} />}
+			{<RoomComponent sessionid={sessionid}  />}
 		</div>
 	);
 }

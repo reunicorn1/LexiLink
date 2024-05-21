@@ -6,8 +6,8 @@ import  useAxiosPrivate  from '../utils/useAxiosPrivate';
 import { Button, Heading, Text, Flex } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
-const RoomComponent = ({ sessionid, isLoading, setIsLoading }) => {
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+const RoomComponent = ({ sessionid,  }) => {
+  const executor = useAxiosPrivate();
   const navigate = useNavigate();
   let token = null;
   let localUid = null;

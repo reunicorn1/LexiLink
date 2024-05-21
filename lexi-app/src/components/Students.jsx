@@ -6,10 +6,10 @@ import { useAuth } from "../AuthContext";
 import axios from 'axios';
 import { API_URL } from '../utils/config';
 
-function SendEmail ({isOpen, onClose, student, isLoading, setIsLoading}){
+function SendEmail ({isOpen, onClose, student }){
   const toast = useToast();
   const {user} = useAuth();
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+  const executor = useAxiosPrivate();
   const [email, setEmail] = useState({subject: "", message: ""});
 
 
@@ -64,9 +64,9 @@ const handleSend = async() => {
     </Modal>
 }
 
-export default function Students({ isLoading, setIsLoading }) {
+export default function Students() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+  const executor = useAxiosPrivate();
   const [students, setStudents] = useState();
   const [studentClicked, setStudentClicked] = useState();
 
@@ -121,7 +121,7 @@ export default function Students({ isLoading, setIsLoading }) {
               </Box>
           </Box> : null
         }
-        <SendEmail isOpen={isOpen} onClose={onClose} student={studentClicked} isLoading={isLoading} setIsLoading={setIsLoading}/>
+        <SendEmail isOpen={isOpen} onClose={onClose} student={studentClicked} />
     </>
   );
 }

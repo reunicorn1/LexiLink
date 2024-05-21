@@ -21,8 +21,8 @@ choices = ('Community', 'Professional')
 
 @store(
         'students', 'sessions',
-        expertise=(Column(String(255), nullable=False), ''),
-        bio=(Column(String(255), nullable=True), ''),
+        expertise=(Column(String(3000), nullable=False), ''),
+        bio=(Column(String(3000), nullable=True), ''),
         type=(Column(Enum(*choices), nullable=False, default='Community'),
               'Community'),
         price_per_hour=(Column(Numeric(precision=10, scale=2), nullable=True,

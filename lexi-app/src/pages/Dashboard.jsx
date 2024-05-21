@@ -24,8 +24,8 @@ import useAxiosPrivate from "../utils/useAxiosPrivate";
 import { useWithRefresh } from '../utils/useWithRefresh';
 import { API_URL } from '../utils/config';
 
-export default function Dashboard({ isLoading, setIsLoading }) {
-  const executor = useAxiosPrivate(isLoading, setIsLoading);
+export default function Dashboard() {
+  const executor = useAxiosPrivate();
   const [stats, setStats] = useState({ minutes: 0, lessons: 0 });
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { user, authToken, refresh, role } = useAuth();
@@ -121,9 +121,9 @@ export default function Dashboard({ isLoading, setIsLoading }) {
         <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px"> {/* This is the box under the banner image */}
           <Box>
             {/* <Button colorScheme="blue" onClick={()=>refresh()}>refresh</Button> */}
-            <UpcomingClass isLoading={isLoading} setIsLoading={setIsLoading}></UpcomingClass>
+            <UpcomingClass ></UpcomingClass>
           </Box>
-          <Favorites isLoading={isLoading} setIsLoading={setIsLoading} ></Favorites>
+          <Favorites  ></Favorites>
         </Box>
       </Box>
     </Box>
