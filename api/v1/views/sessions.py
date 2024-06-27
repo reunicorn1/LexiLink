@@ -163,7 +163,8 @@ class Sessions(Resource):
                                            mentor_id=mentor.id,
                                            date=data['date'],
                                            time=data['time'])
-        if existing_mentor_session:
+        if (existing_mentor_session
+            and existing_mentor_session.status not in ['Cancelled', 'Declined']):
             return respond.conflict({"error": "Mentor already has a session at this time"},
                                     self.__class__.__name__,
                                     current_app.logger)
@@ -171,7 +172,8 @@ class Sessions(Resource):
                                              student_id=student.id,
                                              date=data['date'],
                                              time=data['time'])
-        if existing_student_session:
+        if (existing_student_session
+            and existing_student_session.status not in ['Cancelled', 'Declined']):
             return respond.conflict({"error": "Student already has a session at this time"},
                                     self.__class__.__name__,
                                     current_app.logger)
@@ -213,6 +215,12 @@ class Sessions(Resource):
         student = session.student
         
         del data['session_id']
+        if "date" in data:
+            data['date'] = datetime.fromisoformat(data['date']).date()
+        if "time" in data:
+            data['time'] = datetime.fromisoformat(data['time']).strftime("%H:%M:%S")
+        if "duration" in data:
+            data['duration'] = datetime.fromisoformat(data['duration']).strftime("%H:%M:%S")
         # search for existing session with same mentor and date
         existing_mentor_session = storage.find_by("SessionModel",
                                            mentor_id=mentor.id,

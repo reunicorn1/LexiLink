@@ -10,7 +10,7 @@ export default function FinalBanner () {
             <Box  h="100%" color="white"  >
                 <Box pl="100px" pt="50px" pb="50px" maxW="1250px">
                     <Heading  mb={4} w="60%">Join Our Community</Heading>
-                    <Text w={{base:"70%", '2xl':"80%"}}>Are you passionate about teacing English? Are you an experienced English tutor looking to make a meaningful impact? Join our vibrant community of mentors on LexiLink.</Text>
+                    <Text w={{base:"70%", '2xl':"80%"}}>Are you passionate about teaching English? Are you an experienced English tutor looking to make a meaningful impact? Join our vibrant community of mentors on LexiLink.</Text>
                     <Link to='/mentor'>
                         <Button color='white' bg='brand.700' mt='24px' w="200px" borderRadius="lg">
                             Become a Tutor
