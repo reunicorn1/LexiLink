@@ -3,20 +3,32 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from './utils/config';
 
+// Create the AuthContext
 const AuthContext = createContext();
+
+/**
+ * Custom hook to use the AuthContext
+ * @returns {object} The context value
+ */
 export const useAuth = () => useContext(AuthContext);
 
-
+/**
+ * AuthProvider component to provide authentication context to its children
+ * @param {object} props - Component props
+ * @param {React.ReactNode} props.children - Child components
+ * @returns {JSX.Element} The AuthProvider component
+ */
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
+  // State variables for authentication tokens, user, role, and reload flag
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('authToken'));
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem('refreshToken'));
   const [user, setUser] = useState({});
   const [role, setRole] = useState(() => localStorage.getItem('role'));
   const [reload, setReload] = useState(false);
 
-  // After trial and error I found that bc of the nature of js aync functions, the only thing that can control updating the access token is useEffect
+  // Update local storage when authToken changes
   useEffect(() => {
     if (authToken) {
       localStorage.setItem('authToken', authToken);
@@ -27,24 +39,33 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('role');
     }
-  }, [authToken]);
+  }, [authToken, refreshToken, role]);
 
-  // I tried to think of a way to update the access token whenever we ask for it, so it requests never fail, I'm not sure if this will fix the issue tho
+  /**
+   * Get access token and refresh it if needed
+   * @returns {string} The access token
+   */
   const getAccess = () => {
     refresh();
     return authToken;
-  }
+  };
 
+  /**
+   * Login function to set tokens and update local storage
+   * @param {string} token - Access token
+   * @param {string} refresh - Refresh token
+   */
   const login = (token, refresh) => {
     setAuthToken(token);
     setRefreshToken(refresh);
-
-    // It doesn't make sense to me why these two down there don't work while the setting functions work normally when you login
-    localStorage.setItem('authToken', authToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('refreshToken', refresh);
     localStorage.setItem('role', role);
   };
 
+  /**
+   * Logout function to clear tokens and local storage
+   */
   const logout = () => {
     setAuthToken(null);
     setRefreshToken(null);
@@ -54,50 +75,52 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('role');
   };
 
-
+  /**
+   * Handle logout and navigation
+   */
   const followup = () => {
     logout();
-    navigate('/')
+    navigate('/');
     handleToast();
-}
+  };
 
-
-const handleLogOut = async () => {
+  /**
+   * Logout from the server
+   */
+  const handleLogOut = async () => {
     try {
-        const response = await axios.delete(`${API_URL}/auth/logout`, {data: {refresh_token: refreshToken}, headers: {Authorization: "Bearer " + refreshToken}});
+      await axios.delete(`${API_URL}/auth/logout`, {
+        data: { refresh_token: refreshToken },
+        headers: { Authorization: "Bearer " + refreshToken }
+      });
     } catch (err) {
-        console.error(err);
+      console.error(err);
     }
-}
+  };
 
+  /**
+   * Refresh the access token
+   * @returns {string|null} The new access token
+   */
   const refresh = async () => {
-    // I'm getting 410 when the refresh token (not the access token) is expired
-    // it's still a 410 but someimes the server doesn't print it in logs but the error recieved while
-    // printing is indeed 410 
-    // Refresh doesn't work if disable cache toggle isn't on. even normal retrieval of data using access token doesn't work if it's not on
-    try{
+    try {
       const response = await axios.get(`${API_URL}/auth/refresh`, {
         headers: { Authorization: "Bearer " + refreshToken },
-        withcredentials: true
-       });
-       setAuthToken(prev => {
-
-        return response.data.access_token
+        withCredentials: true
       });
+      setAuthToken(response.data.access_token);
       return response.data.access_token;
     } catch (err) {
-      // When refreshing the token fails, this means that the refresh token itself is expired
-      // so the response should be kicking the user out of the session
-      if (err.response.status == 410) {
+      if (err.response?.status === 410) {
         logout();
         handleLogOut();
         navigate('/');
+      } else {
+        console.log({ err });
       }
-      else {
-        console.log({ err })
-      }
+      return null;
     }
-  }
+  };
 
   return (
     <AuthContext.Provider value={{ authToken, refreshToken, getAccess, user, setUser, role, setRole, login, logout, refresh, reload, setReload }}>

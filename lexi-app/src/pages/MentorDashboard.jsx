@@ -9,16 +9,13 @@ import {
     StatLabel,
     StatNumber,
     StatGroup,
-    Spacer,
     Avatar,
     CircularProgress, 
-    CircularProgressLabel,
     useBreakpointValue
   } from "@chakra-ui/react"
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from '../AuthContext';
 import axios from "axios";
-import ChartBar from "../components/Chart";
 import WeeklyCalander from "../components/WeeklyCalander";
 import Students from "../components/Students";
 import useAxiosPrivate from "../utils/useAxiosPrivate";
@@ -37,7 +34,6 @@ export default function MentorDashboard () {
   const [sessions, setSessions] = useState([]);
   const [update, setUpdate] = useState(false);
   const executor = useAxiosPrivate();
-
 
 
     const navigate = useNavigate();
@@ -64,7 +60,6 @@ export default function MentorDashboard () {
           return { ...session, student_name: values[0], student_dp: values[1], student_email: values[2] };
         }));
         updateSessions(sessionsWithStudents.sort((a, b) => new Date(b.date) - new Date(a.date)))
-        //setSessions()
       }
 
     const updateSessions = (sessions) => {
@@ -74,15 +69,10 @@ export default function MentorDashboard () {
           const sessionTimeParts = session.time.split(':');
           const sessionHour = parseInt(sessionTimeParts[0], 10);
           const sessionMinute = parseInt(sessionTimeParts[1], 10);
-      
           const newHour = (sessionHour + Math.floor(localTimezoneOffset / 60)) % 24;
           const dayDiff = sessionHour + Math.floor(localTimezoneOffset / 60) >= 24 ? 1 : 0;
-          
-          
           const newTime = `${newHour.toString().padStart(2, '0')}:${sessionMinute.toString().padStart(2, '0')}`;
           const newDate = dayjs(session.date + 'Z').add(dayDiff, 'day');
-
-          
           updated_session.time = newTime;
           updated_session.date = newDate;
 
@@ -146,8 +136,6 @@ export default function MentorDashboard () {
                       <StatNumber fontSize="3xl">${stats.profit}</StatNumber>
                   </Stat>
                   </StatGroup>
-                  {/* <Heading mt={4} fontSize={"2xl"}>Lessons Taught</Heading>
-                  <ChartBar/> */}
               </Box>
             </Flex>
             <Box display="flex" m="20px" p="20px" bg="white" boxShadow='lg' rounded={'xl'}>
@@ -177,6 +165,7 @@ export default function MentorDashboard () {
             </Box>
             </Box>}
             <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px">
+
                 {/* This is the box under the banner image */}
                 <Box flexGrow={1}>
                     <Heading fontSize={"xl"} mb={4}>Your Planner</Heading>

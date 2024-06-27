@@ -30,7 +30,6 @@ export default function Dashboard() {
   const isLargeScreen = useBreakpointValue({ base: false, xl: true });
   const { user, authToken, refresh, role } = useAuth();
   const [ranOnce, setRanOnce] = useState(false);
-  //const [executor, { isLoading, isSuccess, isRefreshing }] = useWithRefresh({ isImmediate: false });
 
   const navigate = useNavigate();
 
@@ -52,15 +51,6 @@ export default function Dashboard() {
     setStats(newStats);
   }
 
-  // useEffect(() => {
-  //   const session_with_refresh = async () => {
-  //     await executor(
-  //       (token) => axios.get(`${API_URL}/sessions/`, { headers: { Authorization: "Bearer " + token } }),
-  //       (result) => followup(result)
-  //     )
-  //   };
-  //   session_with_refresh();
-  // }, [])
     useEffect(() => {
       if (!ranOnce) {
       const session_with_refresh = async () => {
@@ -120,7 +110,6 @@ export default function Dashboard() {
         </Box>}
         <Box display="flex" flexDirection={!isLargeScreen ? 'column' : 'row'} m="20px" gap="20px"> {/* This is the box under the banner image */}
           <Box>
-            {/* <Button colorScheme="blue" onClick={()=>refresh()}>refresh</Button> */}
             <UpcomingClass ></UpcomingClass>
           </Box>
           <Favorites  ></Favorites>

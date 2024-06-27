@@ -93,21 +93,6 @@ export default function Browser () {
         }
     };
 
-    // const [countries, setCountries] = useState([]); 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,demonyms");
-    //             response.data.sort((a, b) => a.name.common.localeCompare(b.name.common));
-    //             setCountries(response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching data:', error);
-    //         }
-    //     };
-    //     fetchData();
-    // }, []);
-    
-    
     return <>
         <Box display="flex"  justifyContent="center" bg="brand.800" color="white">
             <Box display={{base: "block", lg: "flex"}}  p="60px" pb="10px" pt="10px" maxW="1250px">

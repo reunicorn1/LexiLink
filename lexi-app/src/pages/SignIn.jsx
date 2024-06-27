@@ -64,7 +64,6 @@ export default function SignIn() {
     }
 
     const handleToast = () => {
-        // add a promise rejection handler
         toast({
             title: "You've been logged in successfully.",
             status: 'success',
@@ -131,9 +130,6 @@ export default function SignIn() {
                             <FormErrorMessage>{formError}</FormErrorMessage>
                         </FormControl>
                         <Button mb="70px"colorScheme="facebook" type="submit" h="40px" w="100%" mt={6} onClick={handleClick}>Sign In</Button>
-                        {/* <Flex w="100%" mt={4} justifyContent="center">
-                            <Text ><Link to="/">Forgot Password?</Link></Text>
-                        </Flex> */}
                     </Box>
                 </Box>
             </Box>

@@ -1,10 +1,13 @@
-import { Box, Center, Heading, Tag, Text, Image, Spacer, useBreakpointValue, Flex, Icon } from "@chakra-ui/react";
-import { Circle } from "@chakra-ui/react";
+import { Box, Center, Heading, Tag, Text, Image, useBreakpointValue, Flex, Icon } from "@chakra-ui/react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
 
+/**
+ * About component displaying information about LexiLink and its team.
+ * @returns {JSX.Element} The About component
+ */
 export default function About() {
 
     const isSmallScreen = useBreakpointValue({ base: true, md: false });
@@ -12,6 +15,8 @@ export default function About() {
     return (<>
         <Box display="flex" justifyContent="center">
             <Box>
+
+                {/* About Us Section */}
                 <Center>
                     <Box m="40px">
                         <Center>
@@ -31,6 +36,7 @@ export default function About() {
                     </Box>
                 </Center>
 
+                {/* How It Started Section */}
                 <Box display="flex" justifyContent="center" position="relative" color="white" bg="brand.800" width="100%" pb="50px" pt="50px">
                     <Box textAlign="center" p="20px" position="relative">
                         {!isSmallScreen && <Image position="absolute" top="0" right="200" boxSize="50px" src="icon-3.png" />}
@@ -45,6 +51,8 @@ export default function About() {
                         {!isSmallScreen &&<Image position="absolute" bottom="0" left="100" boxSize="70px" src="/img/icon-b.png" />}
                     </Box>
                 </Box >
+
+                {/* Our Mission Section */}
                 <Center>
                     <Box mt="50px" mb="50px" display={{md: "flex"}} justifyContent="center" maxW="1000px" gap={4}>
                         <Box flex={1} bg="brand.600" color="white" textAlign="center" pt="80px" pb="80px" position="relative" rounded="2xl" display="flex" justifyContent="center" alignItems="center">
@@ -58,7 +66,6 @@ export default function About() {
                                     <Text fontSize="2xl" w="70%">To revolutionize English learning through personalized mentorship, fostering accessible and engaging educational experiences globally.</Text>
                                 </Center>
                             </Box>
-                            
                         </Box>
                         {!isSmallScreen && 
                             <Box flex={1}  bg="brand.700" textAlign="center" rounded="2xl">
@@ -67,9 +74,10 @@ export default function About() {
                                 </Center>
                             </Box>
                         }
-                        
                         </Box>
                 </Center>
+
+                {/* The Dream Team Section */}
                 <Box bg="white" pb="50px" pt="50px">
                     <Center>
                         <Heading>The dream team</Heading>
@@ -77,6 +85,8 @@ export default function About() {
                     <Box justifyContent="center" position="relative"  w="100%" display="flex">
 
                         <Box maxW="1000px" display={{md: "flex"}} justifyContent="center">
+
+                            {/* Team Member: Mohamed Elfadil Abdalla */}
                             <Center>
                                 <Box m="30px" w="75%">
                                     <Center><Image  w="80%" src="/img/mo.png"/></Center>
@@ -95,6 +105,7 @@ export default function About() {
                                 </Box>
                             </Center>
                            
+                           {/* Team Member: Reem Osama */}
                             <Center>
                                 <Box m="30px" w="75%">
                                     <Center><Image w="80%" src="/img/reem.png"/></Center>
@@ -121,4 +132,3 @@ export default function About() {
     </>
     )
 }
-

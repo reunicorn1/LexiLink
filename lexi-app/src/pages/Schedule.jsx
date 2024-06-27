@@ -84,10 +84,7 @@ export default function Schedule() {
                 if (h >= 24) {
                     break; // Stop if we go past midnight
                 }
-                // I'm only adding 30 minutes as a duration for every session
-                // Add more to m initially to declare the duration of the session
             }
-            // Depending on sessions already booked you can filter the values of the list in this area
     
             return arrayofTimes
         }
@@ -143,8 +140,10 @@ export default function Schedule() {
 
     return <Box display="flex" justifyContent="center">
         <Box display={{lg:"flex"}} mb="30px">
+
             {/* Pick time card */}
             <Box display={{lg: "flex"}} p="40px" bg="white" rounded="xl" m="20px" boxShadow='lg'>
+
                 {/* The calander section */}
                 <Box>
                     <Heading fontSize="xl" mb={2}>Schedule your lessons</Heading>
@@ -159,14 +158,14 @@ export default function Schedule() {
                 </Box>
                 {!isSmallScreen && <Divider orientation="vertical" ml={10} mr={10}></Divider>}
                 <Collapse in={appear} animateOpacity>
-                    {/* The part under this must be removed if screen size is small and appear in a popover */}
                     <Box className="horizontal-transition">
-                        {/* pick a slot section */}
 
+                        {/* pick a slot section */}
                         <Box maxW="430px">
                             <Heading fontSize="xl" mb={10}>Pick your slot</Heading>
                             <Box borderLeft="4px" borderColor="brand.700" p="10px" mb={10}>
                                 <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={MdSunny} />&nbsp;&nbsp;Morning</Heading>
+
                                 {/* map a list of times to be singly included in their own button */}
                                 <Box display="flex" flexWrap="wrap">
                                     {generateTime(0)?.map((time, index) => (
@@ -176,6 +175,7 @@ export default function Schedule() {
                             </Box>
                             <Box borderLeft="4px" borderColor="brand.800" p="10px">
                                 <Heading fontSize={"lg"} ml={2} mb={2}><Icon as={IoMoon} />&nbsp;&nbsp;Evening</Heading>
+
                                 {/* map a list of times to be singly included in their own button */}
                                 <Box display="flex" flexWrap="wrap">
                                     {generateTime(1)?.map((time, index) => (
@@ -193,6 +193,7 @@ export default function Schedule() {
                     </Box>
                 </Collapse>
             </Box>
+
             {/* The mentor card */}
             {mentor &&
                 <Box display={{base: "flex", lg:"block"}} alignItems="center"  bg="brand.800" color="white" rounded="xl" textAlign="center" m="20px" p="30px" boxShadow='lg' maxW={{lg: "300px"}} h="auto">
@@ -228,25 +229,9 @@ export default function Schedule() {
                         </Flex>
 
                     </Box>
-
-
                 </Box>
             }
             <BookingSuccess isOpen={isOpen} onClose={onClose} />
         </Box>
     </Box>
 }
-
-
-
-        // availability.days = daysSelected;
-        // setInput({...input, availability: availability})
-
-
-        // const localtimezoneoffset = dayjs().utcOffset();
-        // const differenceInHours = Math.floor(localtimezoneoffset / 60);
-        // const newtime = value.split(':').map(Number);
-        // newtime[0] -= differenceInHours;
-
-        // availability[name] = newtime.join(':');
-        // setInput({...input, availability: availability});

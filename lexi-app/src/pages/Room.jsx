@@ -7,7 +7,6 @@ import { useAuth } from '../AuthContext';
 
 
 export default function Room() {
-	const [joined, setJoined] = useState(false);
 	const { sessionid } = useParams();
 	const navigate = useNavigate();
 	const { role } = useAuth();

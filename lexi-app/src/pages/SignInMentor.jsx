@@ -27,7 +27,6 @@ export default function SignInMentor (  ) {
     }
 
     const handleToast = async() => {
-        // add a promise rejection handler
         await toast({
             title: "You've been logged in successfully.",
             status: 'success',
@@ -128,9 +127,6 @@ export default function SignInMentor (  ) {
                             <FormErrorMessage>{formError}</FormErrorMessage>
                         </FormControl> 
                         <Button colorScheme="facebook"  type="submit" h="40px" w="90%" mt={6} onClick={handleClick}>Sign In</Button>
-                        {/* <Flex w="90%" mt={4} justifyContent="center">
-                            <Text><Link to="/">Forgot Password?</Link></Text>
-                        </Flex> */}
                     </Box>
                 </Box>
             </Box>

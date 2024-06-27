@@ -20,9 +20,11 @@ import MentorDashboard from "./pages/MentorDashboard";
 import About from "./pages/About";
 import useScrollToTop from "./utils/scrollHook";
 
-
+/**
+ * Main application component
+ * @returns {JSX.Element} The application component
+ */
 function App() {
-  //const noAuth = ['dashboard', 'profile', 'browse', 'booking', 'room', 'sign'];
   const location = useLocation().pathname;
 
 

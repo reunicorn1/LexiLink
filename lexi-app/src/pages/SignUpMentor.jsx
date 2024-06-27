@@ -48,7 +48,6 @@ export default function SignUpMentor () {
     let emailValid = true;
     
     const handleClick = () => {
-      // Ignore this for now
 
       const errors = {...formError, email: "", password: ""};
       if (!input.email) {
@@ -63,8 +62,6 @@ export default function SignUpMentor () {
           try {
             const result = await axios.post(`${API_URL}/auth/verify_email`, { email: input.email, user_type: "mentor" });
              if (input.email && isValidEmail(input.email) && input.password.length >= 6 && emailValid) {
-              // setInput({ ...input, password: bcrypt.hashSync(input.password, salt) });
-              // Sending data to the API, receiving either an error or not
               handleNext();
           }
           } catch (error) {
